@@ -1,0 +1,157 @@
+Table cache [headercolor: #175e7a] {
+	key varchar(255) [ pk, not null ]
+	value mediumtext [ not null ]
+	expiration integer [ not null ]
+}
+
+Table cache_locks [headercolor: #175e7a] {
+	key varchar(255) [ pk, not null ]
+	owner varchar(255) [ not null ]
+	expiration integer [ not null ]
+}
+
+Table failed_jobs [headercolor: #175e7a] {
+	id bigint [ pk, increment, not null ]
+	uuid varchar(255) [ not null ]
+	connection text [ not null ]
+	queue text [ not null ]
+	payload longtext [ not null ]
+	exception longtext [ not null ]
+	failed_at timestamp [ not null, default: CURRENT_TIMESTAMP ]
+
+	indexes {
+		(uuid) [ name: 'failed_jobs_uuid_unique', unique ]
+	}
+}
+
+Table job_batches [headercolor: #175e7a] {
+	id varchar(255) [ pk, not null ]
+	name varchar(255) [ not null ]
+	total_jobs integer [ not null ]
+	pending_jobs integer [ not null ]
+	failed_jobs integer [ not null ]
+	failed_job_ids longtext [ not null ]
+	options mediumtext
+	cancelled_at integer [ default: NULL ]
+	created_at integer [ not null ]
+	finished_at integer [ default: NULL ]
+}
+
+Table jobs [headercolor: #175e7a] {
+	id bigint [ pk, increment, not null ]
+	queue varchar(255) [ not null ]
+	payload longtext [ not null ]
+	attempts tinyint [ not null ]
+	reserved_at integer [ default: NULL ]
+	available_at integer [ not null ]
+	created_at integer [ not null ]
+}
+
+Table migrations [headercolor: #175e7a] {
+	id integer [ pk, increment, not null ]
+	migration varchar(255) [ not null ]
+	batch integer [ not null ]
+}
+
+Table password_reset_tokens [headercolor: #175e7a] {
+	email varchar(255) [ pk, not null ]
+	token varchar(255) [ not null ]
+	created_at timestamp [ not null, default: NULL ]
+}
+
+Table sessions [headercolor: #175e7a] {
+	id varchar(255) [ pk, not null ]
+	user_id bigint [ default: NULL ]
+	ip_address varchar(45) [ default: NULL ]
+	user_agent text
+	payload longtext [ not null ]
+	last_activity integer [ not null ]
+}
+
+Table users [headercolor: #175e7a] {
+	id bigint [ pk, increment, not null ]
+	name varchar(255) [ not null ]
+	email varchar(255) [ not null ]
+	email_verified_at timestamp [ not null, default: NULL ]
+	password varchar(255) [ not null ]
+	remember_token varchar(100) [ default: NULL ]
+	idColaborador integer [ not null ]
+	created_at timestamp [ not null, default: NULL ]
+	updated_at timestamp [ not null, default: NULL ]
+
+	indexes {
+		(email) [ name: 'users_email_unique', unique ]
+	}
+}
+
+Table localEmpresa [headercolor: #175e7a] {
+	idLocalEmpresa integer [ pk, increment, not null ]
+	idEmpresa integer
+}
+
+Table empresaContrata [headercolor: #175e7a] {
+	idEmpresa integer [ pk, increment, not null, unique ]
+}
+
+Table usersAceso [headercolor: #175e7a] {
+	idUsersAceso integer [ pk, increment, not null ]
+	idLocalEmpresa integer
+	idUser bigint
+	idPerfilAcceso integer
+}
+
+Table perfilAcceso [headercolor: #175e7a] {
+	idPerfilAcceso integer [ pk, increment, not null ]
+}
+
+Table formularioApp [headercolor: #175e7a] {
+	idFormularioApp integer [ pk, increment, not null ]
+}
+
+Table formularioAcceso [headercolor: #175e7a] {
+	id integer [ pk, increment, not null ]
+	idFormularioApp integer
+	idPerfilAcceso integer
+}
+
+Table colaborador [headercolor: #175e7a] {
+	idColaborador integer [ pk, increment, not null ]
+	idEmpresa integer [ not null ]
+	idLocalEmpresa integer [ not null ]
+}
+
+Ref fk_empresaContrata_idEmpresa_localEmpresa {
+	empresaContrata.idEmpresa < localEmpresa.idEmpresa [ delete: no action, update: no action ]
+}
+
+Ref fk_localEmpresa_idLocalEmpresa_usersAceso {
+	localEmpresa.idLocalEmpresa < usersAceso.idLocalEmpresa [ delete: no action, update: no action ]
+}
+
+Ref fk_users_id_usersAceso {
+	users.id < usersAceso.idUser [ delete: no action, update: no action ]
+}
+
+Ref fk_perfilAcceso_idPerfilAcceso_usersAceso {
+	perfilAcceso.idPerfilAcceso < usersAceso.idPerfilAcceso [ delete: no action, update: no action ]
+}
+
+Ref fk_formularioApp_idFormularioApp_formularioAcceso {
+	formularioApp.idFormularioApp < formularioAcceso.idFormularioApp [ delete: no action, update: no action ]
+}
+
+Ref fk_perfilAcceso_idPerfilAcceso_formularioAcceso {
+	perfilAcceso.idPerfilAcceso < formularioAcceso.idPerfilAcceso [ delete: no action, update: no action ]
+}
+
+Ref fk_empresaContrata_idEmpresa_colaborador {
+	empresaContrata.idEmpresa < colaborador.idEmpresa [ delete: no action, update: no action ]
+}
+
+Ref fk_localEmpresa_idLocalEmpresa_colaborador {
+	localEmpresa.idLocalEmpresa < colaborador.idLocalEmpresa [ delete: no action, update: no action ]
+}
+
+Ref fk_colaborador_idColaborador_users {
+	colaborador.idColaborador - users.idColaborador [ delete: no action, update: no action ]
+}
