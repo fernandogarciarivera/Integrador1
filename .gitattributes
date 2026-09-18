@@ -1,2 +1,76 @@
-# Auto detect text files and perform LF normalization
+# Configuración base: normalizar automáticamente
 * text=auto
+
+# Archivos de texto que deben mantener LF (Unix)
+*.bash text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.conf text eol=lf
+*.ini text eol=lf
+*.env text eol=lf
+*.example text eol=lf
+
+# Archivos que deben mantener CRLF (Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Dockerfiles (siempre LF, se ejecutan en Linux)
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
+.dockerignore text eol=lf
+
+# Archivos de configuracion adicionales (LF, se montan en contenedores Linux)
+*.cnf text eol=lf
+*.cfg text eol=lf
+*.toml text eol=lf
+
+# Archivos de desarrollo web
+*.js text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.htm text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.svg text eol=lf
+
+# Archivos PHP y SQL
+*.php text eol=lf
+*.sql text eol=lf
+
+# Archivos Markdown y documentación
+*.md text eol=lf
+*.txt text eol=lf
+*.rst text eol=lf
+
+# Archivos binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.tgz binary
+*.rar binary
+*.7z binary
+*.node binary
+*.so binary
+*.dll binary
+*.exe binary
+
+# Archivos del sistema
+.DS_Store binary
+Thumbs.db binary
+*.tmp binary
+*.temp binary
+*.log binary

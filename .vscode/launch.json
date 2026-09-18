@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Escuchar Xdebug (peke-app)",
+            "type": "php",
+            "request": "launch",
+            "port": 9004,
+            "pathMappings": {
+                "/var/www": "${workspaceFolder}/src"
+            },
+            "hostname": "0.0.0.0",
+            "log": true,
+            "xdebugSettings": {
+                "max_data": 65535,
+                "show_hidden": 1,
+                "max_children": 100
+            },
+            "ignore": [
+                "**/vendor/**/*.php"
+            ]
+        },
+        {
+            "name": "Attach to peke-app (CLI)",
+            "type": "php",
+            "request": "launch",
+            "port": 9004,
+            "pathMappings": {
+                "/var/www": "${workspaceFolder}/src"
+            },
+            "log": false,
+            "runtimeArgs": [
+                "-dxdebug.mode=debug",
+                "-dxdebug.start_with_request=yes"
+            ],
+            "ignore": [
+                "**/vendor/**/*.php"
+            ]
+        }
+    ]
+}

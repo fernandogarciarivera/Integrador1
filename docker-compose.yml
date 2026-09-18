@@ -1,0 +1,192 @@
+services:
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: UtpIntegrador-app
+    user: "root"
+    working_dir: /var/www
+    ports:
+      - "9003:9003"
+      - "9004:9004"
+    volumes:
+      - ./src:/var/www
+      - node-modules:/var/www/node_modules
+      - storage-data:/var/www/storage
+      - bootstrap-cache:/var/www/bootstrap/cache
+      - public-vendor:/var/www/public/vendor
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/90-custom.ini:ro
+      - ./docker/php/www-fpm.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+      - ./docker/php/start.sh:/usr/local/bin/start.sh:ro
+    env_file:
+      - ./src/.env
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      PHP_MEMORY_LIMIT: 512M
+      PHP_MAX_EXECUTION_TIME: 300
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
+      XDEBUG_TRIGGER: ${XDEBUG_TRIGGER:-0}
+      OPCACHE_REVALIDATE_FREQ: 3600
+      VITE_SERVER_URL: http://vite:5173
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - UtpIntegrador-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '1'
+          memory: 512M
+    command: ["/bin/bash", "/usr/local/bin/start.sh"]
+
+  vite:
+    image: node:20-alpine
+    container_name: UtpIntegrador-vite
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+      - node-modules:/var/www/node_modules
+    environment:
+      VITE_HMR_HOST: localhost
+      VITE_HMR_PORT: 5173
+      VITE_HMR_PROTOCOL: ws
+    ports:
+      - "5173:5173"
+    networks:
+      - UtpIntegrador-network
+    profiles:
+      - dev
+    command: sh -c "cd /var/www && npm run dev -- --host 0.0.0.0 --port 5173"
+    depends_on:
+      - app
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: UtpIntegrador-nginx
+    ports:
+      - "8282:80"
+    volumes:
+      - ./src:/var/www:ro
+      - storage-data:/var/www/storage:ro
+      - public-vendor:/var/www/public/vendor:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - UtpIntegrador-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+
+  mysql:
+    image: mysql:9.2.0
+    container_name: UtpIntegrador-mysql
+    command: --sql-mode=ANSI
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: UtpIntegradorBuzzer
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_USER: UtpIntegradorBuzzerBD
+      MYSQL_PASSWORD: 12345678
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p12345678 --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    networks:
+      - UtpIntegrador-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: UtpIntegrador-redis
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - UtpIntegrador-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2-fpm-alpine
+    container_name: UtpIntegrador-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - UtpIntegrador-network
+    profiles:
+      - tools
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: UtpIntegrador-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - UtpIntegrador-network
+
+  composer:
+    image: composer:2.7-php8.4
+    container_name: UtpIntegrador-composer
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+    command: ["composer", "install", "--optimize-autoloader"]
+    networks:
+      - UtpIntegrador-network
+    profiles:
+      - tools
+
+volumes:
+  mysql-data:
+  redis-data:
+  storage-data:
+  bootstrap-cache:
+  public-vendor:
+  node-modules:
+
+networks:
+  UtpIntegrador-network:
+    driver: bridge
