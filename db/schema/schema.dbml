@@ -109,15 +109,44 @@ Table formularioApp [headercolor: #175e7a] {
 }
 
 Table formularioAcceso [headercolor: #175e7a] {
-	id integer [ pk, increment, not null ]
-	idFormularioApp integer
+	idFormularioAcceso integer [ pk, increment, not null ]
 	idPerfilAcceso integer
+	idFormularioApp integer
 }
 
 Table colaborador [headercolor: #175e7a] {
 	idColaborador integer [ pk, increment, not null ]
-	idEmpresa integer [ not null ]
+	idEmpresa integer
 	idLocalEmpresa integer [ not null ]
+}
+
+Table estadoAviso [headercolor: #175e7a] {
+	idEstadoAviso integer [ pk, increment, not null ]
+	textoEstado varchar(20)
+}
+
+Table estadoAvisoFormulario [headercolor: #175e7a] {
+	idAvisoFormulario integer [ pk, increment, not null ]
+	idEstadoAviso integer
+	idFormularioAcceso integer
+}
+
+Table pedidoLocal [headercolor: #175e7a] {
+	idPedidoLocal integer [ pk, increment, not null ]
+	idLocalEmpresa integer
+	idEmpresa integer
+	pedidoLocal varchar(50)
+	QRLocal text(1024)
+}
+
+Table metricaPedido [headercolor: #175e7a] {
+	idMetricaPedido integer [ pk, increment, not null ]
+	idPedidoLocal integer
+	idFormularioApp integer
+	idEstadoAviso integer
+	fechaMetrica date
+	HoraInicio timestamp
+	HoraFin timestamp
 }
 
 Ref fk_empresaContrata_idEmpresa_localEmpresa {
@@ -144,14 +173,34 @@ Ref fk_perfilAcceso_idPerfilAcceso_formularioAcceso {
 	perfilAcceso.idPerfilAcceso < formularioAcceso.idPerfilAcceso [ delete: no action, update: no action ]
 }
 
-Ref fk_empresaContrata_idEmpresa_colaborador {
-	empresaContrata.idEmpresa < colaborador.idEmpresa [ delete: no action, update: no action ]
-}
-
 Ref fk_localEmpresa_idLocalEmpresa_colaborador {
-	localEmpresa.idLocalEmpresa < colaborador.idLocalEmpresa [ delete: no action, update: no action ]
+	localEmpresa.(idLocalEmpresa, idEmpresa) < colaborador.(idLocalEmpresa, idEmpresa) [ delete: no action, update: no action ]
 }
 
 Ref fk_colaborador_idColaborador_users {
 	colaborador.idColaborador - users.idColaborador [ delete: no action, update: no action ]
+}
+
+Ref fk_estadoAviso_idEstadoAviso_estadoAvisoFormulario {
+	estadoAviso.idEstadoAviso < estadoAvisoFormulario.idEstadoAviso [ delete: no action, update: no action ]
+}
+
+Ref fk_formularioApp_idFormularioApp_estadoAvisoFormulario {
+	formularioApp.idFormularioApp < estadoAvisoFormulario.idFormularioAcceso [ delete: no action, update: no action ]
+}
+
+Ref fk_localEmpresa_idLocalEmpresa_pedidoLocal {
+	localEmpresa.(idLocalEmpresa, idEmpresa) < pedidoLocal.(idLocalEmpresa, idEmpresa) [ delete: no action, update: no action ]
+}
+
+Ref fk_pedidoLocal_idPedidoLocal_metricaPedido {
+	pedidoLocal.idPedidoLocal < metricaPedido.idPedidoLocal [ delete: no action, update: no action ]
+}
+
+Ref fk_estadoAviso_idEstadoAviso_metricaPedido {
+	estadoAviso.idEstadoAviso < metricaPedido.idEstadoAviso [ delete: no action, update: no action ]
+}
+
+Ref fk_formularioApp_idFormularioApp_metricaPedido {
+	formularioApp.idFormularioApp < metricaPedido.idEstadoAviso [ delete: no action, update: no action ]
 }
