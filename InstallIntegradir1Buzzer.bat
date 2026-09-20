@@ -132,8 +132,6 @@ echo.
 echo ============================================================
 echo 04 - Publicando configuracion y assets de Laravel
 echo ============================================================
-REM docker compose exec -T app php artisan vendor:publish --tag=config --force
-REM if errorlevel 1 goto :fallo
 docker compose exec -T app php artisan vendor:publish --tag=public --force
 if errorlevel 1 goto :fallo
 docker compose exec -T app php artisan vendor:publish --tag=laravel-assets --force

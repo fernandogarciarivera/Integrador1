@@ -5,7 +5,9 @@ REM ===================================================================
 REM This script validates and rebuilds the entire project environment
 
 setlocal enabledelayedexpansion
-set "PROJECT_PATH=%cd%"
+set "PROJECT_PATH=%~dp0"
+if "%PROJECT_PATH:~-1%"=="\" set "PROJECT_PATH=%PROJECT_PATH:~0,-1%"
+pushd "%PROJECT_PATH%" >nul
 set "ERRORS=0"
 
 echo.
@@ -135,11 +137,21 @@ docker compose -f "%PROJECT_PATH%\docker-compose.yml" down 2>nul
 
 echo  - Starting core services (mysql, redis, app)...
 docker compose -f "%PROJECT_PATH%\docker-compose.yml" up -d mysql redis app
+if errorlevel 1 (
+    echo  ERROR: docker compose up failed for core services
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
 echo  - Waiting for database to be ready (30 seconds)...
 timeout /t 30 /nobreak
 
 echo  - Starting Vite dev server and Nginx...
 docker compose -f "%PROJECT_PATH%\docker-compose.yml" --profile dev up -d --force-recreate vite nginx
+if errorlevel 1 (
+    echo  ERROR: docker compose up failed for vite/nginx
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
 echo  - Waiting for services to stabilize (10 seconds)...
 timeout /t 10 /nobreak
 
@@ -163,7 +175,6 @@ REM ===================================================================
 REM STEP 6: Verify npm Dependencies
 REM ===================================================================
 echo [6/7] Verifying npm dependencies...
-set "APP_BUILD_OK=0"
 
 docker exec UtpIntegrador-app sh -c "test -f /var/www/node_modules/vite/package.json" >nul 2>&1
 if errorlevel 1 (
@@ -232,6 +243,7 @@ if errorlevel 1 (
 )
 
 docker ps -f "name=UtpIntegrador-vite" --format "{{.Names}}" | find "UtpIntegrador-vite" >nul
+if errorlevel 1 (
     echo  WARN - Vite container not running
 ) else (
     echo  OK - Vite container running
@@ -272,5 +284,6 @@ echo.
 echo  Please review errors above and run rebuild.bat again
 echo.
 :BUILD_END
+popd >nul
 endlocal
 exit /b !ERRORS!
