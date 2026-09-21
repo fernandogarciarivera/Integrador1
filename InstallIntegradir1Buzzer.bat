@@ -136,6 +136,12 @@ docker compose exec -T app php artisan vendor:publish --tag=public --force
 if errorlevel 1 goto :fallo
 docker compose exec -T app php artisan vendor:publish --tag=laravel-assets --force
 if errorlevel 1 goto :fallo
+docker compose exec -T app composer require reliese/laravel --dev --no-interaction
+if errorlevel 1 goto :fallo
+docker compose exec -T app php artisan vendor:publish --tag=reliese-models --force
+if errorlevel 1 goto :fallo
+docker compose exec -T app php artisan config:clear
+if errorlevel 1 goto :fallo
 
 echo.
 echo ============================================================
@@ -189,17 +195,43 @@ if errorlevel 1 goto :fallo
 
 echo.
 echo ============================================================
-echo 11 - Configurando la aplicacion
+echo 11 - Cargando dump SQL de Buzzer (db\schema)
 echo ============================================================
-docker compose exec -T app php artisan migrate --force
+if not exist "%cd%\db\schema\dump-UtpIntegradorBuzzer.sql" (
+    echo ❌ No se encuentra el dump en db\schema\
+    goto :fallo
+)
+ECHO Copiar el dump dentro del contenedor de MySQL
+docker cp "%cd%\db\schema\dump-UtpIntegradorBuzzer.sql" UtpIntegrador-mysql:/tmp/buzzer_dump.sql
 if errorlevel 1 goto :fallo
 
-REM echo.
-REM echo ============================================================
-REM echo 13 - Registrando rutas en web.php
-REM if "%opcion%"=="2" goto rutas_preservadas
-REM echo ============================================================
-REM docker compose exec -T app bash -c "printf '<?php\n\nuse Illuminate\Support\Facades\Route;\nuse App\Http\Controllers\ProfileController;\n\nRoute::get('\''/'\'', function () {\n    return view('\''welcome'\'');\n});\n\nRoute::get('\''/dashboard'\'', function () {\n    return view('\''dashboard'\'');\n})->middleware(['\''auth'\''])->name('\''dashboard'\'');\n\nRoute::middleware('\''auth'\'')->group(function () {\n    Route::get('\''/profile'\'', [ProfileController::class, '\''edit'\''])->name('\''profile.edit'\'');\n    Route::patch('\''/profile'\'', [ProfileController::class, '\''update'\''])->name('\''profile.update'\'');\n    Route::delete('\''/profile'\'', [ProfileController::class, '\''destroy'\''])->name('\''profile.destroy'\'');\n});\n\nrequire __DIR__.'\''/auth.php'\'';\n\n// Aimeos routes\nRoute::group(['\''middleware'\'' => ['\''web'\'']], function() {\n    Route::get('\''/shop/{path?}'\'', '\''Aimeos\Shop\Controller\CatalogController@listAction'\'')\n        ->where('\''path'\'', '\''.*'\'')\n        ->name('\''aimeos_shop'\'');\n    Route::get('\''/admin/{path?}'\'', '\''Aimeos\Shop\Controller\AdminController@indexAction'\'')\n        ->where('\''path'\'', '\''.*'\'')\n        ->middleware(['\''auth'\'', '\''can:admin'\''])\n        ->name('\''aimeos_admin'\'');\n});' > routes/web.php"
+docker compose exec -T mysql bash -c "mysql -uUtpIntegradorBuzzerBD -p12345678 UtpIntegradorBuzzer < /tmp/buzzer_dump.sql"
+if errorlevel 1 (
+    echo ⚠️  El dump puede haber fallado por FK. Reintentando con FOREIGN_KEY_CHECKS=0...
+    docker compose exec -T mysql bash -c "mysql -uUtpIntegradorBuzzerBD -p12345678 UtpIntegradorBuzzer -e 'SET FOREIGN_KEY_CHECKS=0; SOURCE /tmp/buzzer_dump.sql; SET FOREIGN_KEY_CHECKS=1;'"
+    if errorlevel 1 goto :fallo
+)
+echo ✅ Dump cargado.
+
+echo.
+echo ============================================================
+echo 11.2 - Configurando reliese e ignorando tablas de Laravel
+echo ============================================================
+docker compose exec -T app bash -c "printf '<?php\nreturn [\n\t'\''connection'\''\t=>\t'\''mysql'\'',\n\t'\''models_path'\''\t=>\tapp_path('\''Models'\''),\n\t'\''ignore_tables'\''\t=>\t[\n\t\t'\''users'\'','\''password_reset_tokens'\'','\''sessions'\'','\''cache'\'','\''cache_locks'\'','\''jobs'\'','\''job_batches'\'','\''failed_jobs'\'','\''migrations'\'','\''formularios'\'','\''perfilAccesos'\'','\''perfilesFormularios'\'',\n\t],\n\t'\''timestamp'\''\t=>\ttrue,\n\t'\''soft_deletes'\''\t=>\ttrue,\n\t'\''nullable'\''\t=>\ttrue,\n\t'\''snake_attributes'\''\t=>\tfalse,\n];' > config/reliese.php"
+if errorlevel 1 goto :fallo
+docker compose exec -T app php artisan code:models --connection=mysql
+if errorlevel 1 goto :fallo
+echo Modelos generados en app/Models
+
+echo.
+echo ============================================================
+echo 11.3 - Creando Controllers API para cada modelo
+echo ============================================================
+for %%M in (Restaurante Local Trabajador Cliente Producto Pedido DetallePedido HistorialEstado Notificacion Metrica) do (
+    docker compose exec -T app php artisan make:controller Api/%%MController --api --model=%%M
+    if errorlevel 1 goto :fallo
+)
+echo Controllers creados en app/Http/Controllers/Api
 
 :rutas_preservadas
 if "%opcion%"=="2" echo Rutas existentes preservadas.
