@@ -93,9 +93,9 @@ services:
           memory: 128M
 
   mysql:
-    image: mysql:9.2.0
+    image: mysql:8.0
     container_name: UtpIntegrador-mysql
-    command: --sql-mode=ANSI
+    command: --default-authentication-plugin=mysql_native_password --sql-mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: UtpIntegradorBuzzer

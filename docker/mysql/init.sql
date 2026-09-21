@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS laravel CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS 'laravel'@'%' IDENTIFIED BY 'laravel';
-GRANT ALL PRIVILEGES ON laravel.* TO 'laravel'@'%';
+CREATE DATABASE IF NOT EXISTS `UtpIntegradorBuzzer` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'UtpIntegradorBuzzerBD'@'%' IDENTIFIED BY '12345678';
+GRANT ALL PRIVILEGES ON `UtpIntegradorBuzzer`.* TO 'UtpIntegradorBuzzerBD'@'%';
 FLUSH PRIVILEGES;
