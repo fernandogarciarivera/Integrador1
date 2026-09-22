@@ -68,7 +68,7 @@ CREATE TABLE `trabajadores` (
   `user_id` bigint unsigned NOT NULL,
   `restaurante_id` bigint unsigned NOT NULL,
   `local_id` bigint unsigned DEFAULT NULL,
-  `rol` enum('SUPER_ADMIN','ADMIN','GERENTE','CAJA','COCINA') NOT NULL,
+  `rol` enum('SUPER_ADMIN','ADMIN_REST','GERENTE_LOCAL','CAJA','COCINA','DESPACHO') NOT NULL,
   `puesto` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT '1',
@@ -240,26 +240,26 @@ CREATE TABLE `restaurantTmp` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `restaurantTmp` (`nombre`, `direccion`, `telefono`, `email`, `plan`, `estado`, `created_at`, `updated_at`) VALUES
-('La Lucha Sanguchería Criolla - Larco', 'Av. José Larco 999, Miraflores, Lima', '014421111', 'contacto@lalucha.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
-('La Lucha Sanguchería Criolla - Diagonal', 'Av. Diagonal 308, Miraflores, Lima', '014421112', 'diagonal@lalucha.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
-('Sanguchería El Chinito - Centro', 'Jr. Chancay 894, Cercado de Lima, Lima', '014232190', 'pedidos@elchinito.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
-('Sanguchería El Chinito - Surco', 'Av. Caminos del Inca 1151, Santiago de Surco, Lima', '012423000', 'surco@elchinito.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
-('Tip Top - Lince', 'Av. Gral. Juan Antonio Álvarez de Arenales 2499, Lince, Lima', '014713131', 'ventas@tiptop.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
-('Pardos Chicken - Aeropuerto', 'Av. Elmer Faucett s/n (Aeropuerto Internacional Jorge Chávez), Callao', '015173100', 'aeropuerto@pardoschicken.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
-('Bembos - Larco', 'Av. José Larco 401, Miraflores, Lima', '014191919', 'servicioalcliente@bembos.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
-('Bembos - Jockey Plaza', 'Av. Javier Prado Este 4200 (CC Jockey Plaza), Santiago de Surco, Lima', '014191920', 'jockey@bembos.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
-('China Wok - Plaza San Miguel', 'Av. Universitaria 2000 (CC Plaza San Miguel), San Miguel, Lima', '016128000', 'contacto@chinawok.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
-('Norky\'s - Centro', 'Av. Abancay 601, Cercado de Lima, Lima', '014284444', 'contacto@norkys.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
-('Roky\'s - Angamos', 'Av. Angamos Este 1502, Surquillo, Lima', '016135000', 'servicio@rokys.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
-('Siete Sopas - Angamos', 'Av. Angamos Este 609, Surquillo, Lima', '012136000', 'informes@sietesopas.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
-('Siete Sopas - Lince', 'Av. Arequipa 2394, Lince, Lima', '012136001', 'lince@sietesopas.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
-('Sándwiches Monstruos - Barranco', 'Av. de la Aviación 3005, San Borja, Lima', '014761022', 'contacto@monstruos.com.pe', 'BASICO', 'ACTIVO', NOW(), NOW()),
-('Juicy Lucy - La Mar', 'Av. Mariscal La Mar 1328, Miraflores, Lima', '014411234', 'info@juicylucy.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
-('Papacho\'s - Larcomar', 'Malecón de la Reserva 610 (CC Larcomar), Miraflores, Lima', '014467000', 'larcomar@papachos.com', 'PRO', 'ACTIVO', NOW(), NOW()),
-('Pasquale Hermanos - Megaplaza', 'Av. Alfredo Mendiola 3698 (CC MegaPlaza), Los Olivos, Lima', '015116000', 'contacto@pasquale.com.pe', 'BASICO', 'ACTIVO', NOW(), NOW()),
-('D\'Onofrio Heladería - Centro', 'Jr. de la Unión 500, Cercado de Lima, Lima', '014260000', 'helados@donofrio.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
-('La Caravana - Canaval y Moreyra', 'Av. Canaval y Moreyra 501, San Isidro, Lima', '014413030', 'informes@lacaravana.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
-('Begui - Luna Pizarro', 'Av. Luna Pizarro 415, La Victoria, Lima', '014721050', 'contacto@begui.com.pe', 'BASICO', 'ACTIVO', NOW(), NOW());
+  ('La Lucha Sanguchería Criolla - Larco', 'Av. José Larco 999, Miraflores, Lima', '014421111', 'contacto@lalucha.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
+  ('La Lucha Sanguchería Criolla - Diagonal', 'Av. Diagonal 308, Miraflores, Lima', '014421112', 'diagonal@lalucha.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('Sanguchería El Chinito - Centro', 'Jr. Chancay 894, Cercado de Lima, Lima', '014232190', 'pedidos@elchinito.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
+  ('Sanguchería El Chinito - Surco', 'Av. Caminos del Inca 1151, Santiago de Surco, Lima', '012423000', 'surco@elchinito.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('Tip Top - Lince', 'Av. Gral. Juan Antonio Álvarez de Arenales 2499, Lince, Lima', '014713131', 'ventas@tiptop.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
+  ('Pardos Chicken - Aeropuerto', 'Av. Elmer Faucett s/n (Aeropuerto Internacional Jorge Chávez), Callao', '015173100', 'aeropuerto@pardoschicken.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
+  ('Bembos - Larco', 'Av. José Larco 401, Miraflores, Lima', '014191919', 'servicioalcliente@bembos.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
+  ('Bembos - Jockey Plaza', 'Av. Javier Prado Este 4200 (CC Jockey Plaza), Santiago de Surco, Lima', '014191920', 'jockey@bembos.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('China Wok - Plaza San Miguel', 'Av. Universitaria 2000 (CC Plaza San Miguel), San Miguel, Lima', '016128000', 'contacto@chinawok.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('Norky\'s - Centro', 'Av. Abancay 601, Cercado de Lima, Lima', '014284444', 'contacto@norkys.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
+  ('Roky\'s - Angamos', 'Av. Angamos Este 1502, Surquillo, Lima', '016135000', 'servicio@rokys.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
+  ('Siete Sopas - Angamos', 'Av. Angamos Este 609, Surquillo, Lima', '012136000', 'informes@sietesopas.com.pe', 'ENTERPRISE', 'ACTIVO', NOW(), NOW()),
+  ('Siete Sopas - Lince', 'Av. Arequipa 2394, Lince, Lima', '012136001', 'lince@sietesopas.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('Sándwiches Monstruos - Barranco', 'Av. de la Aviación 3005, San Borja, Lima', '014761022', 'contacto@monstruos.com.pe', 'BASICO', 'ACTIVO', NOW(), NOW()),
+  ('Juicy Lucy - La Mar', 'Av. Mariscal La Mar 1328, Miraflores, Lima', '014411234', 'info@juicylucy.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('Papacho\'s - Larcomar', 'Malecón de la Reserva 610 (CC Larcomar), Miraflores, Lima', '014467000', 'larcomar@papachos.com', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('Pasquale Hermanos - Megaplaza', 'Av. Alfredo Mendiola 3698 (CC MegaPlaza), Los Olivos, Lima', '015116000', 'contacto@pasquale.com.pe', 'BASICO', 'ACTIVO', NOW(), NOW()),
+  ('D\'Onofrio Heladería - Centro', 'Jr. de la Unión 500, Cercado de Lima, Lima', '014260000', 'helados@donofrio.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('La Caravana - Canaval y Moreyra', 'Av. Canaval y Moreyra 501, San Isidro, Lima', '014413030', 'informes@lacaravana.com.pe', 'PRO', 'ACTIVO', NOW(), NOW()),
+  ('Begui - Luna Pizarro', 'Av. Luna Pizarro 415, La Victoria, Lima', '014721050', 'contacto@begui.com.pe', 'BASICO', 'ACTIVO', NOW(), NOW());
 
 INSERT INTO `restaurantes` (`nombre`, `direccion`, `telefono`, `email`, `plan`, `estado`)
 SELECT TRIM(SUBSTRING_INDEX(nombre, '-', 1)) AS nombre, direccion, telefono, email, plan, estado FROM UtpIntegradorBuzzer.restaurantTmp 
@@ -269,6 +269,34 @@ INSERT INTO `locales` (`restaurante_id`, `nombre`, `direccion`, `codigo`, `estad
 SELECT rst.id, TRIM(SUBSTRING_INDEX(lcl.nombre, '-', -1)) AS nombre, lcl.direccion, '', 'ACTIVO', NOW(), NOW() FROM restaurantes AS rst INNER JOIN restaurantTmp AS lcl ON TRIM(SUBSTRING_INDEX(lcl.nombre, '-', 1)) = rst.nombre;
 
 DROP TABLE `UtpIntegradorBuzzer`.`restaurantTmp`;
+
+INSERT INTO `UtpIntegradorBuzzer`.`perfilAccesos` (`perfil`) VALUES 
+  ('SUPER_ADMIN'), 
+  ('ADMIN_REST'), 
+  ('GERENTE_LOCAL'), 
+  ('CAJA'), 
+  ('COCINA'), 
+  ('DESPACHO');
+
+INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VALUES 
+  ('Configuraciones', 'ConfiguracionController'), 
+  ('Dashboard', 'DashboardController'), 
+  ('Pedidos Caja', 'PedidosController'), 
+  ('Pedidos Cocina', 'LocalesController'),
+  ('Pedidos Despacho', 'LocalesController'),
+  ('Reporte', 'ReporteController'), 
+  ('Trabajadores', 'TrabajadoresController'), 
+  ('Empresa Contrata', 'RestaurantController'), 
+  ('Locales', 'LocalesController');
+
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm;
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (3,4,5);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 3 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (3,4,5);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 4 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (3);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 5 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (4,5);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 6 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (5);
+
+
 
 /*
 DROP TABLE `UtpIntegradorBuzzer`.`clientes`;

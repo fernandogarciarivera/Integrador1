@@ -50,14 +50,17 @@ echo ============================================================
 echo 01 - Preparando estructura de storage...
 echo ============================================================
 if not exist src\storage mkdir src\storage
+if not exist src\storage\app mkdir src\storage\app
+if not exist src\storage\app\private mkdir src\storage\app\private
+if not exist src\storage\app\public mkdir src\storage\app\public
 if not exist src\storage\framework mkdir src\storage\framework
-if not exist src\storage\framework\sessions mkdir src\storage\framework\sessions
 if not exist src\storage\framework\cache mkdir src\storage\framework\cache
 if not exist src\storage\framework\cache\data mkdir src\storage\framework\cache\data
+if not exist src\storage\framework\sessions mkdir src\storage\framework\sessions
+if not exist src\storage\framework\testing mkdir src\storage\framework\testing
 if not exist src\storage\framework\views mkdir src\storage\framework\views
 if not exist src\storage\logs mkdir src\storage\logs
 if not exist src\bootstrap\cache mkdir src\bootstrap\cache
-
 goto configurar_env
 
 :actualizar
@@ -191,12 +194,25 @@ echo.
 echo ============================================================
 echo 09 - Configurando permisos
 echo ============================================================
-docker compose exec -T app mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs bootstrap/cache 2>nul
-docker compose exec -T app chmod -R 775 storage bootstrap/cache 2>nul
-docker compose exec -T app chown -R www-data:www-data storage bootstrap/cache public 2>nul
-docker compose exec -T app mkdir -p /var/www/storage/framework/sessions
-docker compose exec -T app chmod -R 775 /var/www/storage/framework 2>nul
-docker compose exec -T app chown -R www-data:www-data /var/www/storage/framework 2>nul
+REM docker compose exec -T app mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs bootstrap/cache 2>nul
+REM docker compose exec -T app chmod -R 775 storage bootstrap/cache 2>nul
+REM docker compose exec -T app chown -R www-data:www-data storage bootstrap/cache public 2>nul
+REM docker compose exec -T app mkdir -p /var/www/storage/framework/sessions
+REM docker compose exec -T app chmod -R 775 /var/www/storage/framework 2>nul
+REM docker compose exec -T app chown -R www-data:www-data /var/www/storage/framework 2>nul
+REM 1) Crear TODA la estructura dentro del contenedor (por si el bind mount no la trajo)
+docker compose exec -T app mkdir -p /var/www/storage/app/private /var/www/storage/app/public /var/www/storage/framework/cache/data /var/www/storage/framework/sessions /var/www/storage/framework/testing /var/www/storage/framework/views /var/www/storage/logs /var/www/bootstrap/cache
+if errorlevel 1 goto :fallo
+REM 2) Crear el archivo laravel.log explícitamente (Monolog falla si no existe y no puede crearlo)
+docker compose exec -T app bash -c "touch /var/www/storage/logs/laravel.log"
+REM 3) chown PRIMERO
+docker compose exec -T app chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/public
+if errorlevel 1 goto :fallo
+REM 4) chmod DESPUÉS, con setgid (2) para que los archivos nuevos hereden el grupo www-data
+docker compose exec -T app chmod -R 2775 /var/www/storage /var/www/bootstrap/cache
+if errorlevel 1 goto :fallo
+
+echo  OK - Permisos aplicados (chown + chmod 2775 + setgid)
 
 echo.
 echo ============================================================
