@@ -42,6 +42,20 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_user_model_implements_laravel_auth_contract(): void
+    {
+        $user = User::factory()->create();
+
+        $this->assertInstanceOf(\Illuminate\Contracts\Auth\Authenticatable::class, $user);
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticatedAs($user);
+    }
+
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();
