@@ -1,5 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
+set "PROJECT_PATH=%~dp0"
+if "%PROJECT_PATH:~-1%"=="\" set "PROJECT_PATH=%PROJECT_PATH:~0,-1%"
 
 cls
 echo ========================================
@@ -132,12 +134,21 @@ echo.
 echo ============================================================
 echo 04 - Publicando configuracion y assets de Laravel
 echo ============================================================
+docker compose up -d app
+if errorlevel 1 goto :fallo
+
+docker compose exec -T app php artisan config:clear
+if errorlevel 1 goto :fallo
+
 docker compose exec -T app php artisan vendor:publish --tag=public --force
 if errorlevel 1 goto :fallo
 docker compose exec -T app php artisan vendor:publish --tag=laravel-assets --force
 if errorlevel 1 goto :fallo
-docker compose exec -T app composer require reliese/laravel --dev --no-interaction
-if errorlevel 1 goto :fallo
+docker compose exec -T app composer show reliese/laravel --no-ansi >nul 2>&1
+if errorlevel 1 (
+    docker compose exec -T app composer require reliese/laravel --dev --no-interaction
+    if errorlevel 1 goto :fallo
+)
 docker compose exec -T app php artisan vendor:publish --tag=reliese-models --force
 if errorlevel 1 goto :fallo
 docker compose exec -T app php artisan config:clear
@@ -147,8 +158,11 @@ echo.
 echo ============================================================
 echo 05 - Instalando y configurando autenticacion (Laravel Breeze)
 echo ============================================================
-docker compose exec -T app composer require laravel/breeze:^^2.4 --with-all-dependencies --no-interaction
-if errorlevel 1 goto :fallo
+docker compose exec -T app composer show laravel/breeze --no-ansi >nul 2>&1
+if errorlevel 1 (
+    docker compose exec -T app composer require laravel/breeze:^2.4 --with-all-dependencies --no-interaction
+    if errorlevel 1 goto :fallo
+)
 docker compose exec -T app php artisan breeze:install blade --no-interaction
 if errorlevel 1 goto :fallo
 
@@ -204,7 +218,6 @@ if not exist "%cd%\db\schema\dump-UtpIntegradorBuzzer.sql" (
 ECHO Copiar el dump dentro del contenedor de MySQL
 docker cp "%cd%\db\schema\dump-UtpIntegradorBuzzer.sql" UtpIntegrador-mysql:/tmp/buzzer_dump.sql
 if errorlevel 1 goto :fallo
-
 docker compose exec -T mysql bash -c "mysql -uUtpIntegradorBuzzerBD -p12345678 UtpIntegradorBuzzer < /tmp/buzzer_dump.sql"
 if errorlevel 1 (
     echo ⚠️  El dump puede haber fallado por FK. Reintentando con FOREIGN_KEY_CHECKS=0...

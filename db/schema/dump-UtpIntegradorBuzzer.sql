@@ -1,37 +1,3 @@
-
-DROP TABLE IF EXISTS `clientes`;
-CREATE TABLE `clientes` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) DEFAULT NULL,
-  `telefono` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `preferencias_notificacion` json DEFAULT NULL,
-  `fecha_ultima_visita` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_clientes_telefono` (`telefono`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-DROP TABLE IF EXISTS `perfilAccesos`;
-CREATE TABLE `perfilAccesos` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `perfil` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-DROP TABLE IF EXISTS `formularios`;
-CREATE TABLE `formularios` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `formulario` varchar(45) NOT NULL,
-  `controller` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `formulario_UNIQUE` (`formulario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
 DROP TABLE IF EXISTS `restaurantes`;
 CREATE TABLE `restaurantes` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -48,7 +14,6 @@ CREATE TABLE `restaurantes` (
   KEY `idx_restaurantes_estado` (`estado`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
 DROP TABLE IF EXISTS `locales`;
 CREATE TABLE `locales` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -61,11 +26,41 @@ CREATE TABLE `locales` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_locales_restaurante_codigo` (`restaurante_id`,`codigo`),
+  -- UNIQUE KEY `uk_locales_restaurante_codigo` (`restaurante_id`,`codigo`),
+  -- UNIQUE KEY `uk_locales_restaurante_codigo` (`restaurante_id`),
   KEY `idx_locales_restaurante` (`restaurante_id`),
   CONSTRAINT `fk_locales_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+DROP TABLE IF EXISTS `clientes`;
+CREATE TABLE `clientes` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) DEFAULT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `preferencias_notificacion` json DEFAULT NULL,
+  `fecha_ultima_visita` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_clientes_telefono` (`telefono`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS `perfilAccesos`;
+CREATE TABLE `perfilAccesos` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `perfil` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS `formularios`;
+CREATE TABLE `formularios` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `formulario` varchar(45) NOT NULL,
+  `controller` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `formulario_UNIQUE` (`formulario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 DROP TABLE IF EXISTS `trabajadores`;
 CREATE TABLE `trabajadores` (
@@ -90,7 +85,6 @@ CREATE TABLE `trabajadores` (
   CONSTRAINT `fk_trabajadores_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
 DROP TABLE IF EXISTS `productos`;
 CREATE TABLE `productos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -109,7 +103,6 @@ CREATE TABLE `productos` (
   KEY `idx_productos_categoria` (`categoria`),
   CONSTRAINT `fk_productos_local` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 DROP TABLE IF EXISTS `pedidos`;
 CREATE TABLE `pedidos` (
@@ -142,7 +135,6 @@ CREATE TABLE `pedidos` (
   CONSTRAINT `fk_pedidos_trabajador_caja` FOREIGN KEY (`trabajador_caja_id`) REFERENCES `trabajadores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
 DROP TABLE IF EXISTS `detalle_pedidos`;
 CREATE TABLE `detalle_pedidos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -161,7 +153,6 @@ CREATE TABLE `detalle_pedidos` (
   CONSTRAINT `fk_detalle_producto` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
 DROP TABLE IF EXISTS `historial_estados`;
 CREATE TABLE `historial_estados` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -179,7 +170,6 @@ CREATE TABLE `historial_estados` (
   CONSTRAINT `fk_hist_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_hist_trabajador` FOREIGN KEY (`trabajador_id`) REFERENCES `trabajadores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 DROP TABLE IF EXISTS `metricas`;
 CREATE TABLE `metricas` (
@@ -201,7 +191,6 @@ CREATE TABLE `metricas` (
   CONSTRAINT `fk_metricas_locales1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
 DROP TABLE IF EXISTS `notificaciones`;
 CREATE TABLE `notificaciones` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -221,7 +210,6 @@ CREATE TABLE `notificaciones` (
   CONSTRAINT `fk_notif_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_notif_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 DROP TABLE IF EXISTS `perfilesFormularios`;
 CREATE TABLE `perfilesFormularios` (
@@ -277,8 +265,8 @@ INSERT INTO `restaurantes` (`nombre`, `direccion`, `telefono`, `email`, `plan`, 
 SELECT TRIM(SUBSTRING_INDEX(nombre, '-', 1)) AS nombre, direccion, telefono, email, plan, estado FROM UtpIntegradorBuzzer.restaurantTmp 
 WHERE id NOT IN (7,1,4,13) order by nombre;
 
--- INSERT INTO `locales` (`restaurante_id`, `nombre`, `direccion`, `codigo`, `estado`, `created_at`, `updated_at`)
--- SELECT rst.id, TRIM(SUBSTRING_INDEX(lcl.nombre, '-', -1)) AS nombre, lcl.direccion, '', 'ACTIVO', NOW(), NOW() FROM restaurantes AS rst INNER JOIN restaurantTmp AS lcl ON TRIM(SUBSTRING_INDEX(lcl.nombre, '-', 1)) = rst.nombre;
+INSERT INTO `locales` (`restaurante_id`, `nombre`, `direccion`, `codigo`, `estado`, `created_at`, `updated_at`)
+SELECT rst.id, TRIM(SUBSTRING_INDEX(lcl.nombre, '-', -1)) AS nombre, lcl.direccion, '', 'ACTIVO', NOW(), NOW() FROM restaurantes AS rst INNER JOIN restaurantTmp AS lcl ON TRIM(SUBSTRING_INDEX(lcl.nombre, '-', 1)) = rst.nombre;
 
 DROP TABLE `UtpIntegradorBuzzer`.`restaurantTmp`;
 

@@ -19,14 +19,21 @@ chmod -R 775 /var/www/storage/framework /var/www/storage/logs /var/www/bootstrap
 
 cd /var/www
 
-if [ -f "composer.json" ] && [ ! -d "vendor" ]; then
+if [ -f "composer.json" ] && { [ ! -d "vendor" ] || [ ! -f "vendor/autoload.php" ]; }; then
   echo "Instalando dependencias PHP..."
   composer install --no-interaction --prefer-dist --optimize-autoloader
 fi
 
-if [ -f "package.json" ] && [ ! -x "node_modules/.bin/vite" ]; then
-  echo "Instalando dependencias NPM..."
-  npm install --no-audit --no-fund --unsafe-perm=true
+if [ -f "package.json" ]; then
+  if [ ! -d "node_modules" ] || [ ! -x "node_modules/.bin/vite" ]; then
+    echo "Instalando dependencias NPM..."
+    if [ -d "node_modules" ]; then
+      find node_modules -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+    else
+      mkdir -p node_modules
+    fi
+    npm install --no-audit --no-fund --unsafe-perm=true
+  fi
 fi
 
 if [ ! -f "public/build/manifest.json" ]; then
