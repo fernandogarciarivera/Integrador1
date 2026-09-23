@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $rol
  * @property string|null $puesto
  * @property string|null $telefono
+ * @property string|null $imagen_url
  * @property bool $activo
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -53,6 +54,7 @@ class Trabajadore extends Model
 		'rol',
 		'puesto',
 		'telefono',
+		'imagen_url',
 		'activo'
 	];
 

@@ -1,132 +1,166 @@
 @php($editing = $trabajador->exists)
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">
-            {{ $editing ? 'Editar trabajador' : 'Nuevo trabajador' }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-6">
-
-            {{-- Formulario --}}
-            <div class="md:col-span-8 bg-white shadow-sm rounded-lg p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4 pb-2 border-b">Datos personales y acceso</h3>
-
-                <form method="POST"
-                      action="{{ $editing ? route('trabajadores.update', $trabajador) : route('trabajadores.store') }}"
-                      class="space-y-4">
-                    @csrf
-                    @if ($editing) @method('PUT') @endif
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <x-input-label for="nombre_completo" value="Nombre completo" />
-                            <x-text-input id="nombre_completo" name="nombre_completo" type="text" class="mt-1 block w-full"
-                                :value="old('nombre_completo', $trabajador->user->name ?? '')" required />
-                            <x-input-error :messages="$errors->get('nombre_completo')" class="mt-2" />
-                        </div>
-                        <div>
-                            <x-input-label for="email" value="Email / Usuario" />
-                            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full"
-                                :value="old('email', $trabajador->user->email ?? '')" required />
-                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <x-input-label for="restaurante_id" value="Restaurante" />
-                            <select id="restaurante_id" name="restaurante_id" class="mt-1 block w-full rounded border-gray-300" required>
-                                <option value="">-- Seleccione --</option>
-                                @foreach ($restaurantes as $r)
-                                    <option value="{{ $r->id }}" {{ old('restaurante_id', $trabajador->restaurante_id ?? '') == $r->id ? 'selected' : '' }}>{{ $r->nombre }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('restaurante_id')" class="mt-2" />
-                        </div>
-                        <div>
-                            <x-input-label for="local_id" value="Local" />
-                            <select id="local_id" name="local_id" class="mt-1 block w-full rounded border-gray-300" required>
-                                <option value="">-- Seleccione --</option>
-                                @foreach ($locales as $l)
-                                    <option value="{{ $l->id }}" {{ old('local_id', $trabajador->local_id ?? '') == $l->id ? 'selected' : '' }}>{{ $l->nombre }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('local_id')" class="mt-2" />
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <x-input-label for="rol" value="Rol" />
-                            <select id="rol" name="rol" class="mt-1 block w-full rounded border-gray-300" required>
-                                <option value="">-- Seleccione --</option>
-                                @foreach ($perfiles as $p)
-                                    <option value="{{ $p->perfil }}" {{ old('rol', $trabajador->rol ?? '') == $p->perfil ? 'selected' : '' }}>{{ $p->perfil }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('rol')" class="mt-2" />
-                        </div>
-                        <div>
-                            <x-input-label for="telefono" value="Teléfono (opcional)" />
-                            <x-text-input id="telefono" name="telefono" type="text" class="mt-1 block w-full"
-                                :value="old('telefono', $trabajador->telefono ?? '')" />
-                        </div>
-                    </div>
-
-                    <div>
-                        <x-input-label for="puesto" value="Puesto (opcional)" />
-                        <x-text-input id="puesto" name="puesto" type="text" class="mt-1 block w-full"
-                            :value="old('puesto', $trabajador->puesto ?? '')" />
-                    </div>
-
-                    <div class="pt-4 border-t flex justify-end gap-2">
-                        <a href="{{ route('trabajadores.index') }}"
-                           class="px-4 py-2 border border-gray-300 rounded-md text-sm">Cancelar</a>
-                        <x-primary-button>{{ $editing ? 'Guardar cambios' : 'Crear trabajador' }}</x-primary-button>
-                    </div>
-                </form>
+    <div class="worker-page">
+        <div class="worker-shell">
+            <div class="worker-heading">
+                <div>
+                    <h1>{{ $editing ? 'Editar trabajador' : 'Nuevo trabajador' }}</h1>
+                    <p>Gestiona la informacion personal y el acceso al sistema.</p>
+                </div>
             </div>
 
-            {{-- Panel lateral --}}
-            <div class="md:col-span-4 bg-white shadow-sm rounded-lg p-6">
-                <div class="flex flex-col items-center mb-4">
-                    <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mb-2">
-                        <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 10a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-base font-medium text-gray-900">
-                        {{ $trabajador->user->name ?? 'Nuevo trabajador' }}
-                    </h3>
-                    @if ($editing)
-                        <span class="mt-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">{{ $trabajador->rol }}</span>
-                    @endif
-                </div>
+            <div class="worker-form-grid">
+                <section class="worker-panel">
+                    <h2>Informacion personal</h2>
+                    <form id="worker-form" method="POST" enctype="multipart/form-data" action="{{ $editing ? route('trabajadores.update', $trabajador) : route('trabajadores.store') }}">
+                        @csrf
+                        @if ($editing) @method('PUT') @endif
+                        <div class="worker-fields">
+                            <div class="worker-field">
+                                <label class="worker-label" for="name">Nombre completo</label>
+                                <input class="worker-control" id="name" name="name" value="{{ old('name', $trabajador->user->name ?? '') }}" required>
+                            </div>
+                            <div class="worker-field">
+                                <label class="worker-label" for="email">Usuario / Email</label>
+                                <input class="worker-control" id="email" name="email" type="email" value="{{ old('email', $trabajador->user->email ?? '') }}" required>
+                            </div>
+                            <div class="worker-field">
+                                <label class="worker-label" for="rol_input">Rol</label>
+                                <input class="worker-control" id="rol_input" list="roles" value="{{ old('rol', $trabajador->rol ?? '') }}" placeholder="Escribe para buscar" required>
+                                <datalist id="roles">
+                                    @foreach ($perfiles as $perfil)
+                                        <option value="{{ $perfil->perfil }}">
+                                    @endforeach
+                                </datalist>
+                                <input type="hidden" id="rol" name="rol" value="{{ old('rol', $trabajador->rol ?? '') }}">
+                            </div>
+                            <div class="worker-field">
+                                <label class="worker-label" for="restaurante_input">Empresa</label>
+                                <input class="worker-control" id="restaurante_input" list="restaurantes" value="{{ old('restaurante_id') ? $restaurantes->firstWhere('id', old('restaurante_id'))?->nombre : $restaurantes->firstWhere('id', $trabajador->restaurante_id ?? null)?->nombre }}" placeholder="Escribe para buscar" autocomplete="off" required>
+                                <datalist id="restaurantes">
+                                    @foreach ($restaurantes as $restaurante)
+                                        <option value="{{ $restaurante->nombre }}" data-id="{{ $restaurante->id }}">
+                                    @endforeach
+                                </datalist>
+                                <input type="hidden" id="restaurante_id" name="restaurante_id" value="{{ old('restaurante_id', $trabajador->restaurante_id ?? '') }}">
+                            </div>
+                            <div class="worker-field">
+                                <label class="worker-label" for="local_input">Local</label>
+                                <input class="worker-control" id="local_input" list="locales" value="{{ old('local_id') ? $locales->firstWhere('id', old('local_id'))?->nombre : $locales->firstWhere('id', $trabajador->local_id ?? null)?->nombre }}" placeholder="Primero selecciona una empresa" autocomplete="off">
+                                <datalist id="locales">
+                                    @foreach ($locales as $local)
+                                        <option value="{{ $local->nombre }}" data-id="{{ $local->id }}">
+                                    @endforeach
+                                </datalist>
+                                <input type="hidden" id="local_id" name="local_id" value="{{ old('local_id', $trabajador->local_id ?? '') }}">
+                            </div>
+                            <div class="worker-field">
+                                <label class="worker-label" for="puesto">Puesto</label>
+                                <input class="worker-control" id="puesto" name="puesto" value="{{ old('puesto', $trabajador->puesto ?? '') }}">
+                            </div>
+                            <div class="worker-field">
+                                <label class="worker-label" for="telefono">Telefono</label>
+                                <input class="worker-control" id="telefono" name="telefono" value="{{ old('telefono', $trabajador->telefono ?? '') }}">
+                            </div>
+                            <div class="worker-field worker-field--full">
+                                <label class="worker-label" for="imagen">Imagen del trabajador (opcional)</label>
+                                <input class="worker-control" id="imagen" name="imagen" type="file" accept="image/*">
+                            </div>
+                        </div>
+                        @if ($errors->any())
+                            <div class="worker-errors">{{ $errors->first() }}</div>
+                        @endif
+                    </form>
+                </section>
 
                 @if ($editing)
-                    <div class="pt-4 border-t space-y-3">
-                        <form method="POST" action="{{ route('trabajadores.reset-password', $trabajador) }}">
-                            @csrf
-                            <button class="w-full px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50"
-                                    onclick="return confirm('¿Resetear contraseña a 12345678?')">
-                                Resetear contraseña
-                            </button>
-                        </form>
-                        <form method="POST" action="{{ route('trabajadores.toggle-activo', $trabajador) }}">
-                            @csrf
-                            <button class="w-full px-4 py-2 rounded-md text-sm border
-                                    {{ $trabajador->activo
-                                        ? 'border-red-300 text-red-600 hover:bg-red-50'
-                                        : 'border-green-300 text-green-600 hover:bg-green-50' }}"
-                                    onclick="return confirm('¿{{ $trabajador->activo ? 'Desactivar' : 'Activar' }} trabajador?')">
-                                {{ $trabajador->activo ? 'Desactivar trabajador' : 'Activar trabajador' }}
-                            </button>
-                        </form>
-                    </div>
+                    <section class="worker-panel worker-access-panel">
+                        <h2>Gestion de acceso</h2>
+                        <div class="worker-access-list">
+                            <div class="worker-access-item">
+                                <div><strong>Contraseña del sistema</strong><small>Restablece la contraseña inicial del trabajador.</small></div>
+                                <form method="POST" action="{{ route('trabajadores.reset-password', $trabajador) }}">
+                                    @csrf
+                                    <button class="worker-button worker-button--light" type="submit">&#8635; Restablecer</button>
+                                </form>
+                            </div>
+                            <div class="worker-access-item">
+                                <div><strong>Estado de acceso</strong><small>{{ $trabajador->activo ? 'El usuario puede acceder al sistema.' : 'El usuario no puede acceder al sistema.' }}</small></div>
+                                <span class="worker-status {{ !$trabajador->activo ? 'worker-status--off' : '' }}">{{ $trabajador->activo ? 'Activo' : 'Inactivo' }}</span>
+                            </div>
+                        </div>
+                    </section>
                 @endif
+
+                <aside class="worker-panel">
+                    <div class="worker-profile">
+                        <div class="worker-avatar">
+                            @if ($trabajador->imagen_url)
+                                <img src="{{ $trabajador->imagen_url }}" alt="{{ $trabajador->user->name ?? 'Trabajador' }}">
+                            @else
+                                &#128100;
+                            @endif
+                        </div>
+                        <h3>{{ $trabajador->user->name ?? 'Nuevo trabajador' }}</h3>
+                        @if ($editing)<span class="worker-role">{{ $trabajador->rol }}</span>@endif
+                    </div>
+                    <div class="worker-form-actions">
+                        <button class="worker-button" type="submit" form="worker-form">{{ $editing ? 'Guardar cambios' : 'Crear trabajador' }}</button>
+                        <a href="{{ route('trabajadores.index') }}" class="worker-button worker-button--light">Cancelar</a>
+                    </div>
+                    @if ($editing)
+                        <div class="worker-danger-action">
+                            <form method="POST" action="{{ route('trabajadores.toggle-activo', $trabajador) }}">
+                                @csrf
+                                <button class="worker-button worker-button--danger" type="submit">{{ $trabajador->activo ? 'Desactivar trabajador' : 'Activar trabajador' }}</button>
+                            </form>
+                        </div>
+                    @endif
+                </aside>
             </div>
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    (() => {
+        const companyInput = document.querySelector('#restaurante_input');
+        const companyId = document.querySelector('#restaurante_id');
+        const roleInput = document.querySelector('#rol_input');
+        const roleId = document.querySelector('#rol');
+        const roleList = document.querySelector('#roles');
+        const localInput = document.querySelector('#local_input');
+        const localId = document.querySelector('#local_id');
+        const localList = document.querySelector('#locales');
+        const companyList = document.querySelector('#restaurantes');
+
+        const selectedId = (list, value) => [...list.options].find((option) => option.value === value)?.dataset.id || '';
+
+        const loadLocales = async (id) => {
+            localInput.value = '';
+            localId.value = '';
+            localList.replaceChildren();
+            if (!id) return;
+            const response = await fetch('{{ url('/restaurantes') }}/' + id + '/locales', { headers: { Accept: 'application/json' } });
+            if (!response.ok) return;
+            (await response.json()).forEach((local) => {
+                const option = document.createElement('option');
+                option.value = local.nombre;
+                option.dataset.id = local.id;
+                localList.append(option);
+            });
+        };
+
+        companyInput.addEventListener('input', () => {
+            companyId.value = selectedId(companyList, companyInput.value);
+            loadLocales(companyId.value);
+        });
+        roleInput.addEventListener('input', () => {
+            roleId.value = [...roleList.options].some((option) => option.value === roleInput.value) ? roleInput.value : '';
+        });
+        localInput.addEventListener('input', () => {
+            localId.value = selectedId(localList, localInput.value);
+        });
+    })();
+</script>
+

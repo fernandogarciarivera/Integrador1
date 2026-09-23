@@ -1,89 +1,123 @@
 <?php
 
+// app/Http/Controllers/TrabajadorController.php
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\{User, Trabajadore as Trabajador, Restaurante, Locale, PerfilAcceso};
+use App\Models\{User, Trabajador, Restaurante, Locale, PerfilAcceso};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{DB, Hash};
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\{DB, Hash, Storage};
 
 class TrabajadorController extends Controller
 {
     public function index()
     {
-        $trabajadores = Trabajador::with(['user', 'restaurante', 'local'])
-            ->orderByDesc('id')->paginate(20);
-        return view('trabajadores.index', compact('trabajadores'));
+        $trabajadores = Trabajador::with('user', 'restaurante', 'local')
+            ->when(request('trabajador'), fn($query, $value) => $query->whereHas('user', fn($user) => $user->where('name', 'like', "%{$value}%")->orWhere('email', 'like', "%{$value}%")))
+            ->when(request('restaurante_id'), fn($query, $value) => $query->where('restaurante_id', $value))
+            ->when(request('local_id'), fn($query, $value) => $query->where('local_id', $value))
+            ->latest('id')
+            ->paginate(20)
+            ->withQueryString();
+        $restaurantes = Restaurante::orderBy('nombre')->get(['id', 'nombre']);
+        $roles        = PerfilAcceso::orderBy('id')->pluck('perfil');
+        $locales = Locale::orderBy('nombre')->get(['id', 'nombre', 'restaurante_id']);
+        return view('trabajadores.index', compact('trabajadores', 'restaurantes', 'roles', 'locales'));
     }
 
     public function create()
     {
         return view('trabajadores.form', [
-            'trabajador'   => new Trabajador(),
+            'trabajador' => new Trabajador,
             'restaurantes' => Restaurante::orderBy('nombre')->get(['id', 'nombre']),
-            'locales'      => Locale::orderBy('nombre')->get(['id', 'nombre', 'restaurante_id']),
-            'perfiles'     => PerfilAcceso::orderBy('perfil')->get(['id', 'perfil']),
+            'locales' => collect(),
+            'perfiles' => PerfilAcceso::orderBy('id')->get(['perfil']),
         ]);
+    }
+
+    public function edit(int $trabajador)
+    {
+        $trabajador = Trabajador::with('user')->findOrFail($trabajador);
+        return view('trabajadores.form', [
+            'trabajador' => $trabajador,
+            'restaurantes' => Restaurante::orderBy('nombre')->get(['id', 'nombre']),
+            'locales' => Locale::where('restaurante_id', $trabajador->restaurante_id)->orderBy('nombre')->get(['id', 'nombre']),
+            'perfiles' => PerfilAcceso::orderBy('id')->get(['perfil']),
+        ]);
+    }
+
+    public function locales(Restaurante $restaurante)
+    {
+        return $restaurante->locales()->orderBy('nombre')->get(['id', 'nombre']);
     }
 
     public function store(Request $request)
     {
-        $data = $this->validar($request);
+        $data = $request->validate([
+            'name'           => 'required|string|max:255',
+            'email'          => 'required|email|unique:users,email',
+            'restaurante_id' => 'required|exists:restaurantes,id',
+            'local_id'       => 'nullable|exists:locales,id',
+            'rol'            => 'required|exists:perfilAccesos,perfil',
+            'puesto'         => 'nullable|string|max:100',
+            'telefono'       => 'nullable|string|max:20',
+            'imagen'         => 'nullable|image|max:2048',
+        ]);
 
-        DB::transaction(function () use ($data, &$trabajador) {
+        $data['imagen_url'] = $request->hasFile('imagen')
+            ? Storage::url($request->file('imagen')->store('trabajadores', 'public'))
+            : null;
+
+        DB::transaction(function () use ($data) {
             $user = User::create([
-                'name'                 => $data['nombre_completo'],
+                'name'                 => $data['name'],
                 'email'                => $data['email'],
                 'password'             => Hash::make('12345678'),
                 'must_change_password' => true,
                 'email_verified_at'    => now(),
             ]);
 
-            $trabajador = Trabajador::create([
+            Trabajador::create([
                 'user_id'        => $user->id,
                 'restaurante_id' => $data['restaurante_id'],
-                'local_id'       => $data['local_id'],
+                'local_id'       => $data['local_id'] ?? null,
                 'rol'            => $data['rol'],
                 'puesto'         => $data['puesto'] ?? null,
                 'telefono'       => $data['telefono'] ?? null,
                 'activo'         => true,
+                'imagen_url'     => $data['imagen_url'],
             ]);
         });
 
-        return redirect()->route('trabajadores.index')
-            ->with('status', "Trabajador creado. Contraseña inicial: 12345678");
-    }
-
-    public function edit(Trabajador $trabajador)
-    {
-        return view('trabajadores.form', [
-            'trabajador'   => $trabajador->load('user'),
-            'restaurantes' => Restaurante::orderBy('nombre')->get(['id', 'nombre']),
-            'locales'      => Locale::orderBy('nombre')->get(['id', 'nombre', 'restaurante_id']),
-            'perfiles'     => PerfilAcceso::orderBy('perfil')->get(['id', 'perfil']),
-        ]);
+        return back()->with('status', 'Trabajador creado. Contraseña inicial: 12345678');
     }
 
     public function update(Request $request, Trabajador $trabajador)
     {
-        $data = $this->validar($request, $trabajador);
+        $data = $request->validate([
+            'name'           => 'required|string|max:255',
+            'email'          => 'required|email|unique:users,email,' . $trabajador->user_id,
+            'restaurante_id' => 'required|exists:restaurantes,id',
+            'local_id'       => 'nullable|exists:locales,id',
+            'rol'            => 'required|exists:perfilAccesos,perfil',
+            'puesto'         => 'nullable|string|max:100',
+            'telefono'       => 'nullable|string|max:20',
+            'imagen'         => 'nullable|image|max:2048',
+        ]);
 
-        DB::transaction(function () use ($data, $trabajador) {
-            $trabajador->user->update([
-                'name'  => $data['nombre_completo'],
-                'email' => $data['email'],
-            ]);
-            $trabajador->update([
-                'restaurante_id' => $data['restaurante_id'],
-                'local_id'       => $data['local_id'],
-                'rol'            => $data['rol'],
-                'puesto'         => $data['puesto'] ?? null,
-                'telefono'       => $data['telefono'] ?? null,
-            ]);
+        unset($data['imagen']);
+        if ($request->hasFile('imagen')) {
+            if ($trabajador->imagen_url) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $trabajador->imagen_url));
+            }
+            $data['imagen_url'] = Storage::url($request->file('imagen')->store('trabajadores', 'public'));
+        }
+
+        DB::transaction(function () use ($trabajador, $data) {
+            $trabajador->user->update(['name' => $data['name'], 'email' => $data['email']]);
+            $trabajador->update($data);
         });
 
-        return redirect()->route('trabajadores.index')->with('status', 'Trabajador actualizado.');
+        return back()->with('status', 'Trabajador actualizado.');
     }
 
     public function resetPassword(Trabajador $trabajador)
@@ -92,34 +126,27 @@ class TrabajadorController extends Controller
             'password'             => Hash::make('12345678'),
             'must_change_password' => true,
         ]);
-        return back()->with('status', 'Contraseña reseteada a 12345678.');
+        return back()->with('status', 'Contraseña reiniciada a 12345678.');
     }
 
     public function toggleActivo(Trabajador $trabajador)
     {
-        $activo = ! $trabajador->activo;
-        DB::transaction(function () use ($trabajador, $activo) {
-            $trabajador->update(['activo' => $activo]);
-            $trabajador->user->update(['email_verified_at' => $activo ? now() : null]);
+        DB::transaction(function () use ($trabajador) {
+            $trabajador->update(['activo' => !$trabajador->activo]);
+            $trabajador->user->update(['email_verified_at' => $trabajador->activo ? now() : null]);
         });
-        return back()->with('status', $activo ? 'Trabajador activado.' : 'Trabajador desactivado.');
+        return back()->with('status', $trabajador->activo ? 'Desactivado.' : 'Activado.');
     }
 
-    private function validar(Request $request, ?Trabajador $trabajador = null): array
+    public function destroy(Trabajador $trabajador)
     {
-        return $request->validate([
-            'nombre_completo' => ['required', 'string', 'max:255'],
-            'email'           => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($trabajador?->user_id)
-            ],
-            'restaurante_id'  => ['required', 'exists:restaurantes,id'],
-            'local_id'        => ['required', 'exists:locales,id'],
-            'rol'             => ['required', 'exists:perfilAccesos,perfil'],
-            'puesto'          => ['nullable', 'string', 'max:100'],
-            'telefono'        => ['nullable', 'string', 'max:20'],
-        ]);
+        DB::transaction(function () use ($trabajador) {
+            if ($trabajador->imagen_url) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $trabajador->imagen_url));
+            }
+            $trabajador->delete();
+            $trabajador->user->delete();
+        });
+        return back()->with('status', 'Trabajador eliminado.');
     }
 }
