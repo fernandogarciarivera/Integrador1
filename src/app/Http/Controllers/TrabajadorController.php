@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{User, Trabajador, Restaurante, Locale, PerfilAcceso};
+use App\Http\Controllers\Controller;
+use App\Models\{User, Trabajadore as Trabajador, Restaurante, Locale, PerfilAcceso};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash};
 use Illuminate\Validation\Rule;

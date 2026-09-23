@@ -37,29 +37,22 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <x-input-label for="restaurante_id" value="Restaurante" />
-                            <x-text-input id="restaurante_id" name="restaurante_id" type="text"
-                                list="dl-restaurantes" autocomplete="off"
-                                class="mt-1 block w-full"
-                                :value="old('restaurante_id', $trabajador->restaurante_id ?? '')" required />
-                            <datalist id="dl-restaurantes">
+                            <select id="restaurante_id" name="restaurante_id" class="mt-1 block w-full rounded border-gray-300" required>
+                                <option value="">-- Seleccione --</option>
                                 @foreach ($restaurantes as $r)
-                                    <option value="{{ $r->id }}">{{ $r->nombre }}</option>
+                                    <option value="{{ $r->id }}" {{ old('restaurante_id', $trabajador->restaurante_id ?? '') == $r->id ? 'selected' : '' }}>{{ $r->nombre }}</option>
                                 @endforeach
-                            </datalist>
-                            <p class="text-xs text-gray-500 mt-1">Empieza a escribir el nombre.</p>
+                            </select>
                             <x-input-error :messages="$errors->get('restaurante_id')" class="mt-2" />
                         </div>
                         <div>
                             <x-input-label for="local_id" value="Local" />
-                            <x-text-input id="local_id" name="local_id" type="text"
-                                list="dl-locales" autocomplete="off"
-                                class="mt-1 block w-full"
-                                :value="old('local_id', $trabajador->local_id ?? '')" required />
-                            <datalist id="dl-locales">
+                            <select id="local_id" name="local_id" class="mt-1 block w-full rounded border-gray-300" required>
+                                <option value="">-- Seleccione --</option>
                                 @foreach ($locales as $l)
-                                    <option value="{{ $l->id }}">{{ $l->nombre }}</option>
+                                    <option value="{{ $l->id }}" {{ old('local_id', $trabajador->local_id ?? '') == $l->id ? 'selected' : '' }}>{{ $l->nombre }}</option>
                                 @endforeach
-                            </datalist>
+                            </select>
                             <x-input-error :messages="$errors->get('local_id')" class="mt-2" />
                         </div>
                     </div>
@@ -67,15 +60,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <x-input-label for="rol" value="Rol" />
-                            <x-text-input id="rol" name="rol" type="text"
-                                list="dl-perfiles" autocomplete="off"
-                                class="mt-1 block w-full"
-                                :value="old('rol', $trabajador->rol ?? '')" required />
-                            <datalist id="dl-perfiles">
+                            <select id="rol" name="rol" class="mt-1 block w-full rounded border-gray-300" required>
+                                <option value="">-- Seleccione --</option>
                                 @foreach ($perfiles as $p)
-                                    <option value="{{ $p->perfil }}"></option>
+                                    <option value="{{ $p->perfil }}" {{ old('rol', $trabajador->rol ?? '') == $p->perfil ? 'selected' : '' }}>{{ $p->perfil }}</option>
                                 @endforeach
-                            </datalist>
+                            </select>
                             <x-input-error :messages="$errors->get('rol')" class="mt-2" />
                         </div>
                         <div>

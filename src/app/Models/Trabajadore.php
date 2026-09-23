@@ -61,6 +61,12 @@ class Trabajadore extends Model
 		return $this->belongsTo(Locale::class, 'local_id');
 	}
 
+	// Alias para compatibilidad con vistas y controller que usan `local`
+	public function local()
+	{
+		return $this->locale();
+	}
+
 	public function restaurante()
 	{
 		return $this->belongsTo(Restaurante::class);
