@@ -28,8 +28,8 @@ class ProfileController extends Controller
     {
         $request->user()->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($request->user()->isDirty('password')) {
+            $request->user()->must_change_password = false;
         }
 
         $request->user()->save();

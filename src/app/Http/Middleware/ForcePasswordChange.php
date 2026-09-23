@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+
+class ForcePasswordChange
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $user = $request->user();
+
+        if (
+            $user && $user->must_change_password
+            && ! $request->routeIs('profile.edit', 'profile.update', 'logout')
+        ) {
+            return redirect()->route('profile.edit')
+                ->with('status', 'Debes cambiar tu contraseña inicial.');
+        }
+
+        return $next($request);
+    }
+}
