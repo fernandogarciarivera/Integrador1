@@ -1,3 +1,11 @@
+@php
+    $menuItems = $menuItems ?? collect();
+    $trabajador = $trabajador ?? null;
+    $authUser = $authUser ?? Auth::user();
+    $headerBrand = $trabajador?->restaurante?->nombre ?? config('app.name', 'PekeTienda');
+    $headerLocation = $trabajador?->local?->nombre ?? 'Panel principal';
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -7,38 +15,81 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @if (request()->routeIs('trabajadores.*'))
-                <header class="worker-topbar">
-                    <div class="worker-topbar__brand"><span aria-hidden="true">&#127869;</span> Gestión de Perfiles</div>
-                    <span class="worker-topbar__context">{{ Auth::user()->name }}</span>
-                </header>
-            @else
-                @include('layouts.navigation')
-            @endif
+    <body class="app-body">
+        <div class="app-shell">
+            <header class="app-header">
+                <div class="app-header__brand">
+                    <span class="app-header__logo" aria-hidden="true">P</span>
+                    <div class="app-header__copy">
+                        <strong>{{ $headerBrand }}</strong>
+                        <small>{{ $headerLocation }}</small>
+                    </div>
+                </div>
 
-            <!-- Page Heading -->
+                <div class="app-header__meta">
+                    @if ($authUser)
+                        <div class="app-header__user">
+                            <span>{{ $authUser->name }}</span>
+                            @if ($trabajador && $trabajador->rol)
+                                <small>{{ $trabajador->rol }}</small>
+                            @endif
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="app-header__logout">Cerrar sesión</button>
+                    </form>
+                </div>
+            </header>
+
+            <nav class="app-nav app-nav--desktop" aria-label="Navegación principal">
+                @if ($menuItems->isEmpty())
+                    <a href="{{ route('dashboard') }}" class="app-nav__link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">Dashboard</a>
+                @else
+                    @foreach ($menuItems as $menuItem)
+                        @php($menuRoute = \App\View\Components\AppLayout::resolveMenuUrl($menuItem->controller ?? null, $menuItem->formulario ?? null))
+                        @if ($menuRoute !== '#')
+                            <a href="{{ $menuRoute }}" class="app-nav__link {{ request()->fullUrlIs($menuRoute . '*') ? 'is-active' : '' }}">
+                                {{ $menuItem->formulario ?? 'Formulario' }}
+                            </a>
+                        @endif
+                    @endforeach
+                @endif
+            </nav>
+
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="app-page-header">
+                    <div class="app-page-header__inner">
                         {{ $header }}
                     </div>
                 </header>
             @endisset
 
-            <!-- Page Content -->
-            <main>
+            <main class="app-main">
                 {{ $slot }}
             </main>
+
+            <nav class="app-nav app-nav--mobile" aria-label="Navegación móvil">
+                @if ($menuItems->isEmpty())
+                    <a href="{{ route('dashboard') }}" class="app-nav__link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">Dashboard</a>
+                @else
+                    @foreach ($menuItems as $menuItem)
+                        @php($menuRoute = \App\View\Components\AppLayout::resolveMenuUrl($menuItem->controller ?? null, $menuItem->formulario ?? null))
+                        @if ($menuRoute !== '#')
+                            <a href="{{ $menuRoute }}" class="app-nav__link {{ request()->fullUrlIs($menuRoute . '*') ? 'is-active' : '' }}">
+                                {{ $menuItem->formulario ?? 'Formulario' }}
+                            </a>
+                        @endif
+                    @endforeach
+                @endif
+            </nav>
         </div>
     </body>
 </html>

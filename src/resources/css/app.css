@@ -3,3 +3,193 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.app-body {
+    margin: 0;
+    background: #f5f5f5;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+.app-shell {
+    min-height: 100vh;
+    background: #f7f7f8;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dfe3e8;
+    background: #ffffff;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.app-header__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.app-header__logo {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    background: #111827;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.app-header__copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.app-header__copy strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.app-header__copy small {
+    color: #6b7280;
+    font-size: 0.72rem;
+}
+
+.app-header__meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.app-header__user {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2;
+}
+
+.app-header__user span {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.app-header__user small {
+    color: #6b7280;
+    font-size: 0.68rem;
+}
+
+.app-header__logout {
+    border: 1px solid #d1d5db;
+    background: transparent;
+    border-radius: 0.5rem;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #111827;
+    cursor: pointer;
+}
+
+.app-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.app-nav__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 0.75rem;
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.app-nav__link:hover,
+.app-nav__link.is-active {
+    background: #111827;
+    color: #ffffff;
+}
+
+.app-page-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.app-page-header__inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem 0;
+}
+
+.app-main {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.app-nav--desktop {
+    display: flex;
+}
+
+.app-nav--mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .app-header {
+        padding: 0.85rem 1rem;
+    }
+
+    .app-header__copy small,
+    .app-header__user small {
+        display: none;
+    }
+
+    .app-header__user {
+        align-items: flex-end;
+    }
+
+    .app-nav--desktop {
+        display: none;
+    }
+
+    .app-nav--mobile {
+        display: flex;
+        position: sticky;
+        bottom: 0;
+        z-index: 15;
+        padding: 0.65rem 0.75rem 1rem;
+        border-top: 1px solid #e5e7eb;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(8px);
+    }
+
+    .app-nav--mobile .app-nav__link {
+        flex: 1 1 0;
+        min-width: 0;
+        font-size: 0.7rem;
+        padding: 0.65rem 0.5rem;
+    }
+
+    .app-main {
+        padding: 1rem;
+    }
+}

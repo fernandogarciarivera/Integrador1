@@ -279,24 +279,21 @@ INSERT INTO `UtpIntegradorBuzzer`.`perfilAccesos` (`perfil`) VALUES
   ('DESPACHO');
 
 INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VALUES 
-  ('Configuraciones', 'ConfiguracionController'), 
   ('Dashboard', 'DashboardController'), 
-  ('Pedidos Caja', 'PedidosController'), 
-  ('Pedidos Cocina', 'LocalesController'),
-  ('Pedidos Despacho', 'LocalesController'),
-  ('Reporte', 'ReporteController'), 
+  ('Pedidos Caja', 'CajaController'), 
+  ('Pedidos Cocina', 'CocinaController'),
+  ('Pedidos Despacho', 'DespachoController'),
+  ('Reporte', 'ReporteController'), s
   ('Trabajadores', 'TrabajadoresController'), 
   ('Empresa Contrata', 'RestaurantController'), 
   ('Locales', 'LocalesController');
 
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm;
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (3,4,5);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 3 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (3,4,5);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 4 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (3);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 5 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (4,5);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 6 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (5);
-
-
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,7);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 3 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (7,8);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 4 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (2);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 5 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (3);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 6 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (4);
 
 /*
 DROP TABLE `UtpIntegradorBuzzer`.`clientes`;
