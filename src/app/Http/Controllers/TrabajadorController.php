@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\{User, Trabajador, Restaurante, Locale, PerfilAcceso};
+use App\Support\ImageCropper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash, Storage};
 
@@ -61,10 +62,14 @@ class TrabajadorController extends Controller
             'puesto'         => 'nullable|string|max:100',
             'telefono'       => 'nullable|string|max:20',
             'imagen'         => 'nullable|image|max:2048',
+            'crop_x'        => 'nullable|numeric|min:0',
+            'crop_y'        => 'nullable|numeric|min:0',
+            'crop_width'    => 'nullable|numeric|min:0',
+            'crop_height'   => 'nullable|numeric|min:0',
         ]);
 
         $data['imagen_url'] = $request->hasFile('imagen')
-            ? Storage::url($request->file('imagen')->store('trabajadores', 'public'))
+            ? ImageCropper::cropAndStore($request->file('imagen'), $request->only(['crop_x', 'crop_y', 'crop_width', 'crop_height']), 'public', 'trabajadores')
             : null;
 
         DB::transaction(function () use ($data) {
@@ -102,6 +107,10 @@ class TrabajadorController extends Controller
             'puesto'         => 'nullable|string|max:100',
             'telefono'       => 'nullable|string|max:20',
             'imagen'         => 'nullable|image|max:2048',
+            'crop_x'        => 'nullable|numeric|min:0',
+            'crop_y'        => 'nullable|numeric|min:0',
+            'crop_width'    => 'nullable|numeric|min:0',
+            'crop_height'   => 'nullable|numeric|min:0',
         ]);
 
         unset($data['imagen']);
@@ -109,7 +118,7 @@ class TrabajadorController extends Controller
             if ($trabajador->imagen_url) {
                 Storage::disk('public')->delete(str_replace('/storage/', '', $trabajador->imagen_url));
             }
-            $data['imagen_url'] = Storage::url($request->file('imagen')->store('trabajadores', 'public'));
+            $data['imagen_url'] = ImageCropper::cropAndStore($request->file('imagen'), $request->only(['crop_x', 'crop_y', 'crop_width', 'crop_height']), 'public', 'trabajadores');
         }
 
         DB::transaction(function () use ($trabajador, $data) {

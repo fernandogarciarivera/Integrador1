@@ -65,6 +65,23 @@
                             <div class="worker-field worker-field--full">
                                 <label class="worker-label" for="imagen">Imagen del trabajador (opcional)</label>
                                 <input class="worker-control" id="imagen" name="imagen" type="file" accept="image/*">
+                                <div id="crop-container" class="worker-crop" aria-live="polite">
+                                    <div class="worker-crop__toolbar">
+                                        <span class="worker-crop__label">Recorte</span>
+                                        <button type="button" id="reset-crop" class="worker-button worker-button--light worker-button--small">Reiniciar recorte</button>
+                                    </div>
+                                    <div class="worker-crop__preview-wrap">
+                                        <img id="crop-preview" src="" alt="Previsualización de la imagen">
+                                        <div id="crop-overlay" class="worker-crop__overlay">
+                                            <div id="crop-box" class="worker-crop__box"></div>
+                                        </div>
+                                    </div>
+                                    <div class="worker-crop__hint">Arrastra para seleccionar la parte visible de la imagen antes de guardar. Tamaño máximo: 300×300.</div>
+                                </div>
+                                <input type="hidden" id="crop_x" name="crop_x" value="">
+                                <input type="hidden" id="crop_y" name="crop_y" value="">
+                                <input type="hidden" id="crop_width" name="crop_width" value="">
+                                <input type="hidden" id="crop_height" name="crop_height" value="">
                             </div>
                         </div>
                         @if ($errors->any())
@@ -133,6 +150,17 @@
         const localId = document.querySelector('#local_id');
         const localList = document.querySelector('#locales');
         const companyList = document.querySelector('#restaurantes');
+        const imageInput = document.querySelector('#imagen');
+        const cropContainer = document.querySelector('#crop-container');
+        const cropPreview = document.querySelector('#crop-preview');
+        const cropOverlay = document.querySelector('#crop-overlay');
+        const cropBox = document.querySelector('#crop-box');
+        const cropX = document.querySelector('#crop_x');
+        const cropY = document.querySelector('#crop_y');
+        const cropWidth = document.querySelector('#crop_width');
+        const cropHeight = document.querySelector('#crop_height');
+        const resetCropButton = document.querySelector('#reset-crop');
+        const MAX_CROP_SIZE = 300;
 
         const selectedId = (list, value) => [...list.options].find((option) => option.value === value)?.dataset.id || '';
 
@@ -150,6 +178,117 @@
                 localList.append(option);
             });
         };
+
+        const resetCrop = () => {
+            cropX.value = '';
+            cropY.value = '';
+            cropWidth.value = '';
+            cropHeight.value = '';
+            cropBox.style.left = '0px';
+            cropBox.style.top = '0px';
+            cropBox.style.width = '0px';
+            cropBox.style.height = '0px';
+        };
+
+        const updateCropBox = (x, y, width, height) => {
+            const overlayRect = cropOverlay.getBoundingClientRect();
+            const maxWidth = Math.max(overlayRect.width, 1);
+            const maxHeight = Math.max(overlayRect.height, 1);
+            const maxSize = Math.min(MAX_CROP_SIZE, Math.min(maxWidth, maxHeight));
+
+            const clampedWidth = Math.min(Math.max(width, 0), maxSize);
+            const clampedHeight = Math.min(Math.max(height, 0), maxSize);
+            const boundedX = Math.min(Math.max(0, x), maxWidth - clampedWidth);
+            const boundedY = Math.min(Math.max(0, y), maxHeight - clampedHeight);
+
+            const finalWidth = Math.min(clampedWidth, Math.max(0, maxWidth - boundedX));
+            const finalHeight = Math.min(clampedHeight, Math.max(0, maxHeight - boundedY));
+
+            cropBox.style.left = boundedX + 'px';
+            cropBox.style.top = boundedY + 'px';
+            cropBox.style.width = finalWidth + 'px';
+            cropBox.style.height = finalHeight + 'px';
+
+            const naturalWidth = cropPreview.naturalWidth || 1;
+            const naturalHeight = cropPreview.naturalHeight || 1;
+            const displayedWidth = cropPreview.clientWidth || 1;
+            const displayedHeight = cropPreview.clientHeight || 1;
+
+            cropX.value = ((boundedX / displayedWidth) * naturalWidth).toFixed(2);
+            cropY.value = ((boundedY / displayedHeight) * naturalHeight).toFixed(2);
+            cropWidth.value = ((finalWidth / displayedWidth) * naturalWidth).toFixed(2);
+            cropHeight.value = ((finalHeight / displayedHeight) * naturalHeight).toFixed(2);
+        };
+
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        const startCrop = (event) => {
+            if (!cropPreview.src) return;
+            event.preventDefault();
+            isDragging = true;
+            const overlayRect = cropOverlay.getBoundingClientRect();
+            startX = event.clientX - overlayRect.left;
+            startY = event.clientY - overlayRect.top;
+            cropBox.style.left = '0px';
+            cropBox.style.top = '0px';
+            cropBox.style.width = '0px';
+            cropBox.style.height = '0px';
+        };
+
+        const moveCrop = (event) => {
+            if (!isDragging || !cropPreview.src) return;
+            const overlayRect = cropOverlay.getBoundingClientRect();
+            const currentX = Math.min(Math.max(event.clientX - overlayRect.left, 0), overlayRect.width);
+            const currentY = Math.min(Math.max(event.clientY - overlayRect.top, 0), overlayRect.height);
+            const x = Math.min(startX, currentX);
+            const y = Math.min(startY, currentY);
+            const width = Math.abs(currentX - startX);
+            const height = Math.abs(currentY - startY);
+            const size = Math.min(width, height);
+            updateCropBox(x, y, size, size);
+        };
+
+        const endCrop = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            if (parseFloat(cropWidth.value) <= 0 || parseFloat(cropHeight.value) <= 0) {
+                resetCrop();
+            }
+        };
+
+        cropOverlay.addEventListener('pointerdown', startCrop);
+        cropOverlay.addEventListener('pointermove', moveCrop);
+        cropOverlay.addEventListener('pointerup', endCrop);
+        cropOverlay.addEventListener('pointerleave', endCrop);
+        resetCropButton.addEventListener('click', () => {
+            resetCrop();
+            if (cropPreview.src) {
+                cropBox.style.left = '0px';
+                cropBox.style.top = '0px';
+                cropBox.style.width = '0px';
+                cropBox.style.height = '0px';
+            }
+        });
+
+        imageInput.addEventListener('change', (event) => {
+            const file = event.target.files?.[0];
+            if (!file) {
+                cropContainer.classList.remove('is-visible');
+                resetCrop();
+                cropPreview.src = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                cropPreview.src = loadEvent.target.result;
+                cropContainer.classList.add('is-visible');
+                resetCrop();
+            };
+            reader.readAsDataURL(file);
+        });
 
         companyInput.addEventListener('input', () => {
             companyId.value = selectedId(companyList, companyInput.value);

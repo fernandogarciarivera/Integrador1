@@ -1,5 +1,7 @@
 # 1) ejecutar migraciones
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_22_000001_add_must_change_password_to_users.php --force
+docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_23_000000_add_imagen_url_to_trabajadores_table.php --force
+
 
 # 2) Limpiar caches como www-data
 docker compose exec -T -u www-data app php artisan config:clear

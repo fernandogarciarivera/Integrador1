@@ -142,6 +142,15 @@ if errorlevel 1 (
     set /a ERRORS+=1
     goto :ERROR_SUMMARY
 )
+
+echo  - Ensuring Laravel storage folders and public link exist...
+docker exec UtpIntegrador-app sh -lc "mkdir -p /var/www/storage/app/public /var/www/storage/app/public/trabajadores && chmod -R 0775 /var/www/storage /var/www/public && cd /var/www && php artisan storage:link"
+if errorlevel 1 (
+    echo  ERROR: Laravel storage folders or public symlink could not be created
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
+
 echo  - Waiting for database to be ready (30 seconds)...
 timeout /t 30 /nobreak
 
