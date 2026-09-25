@@ -1,3 +1,26 @@
+-- Nivel 1: hojas (solo tienen FKs salientes, nadie las referencia)
+DROP TABLE IF EXISTS `detalle_pedidos`;
+DROP TABLE IF EXISTS `historial_estados`;
+DROP TABLE IF EXISTS `notificaciones`;
+-- Nivel 2: pivotes y tablas sin dependientes
+DROP TABLE IF EXISTS `perfilesFormularios`;
+DROP TABLE IF EXISTS `metricas`;
+-- Nivel 3: pedidos (referenciada por detalle, historial, notificaciones — ya borradas)
+DROP TABLE IF EXISTS `pedidos`;
+-- Nivel 4: trabajadores (referenciada por pedidos e historial — ya borradas)
+DROP TABLE IF EXISTS `trabajadores`;
+-- Nivel 5: locales (referenciada por trabajadores, pedidos, metricas — ya borradas)
+DROP TABLE IF EXISTS `locales`;
+-- Nivel 6: catálogos independientes
+DROP TABLE IF EXISTS `restaurantes`;
+DROP TABLE IF EXISTS `clientes`;
+DROP TABLE IF EXISTS `perfilAccesos`;
+DROP TABLE IF EXISTS `formularios`;
+
+--
+-- Table structure for table `restaurantes`
+--
+
 DROP TABLE IF EXISTS `restaurantes`;
 CREATE TABLE `restaurantes` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -12,7 +35,11 @@ CREATE TABLE `restaurantes` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_restaurantes_estado` (`estado`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Table structure for table `locales`
+--
 
 DROP TABLE IF EXISTS `locales`;
 CREATE TABLE `locales` (
@@ -26,11 +53,14 @@ CREATE TABLE `locales` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  -- UNIQUE KEY `uk_locales_restaurante_codigo` (`restaurante_id`,`codigo`),
-  -- UNIQUE KEY `uk_locales_restaurante_codigo` (`restaurante_id`),
   KEY `idx_locales_restaurante` (`restaurante_id`),
   CONSTRAINT `fk_locales_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+--
+-- Table structure for table `clientes`
+--
 
 DROP TABLE IF EXISTS `clientes`;
 CREATE TABLE `clientes` (
@@ -46,21 +76,9 @@ CREATE TABLE `clientes` (
   KEY `idx_clientes_telefono` (`telefono`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-DROP TABLE IF EXISTS `perfilAccesos`;
-CREATE TABLE `perfilAccesos` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `perfil` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-DROP TABLE IF EXISTS `formularios`;
-CREATE TABLE `formularios` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `formulario` varchar(45) NOT NULL,
-  `controller` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `formulario_UNIQUE` (`formulario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+--
+-- Table structure for table `trabajadores`
+--
 
 DROP TABLE IF EXISTS `trabajadores`;
 CREATE TABLE `trabajadores` (
@@ -68,7 +86,7 @@ CREATE TABLE `trabajadores` (
   `user_id` bigint unsigned NOT NULL,
   `restaurante_id` bigint unsigned NOT NULL,
   `local_id` bigint unsigned DEFAULT NULL,
-  `rol` enum('SUPER_ADMIN','ADMIN_REST','GERENTE_LOCAL','CAJA','COCINA','DESPACHO') NOT NULL,
+  `rol` enum('SUPER_ADMIN','ADMIN','GERENTE','CAJA','COCINA') NOT NULL,
   `puesto` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT '1',
@@ -85,24 +103,9 @@ CREATE TABLE `trabajadores` (
   CONSTRAINT `fk_trabajadores_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-DROP TABLE IF EXISTS `productos`;
-CREATE TABLE `productos` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `local_id` bigint unsigned NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `descripcion` text,
-  `precio` decimal(10,2) NOT NULL,
-  `categoria` varchar(50) DEFAULT NULL,
-  `disponible` tinyint(1) NOT NULL DEFAULT '1',
-  `url_imagen` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_productos_local` (`local_id`),
-  KEY `idx_productos_categoria` (`categoria`),
-  CONSTRAINT `fk_productos_local` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+--
+-- Table structure for table `pedidos`
+--
 
 DROP TABLE IF EXISTS `pedidos`;
 CREATE TABLE `pedidos` (
@@ -135,11 +138,15 @@ CREATE TABLE `pedidos` (
   CONSTRAINT `fk_pedidos_trabajador_caja` FOREIGN KEY (`trabajador_caja_id`) REFERENCES `trabajadores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Table structure for table `detalle_pedidos`
+--
+
 DROP TABLE IF EXISTS `detalle_pedidos`;
 CREATE TABLE `detalle_pedidos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `pedido_id` bigint unsigned NOT NULL,
-  `producto_id` bigint unsigned NOT NULL,
+  `detalleProducto` varchar(100) DEFAULT NULL,
   `cantidad` int unsigned NOT NULL DEFAULT '1',
   `precio_unitario` decimal(10,2) NOT NULL,
   `subtotal` decimal(10,2) NOT NULL,
@@ -148,48 +155,12 @@ CREATE TABLE `detalle_pedidos` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_detalle_pedido` (`pedido_id`),
-  KEY `idx_detalle_producto` (`producto_id`),
-  CONSTRAINT `fk_detalle_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_detalle_producto` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT `fk_detalle_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-DROP TABLE IF EXISTS `historial_estados`;
-CREATE TABLE `historial_estados` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `pedido_id` bigint unsigned NOT NULL,
-  `trabajador_id` bigint unsigned DEFAULT NULL,
-  `estado_anterior` enum('REGISTRADO','PREPARANDO','LISTO','ENTREGADO','CANCELADO') DEFAULT NULL,
-  `estado_nuevo` enum('REGISTRADO','PREPARANDO','LISTO','ENTREGADO','CANCELADO') NOT NULL,
-  `fecha_cambio` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `observaciones` text,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_hist_pedido_fecha` (`pedido_id`,`fecha_cambio`),
-  KEY `idx_hist_trabajador` (`trabajador_id`),
-  CONSTRAINT `fk_hist_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_hist_trabajador` FOREIGN KEY (`trabajador_id`) REFERENCES `trabajadores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-DROP TABLE IF EXISTS `metricas`;
-CREATE TABLE `metricas` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `restaurante_id` bigint unsigned NOT NULL,
-  `local_id` bigint unsigned NOT NULL,
-  `fecha` date NOT NULL,
-  `total_pedidos` int unsigned NOT NULL DEFAULT '0',
-  `tiempo_promedio_espera` decimal(5,2) DEFAULT NULL,
-  `porcentaje_notificaciones_exitosas` decimal(5,2) DEFAULT NULL,
-  `pedidos_gestionados_qr` int unsigned NOT NULL DEFAULT '0',
-  `clientes_unicos` int unsigned NOT NULL DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_metrica_rest_fecha` (`restaurante_id`,`fecha`),
-  KEY `fk_metricas_locales1_idx` (`local_id`),
-  CONSTRAINT `fk_metrica_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_metricas_locales1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+--
+-- Table structure for table `notificaciones`
+--
 
 DROP TABLE IF EXISTS `notificaciones`;
 CREATE TABLE `notificaciones` (
@@ -211,6 +182,58 @@ CREATE TABLE `notificaciones` (
   CONSTRAINT `fk_notif_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
+--
+-- Table structure for table `historial_estados`
+--
+
+DROP TABLE IF EXISTS `historial_estados`;
+CREATE TABLE `historial_estados` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `pedido_id` bigint unsigned NOT NULL,
+  `trabajador_id` bigint unsigned DEFAULT NULL,
+  `estado_anterior` enum('REGISTRADO','PREPARANDO','LISTO','ENTREGADO','CANCELADO') DEFAULT NULL,
+  `estado_nuevo` enum('REGISTRADO','PREPARANDO','LISTO','ENTREGADO','CANCELADO') NOT NULL,
+  `fecha_cambio` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `observaciones` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_hist_pedido_fecha` (`pedido_id`,`fecha_cambio`),
+  KEY `idx_hist_trabajador` (`trabajador_id`),
+  CONSTRAINT `fk_hist_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_hist_trabajador` FOREIGN KEY (`trabajador_id`) REFERENCES `trabajadores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Table structure for table `perfilAccesos`
+--
+
+DROP TABLE IF EXISTS `perfilAccesos`;
+CREATE TABLE `perfilAccesos` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `perfil` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Table structure for table `formularios`
+--
+
+DROP TABLE IF EXISTS `formularios`;
+CREATE TABLE `formularios` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `formulario` varchar(45) NOT NULL,
+  `controller` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `formulario_UNIQUE` (`formulario`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+--
+-- Table structure for table `perfilesFormularios`
+--
+
 DROP TABLE IF EXISTS `perfilesFormularios`;
 CREATE TABLE `perfilesFormularios` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -221,7 +244,39 @@ CREATE TABLE `perfilesFormularios` (
   KEY `fk_perfilesFormularios_formularios1_idx` (`formulario_id`),
   CONSTRAINT `fk_perfilesFormularios_formularios1` FOREIGN KEY (`formulario_id`) REFERENCES `formularios` (`id`),
   CONSTRAINT `fk_perfilesFormularios_perfilAccesos1` FOREIGN KEY (`perfilAcceso_id`) REFERENCES `perfilAccesos` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Table structure for table `metricas`
+--
+
+DROP TABLE IF EXISTS `metricas`;
+CREATE TABLE `metricas` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `restaurante_id` bigint unsigned NOT NULL,
+  `local_id` bigint unsigned NOT NULL,
+  `fecha` date NOT NULL,
+  `total_pedidos` int unsigned NOT NULL DEFAULT '0',
+  `tiempo_promedio_espera` decimal(5,2) DEFAULT NULL,
+  `porcentaje_notificaciones_exitosas` decimal(5,2) DEFAULT NULL,
+  `pedidos_gestionados_qr` int unsigned NOT NULL DEFAULT '0',
+  `clientes_unicos` int unsigned NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_metrica_rest_fecha` (`restaurante_id`,`fecha`),
+  KEY `fk_metricas_locales1_idx` (`local_id`),
+  CONSTRAINT `fk_metrica_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_metricas_locales1` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+
+
+
+
 
 DROP TABLE IF EXISTS `restaurantTmp`;
 CREATE TABLE `restaurantTmp` (
