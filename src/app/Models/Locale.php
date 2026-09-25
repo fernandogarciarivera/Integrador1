@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\FiltraPorAcceso;
 
 /**
  * Class Locale
@@ -33,7 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Locale extends Model
 {
-	use SoftDeletes;
+	use SoftDeletes, FiltraPorAcceso;
 
 	protected $table = 'locales';
 

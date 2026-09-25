@@ -9,6 +9,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\FiltraPorAcceso;
 
 /**
  * Class Notificacione
@@ -32,7 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Notificacione extends Model
 {
 
-	use SoftDeletes;
+	use SoftDeletes, FiltraPorAcceso;
 
 	protected $table = 'notificaciones';
 
