@@ -338,7 +338,7 @@ INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VAL
   ('Pedidos Caja', 'CajaController'), 
   ('Pedidos Cocina', 'CocinaController'),
   ('Pedidos Despacho', 'DespachoController'),
-  ('Reporte', 'ReporteController'), s
+  ('Reporte', 'ReporteController'), 
   ('Trabajadores', 'TrabajadoresController'), 
   ('Empresa Contrata', 'RestaurantController'), 
   ('Locales', 'LocalesController');

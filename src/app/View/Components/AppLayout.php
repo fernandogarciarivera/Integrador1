@@ -70,22 +70,27 @@ class AppLayout extends Component
     {
         $exactRoutes = [
             'Dashboard' => 'dashboard',
+            'DashboardController' => 'dashboard',
             'ProfileController' => 'profile.edit',
 
-            //'CajaController' => 'caja.index',
-            //'Caja' => 'caja.index',
+            'CajaController' => 'caja.index',
+            'Caja' => 'caja.index',
+            'Pedidos Caja' => 'caja.index',
 
             //'CocinaController' => 'cocina.index',
             //'Cocina' => 'cocina.index',
+            //'Pedidos Cocina' => 'cocina.index',
 
             //'DespachoController' => 'despacho.index',
             //'Despacho' => 'despacho.index',
+            //'Pedidos Despacho' => 'despacho.index',
 
             //'ReporteController' => 'reporte.index',
             //'Reporte' => 'reporte.index',
 
             'TrabajadoresController' => 'trabajadores.index',
             'Trabajadores' => 'trabajadores.index',
+            'Trabajador' => 'trabajadores.index',
 
             //'RestaurantController' => 'restaurant.index',
             //'Restaurant' => 'restaurant.index',
