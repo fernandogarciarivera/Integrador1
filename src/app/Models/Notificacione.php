@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Notificacione
@@ -30,6 +31,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Notificacione extends Model
 {
+
+	use SoftDeletes;
+
 	protected $table = 'notificaciones';
 
 	protected $casts = [

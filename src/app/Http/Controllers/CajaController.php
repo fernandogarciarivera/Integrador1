@@ -17,16 +17,18 @@ class CajaController extends Controller
     {
         $trabajador = Trabajador::with('local')->where('user_id', Auth::id())->firstOrFail();
         $localId = $trabajador->local_id;
+        $accesoPedidos = Pedido::query()
+            ->when($trabajador->restaurante_id !== null, fn($query) => $query->whereHas('locale', fn($locale) => $locale->where('restaurante_id', $trabajador->restaurante_id)))
+            ->when($localId !== null, fn($query) => $query->where('local_id', $localId));
 
         $estado = $request->query('estado'); // filtro opcional
-        $pedidos = Pedido::with('cliente:id,nombre')
-            ->where('local_id', $localId)
+        $pedidos = (clone $accesoPedidos)->with('cliente:id,nombre')
             ->when($estado, fn($q) => $q->where('estado', $estado))
             ->latest('fecha_pedido')
             ->limit(50)
             ->get();
 
-        $baseQuery = Pedido::where('local_id', $localId)->whereDate('fecha_pedido', today());
+        $baseQuery = (clone $accesoPedidos)->whereDate('fecha_pedido', today());
 
         $metricas = [
             'total'      => $baseQuery->count(),

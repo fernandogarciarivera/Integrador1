@@ -36,4 +36,9 @@ class User extends BaseUser implements AuthenticatableContract
 	{
 		return $this->hasMany(Trabajadore::class);
 	}
+
+	public function trabajador()
+	{
+		return $this->hasOne(Trabajadore::class);
+	}
 }

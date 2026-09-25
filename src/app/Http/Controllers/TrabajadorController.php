@@ -12,16 +12,20 @@ class TrabajadorController extends Controller
 {
     public function index()
     {
+        $trabajador = auth()->user()?->trabajador;
         $trabajadores = Trabajador::with('user', 'restaurante', 'local')
+            ->delUsuario() // adicionado para poder ver solo regstros de trabajadores que tienen usuario en su local y restaurante asignado, si el usuario es superadmin no filtra nada
             ->when(request('trabajador'), fn($query, $value) => $query->whereHas('user', fn($user) => $user->where('name', 'like', "%{$value}%")->orWhere('email', 'like', "%{$value}%")))
-            ->when(request('restaurante_id'), fn($query, $value) => $query->where('restaurante_id', $value))
-            ->when(request('local_id'), fn($query, $value) => $query->where('local_id', $value))
+            // ->when(request('restaurante_id'), fn($query, $value) => $query->where('restaurante_id', $value)) ->when(request('local_id'), fn($query, $value) => $query->where('local_id', $value))
             ->latest('id')
             ->paginate(20)
             ->withQueryString();
-        $restaurantes = Restaurante::orderBy('nombre')->get(['id', 'nombre']);
+        $restaurantes = Restaurante::when($trabajador?->restaurante_id !== null, fn($query) => $query->whereKey($trabajador->restaurante_id))
+            ->orderBy('nombre')->get(['id', 'nombre']);
         $roles        = PerfilAcceso::orderBy('id')->pluck('perfil');
-        $locales = Locale::orderBy('nombre')->get(['id', 'nombre', 'restaurante_id']);
+        $locales = Locale::when($trabajador?->restaurante_id !== null, fn($query) => $query->where('restaurante_id', $trabajador->restaurante_id))
+            ->when($trabajador?->local_id !== null, fn($query) => $query->whereKey($trabajador->local_id))
+            ->orderBy('nombre')->get(['id', 'nombre', 'restaurante_id']);
         return view('trabajadores.index', compact('trabajadores', 'restaurantes', 'roles', 'locales'));
     }
 
@@ -29,7 +33,7 @@ class TrabajadorController extends Controller
     {
         return view('trabajadores.form', [
             'trabajador' => new Trabajador,
-            'restaurantes' => Restaurante::orderBy('nombre')->get(['id', 'nombre']),
+            'restaurantes' => Restaurante::delUsuario()->orderBy('nombre')->get(['id', 'nombre']),
             'locales' => collect(),
             'perfiles' => PerfilAcceso::orderBy('id')->get(['perfil']),
         ]);
@@ -40,7 +44,7 @@ class TrabajadorController extends Controller
         $trabajador = Trabajador::with('user')->findOrFail($trabajador);
         return view('trabajadores.form', [
             'trabajador' => $trabajador,
-            'restaurantes' => Restaurante::orderBy('nombre')->get(['id', 'nombre']),
+            'restaurantes' => Restaurante::elUsuario()->orderBy('nombre')->get(['id', 'nombre']),
             'locales' => Locale::where('restaurante_id', $trabajador->restaurante_id)->orderBy('nombre')->get(['id', 'nombre']),
             'perfiles' => PerfilAcceso::orderBy('id')->get(['perfil']),
         ]);

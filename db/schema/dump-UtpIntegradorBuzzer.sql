@@ -325,6 +325,15 @@ SELECT rst.id, TRIM(SUBSTRING_INDEX(lcl.nombre, '-', -1)) AS nombre, lcl.direcci
 
 DROP TABLE `UtpIntegradorBuzzer`.`restaurantTmp`;
 
+SET SQL_SAFE_UPDATES = 0;
+DELETE FROM `UtpIntegradorBuzzer`.`perfilesFormularios`;
+DELETE FROM `UtpIntegradorBuzzer`.`perfilAccesos`;
+DELETE FROM `UtpIntegradorBuzzer`.`formularios`;
+SET SQL_SAFE_UPDATES = 1;
+
+ALTER TABLE `UtpIntegradorBuzzer`.`perfilAccesos` AUTO_INCREMENT = 1;
+ALTER TABLE `UtpIntegradorBuzzer`.`formularios` AUTO_INCREMENT = 1;
+
 INSERT INTO `UtpIntegradorBuzzer`.`perfilAccesos` (`perfil`) VALUES 
   ('SUPER_ADMIN'), 
   ('ADMIN_REST'), 
@@ -343,7 +352,7 @@ INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VAL
   ('Empresa Contrata', 'RestaurantController'), 
   ('Locales', 'LocalesController');
 
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm;
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,6);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,7);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 3 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (7,8);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 4 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (2);

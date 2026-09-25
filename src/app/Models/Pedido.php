@@ -45,6 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Pedido extends Model
 {
 	use SoftDeletes;
+
 	protected $table = 'pedidos';
 
 	protected $casts = [

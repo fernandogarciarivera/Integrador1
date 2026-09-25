@@ -27,7 +27,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Restaurante $restaurante
  * @property Collection|Metrica[] $metricas
  * @property Collection|Pedido[] $pedidos
- * @property Collection|Producto[] $productos
  * @property Collection|Trabajadore[] $trabajadores
  *
  * @package App\Models
@@ -35,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Locale extends Model
 {
 	use SoftDeletes;
+
 	protected $table = 'locales';
 
 	protected $casts = [
@@ -62,11 +62,6 @@ class Locale extends Model
 	public function pedidos()
 	{
 		return $this->hasMany(Pedido::class, 'local_id');
-	}
-
-	public function productos()
-	{
-		return $this->hasMany(Producto::class, 'local_id');
 	}
 
 	public function trabajadores()

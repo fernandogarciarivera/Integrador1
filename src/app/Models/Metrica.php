@@ -8,6 +8,8 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\FiltraPorAcceso;
 
 /**
  * Class Metrica
@@ -31,6 +33,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Metrica extends Model
 {
+
+	use SoftDeletes, FiltraPorAcceso;
+
 	protected $table = 'metricas';
 
 	protected $casts = [
