@@ -113,14 +113,18 @@
                                 </span>
                             </div>
 
-                            @php($estadoPermitidoPerfil = config('caja.permisos.' . ($trabajador->rol ?? 'default'), config('caja.permisos.default', ['REGISTRADO','PREPARANDO','LISTO','ENTREGADO','CANCELADO'])) )
+                            @php($estadoPermitidoPerfil = \App\Support\EstadoAccesoPedido::permisosPorPerfil($trabajador->rol ?? null, 'caja'))
+                            @php($estadosDisponibles = \App\Support\EstadoAccesoPedido::estados())
                             <select class="caja-estado-select caja-control !min-h-9 !text-xs"
                                     @change="cambiarEstado({{ $pedido->id }}, $event.target.value, $event)"
-                                    @disabled(in_array($pedido->estado, config('caja.finalizados', ['ENTREGADO', 'CANCELADO']), true))>
-                                @foreach (['REGISTRADO','PREPARANDO','LISTO','ENTREGADO','CANCELADO'] as $opt)
-                                    @if (in_array($opt, $estadoPermitidoPerfil, true) || $pedido->estado === $opt)
-                                        <option value="{{ $opt }}" @selected($pedido->estado === $opt)>{{ $estados[$opt]['label'] }}</option>
-                                    @endif
+                                    @disabled(in_array($pedido->estado, config('estado_acceso_pedido.finalizados', ['ENTREGADO', 'CANCELADO']), true))>
+                                @foreach ($estadosDisponibles as $opt)
+                                    @php($seleccionable = in_array($opt, $estadoPermitidoPerfil, true))
+                                    <option value="{{ $opt }}"
+                                            @selected($pedido->estado === $opt)
+                                            @disabled(!$seleccionable && $pedido->estado !== $opt)>
+                                        {{ $estados[$opt]['label'] }}
+                                    </option>
                                 @endforeach
                             </select>
 

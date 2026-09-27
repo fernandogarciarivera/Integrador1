@@ -173,7 +173,7 @@ class CajaController extends Controller
     public function cambiarEstado(Request $request, Pedido $pedido)
     {
         $data = $request->validate([
-            'estado'        => ['required', Rule::in(config('estado_acceso_pedido.estados', ['REGISTRADO', 'PREPARANDO', 'LISTO', 'ENTREGADO', 'CANCELADO']))],
+            'estado'        => ['required', Rule::in(EstadoAccesoPedido::estados())],
             'observaciones' => 'nullable|string|max:300',
         ]);
 

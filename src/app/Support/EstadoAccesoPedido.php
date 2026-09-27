@@ -4,6 +4,11 @@ namespace App\Support;
 
 class EstadoAccesoPedido
 {
+    public static function estados(): array
+    {
+        return config('estado_acceso_pedido.estados', ['REGISTRADO', 'PREPARANDO', 'LISTO', 'ENTREGADO', 'CANCELADO']);
+    }
+
     public static function permisosPorPerfil(?string $perfil, ?string $modulo = 'caja'): array
     {
         $config = config('estado_acceso_pedido.modulos.' . ($modulo ?? 'caja'), []);
@@ -13,7 +18,7 @@ class EstadoAccesoPedido
             return $config[$perfil];
         }
 
-        return $config['default'] ?? config('estado_acceso_pedido.estados', ['REGISTRADO', 'PREPARANDO', 'LISTO', 'ENTREGADO', 'CANCELADO']);
+        return $config['default'] ?? self::estados();
     }
 
     public static function puedeAsignar(string $perfil, string $estado, ?string $modulo = 'caja'): bool
