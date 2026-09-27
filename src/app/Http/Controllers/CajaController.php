@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\{Pedido, DetallePedido, HistorialEstado, Notificacione, Cliente};
 use App\Models\Trabajador;
+use App\Support\EstadoAccesoPedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Auth, DB};
 use Illuminate\Validation\Rule;
@@ -11,17 +12,44 @@ use Illuminate\Validation\Rule;
 class CajaController extends Controller
 {
     /** Estados válidos (espejo del enum en BD). */
-    private const ESTADOS = ['REGISTRADO', 'PREPARANDO', 'LISTO', 'ENTREGADO', 'CANCELADO'];
+    // private const ESTADOS = ['REGISTRADO', 'PREPARANDO', 'LISTO', 'ENTREGADO', 'CANCELADO'];
+
+    private function trabajadorCajaActual(): Trabajador
+    {
+        return Trabajador::with('local')->where('user_id', Auth::id())->firstOrFail();
+    }
+
+    private function permisosEstadosPorPerfil(?string $perfil): array
+    {
+        return EstadoAccesoPedido::permisosPorPerfil($perfil);
+    }
+
+    private function validarCambioEstado(Trabajador $trabajador, Pedido $pedido, string $estadoDestino): void
+    {
+        $perfil = $trabajador->rol ?? null;
+        $permitidos = $this->permisosEstadosPorPerfil($perfil);
+
+        abort_if(! in_array($estadoDestino, $permitidos, true), 403, 'Este perfil no puede asignar ese estado.');
+
+        if (EstadoAccesoPedido::pedidoFinalizado($pedido->estado)) {
+            abort(403, 'No se puede modificar un pedido ya finalizado.');
+        }
+    }
+
+    private function pedidosDelTrabajador(Trabajador $trabajador)
+    {
+        return Pedido::query()
+            ->where('trabajador_caja_id', $trabajador->id)
+            ->when($trabajador->local_id !== null, fn($query) => $query->where('local_id', $trabajador->local_id));
+    }
 
     public function index(Request $request)
     {
-        $trabajador = Trabajador::with('local')->where('user_id', Auth::id())->firstOrFail();
-        $localId = $trabajador->local_id;
-        $accesoPedidos = Pedido::query()
-            ->when($trabajador->restaurante_id !== null, fn($query) => $query->whereHas('locale', fn($locale) => $locale->where('restaurante_id', $trabajador->restaurante_id)))
-            ->when($localId !== null, fn($query) => $query->where('local_id', $localId));
+        $trabajador = $this->trabajadorCajaActual();
+        $accesoPedidos = $this->pedidosDelTrabajador($trabajador);
 
-        $estado = $request->query('estado'); // filtro opcional
+        $estado = $request->query('estado');
+
         $pedidos = (clone $accesoPedidos)->with('cliente:id,nombre')
             ->when($estado, fn($q) => $q->where('estado', $estado))
             ->latest('fecha_pedido')
@@ -33,7 +61,7 @@ class CajaController extends Controller
         $metricas = [
             'total'      => $baseQuery->count(),
             'ventas'     => (float) $baseQuery->sum('total'),
-            'en_proceso' => $baseQuery->clone()->whereIn('estado', ['REGISTRADO', 'PREPARANDO', 'LISTO'])->count(),
+            'en_proceso' => $baseQuery->clone()->whereIn('estado', config('estado_acceso_pedido.proceso'))->count(),
             'estados'    => [
                 'REGISTRADO' => $baseQuery->clone()->where('estado', 'REGISTRADO')->count(),
                 'PREPARANDO' => $baseQuery->clone()->where('estado', 'PREPARANDO')->count(),
@@ -54,13 +82,30 @@ class CajaController extends Controller
             'tipo'             => ['required', Rule::in(['PRESENCIAL', 'PARA_LLEVAR'])],
             'notas'            => 'nullable|string|max:500',
             'items'            => 'required|array|min:1',
-            'items.*.productoDesc' => 'required|string|max:100',   // 'items.*.detalleProducto'      => 'required|string|max:100',
+            'items.*.productoDesc' => 'nullable|string|max:100',
+            'items.*.detalleProducto' => 'nullable|string|max:100',
             'items.*.cantidad'             => 'required|integer|min:1',
             'items.*.precio_unitario'      => 'required|numeric|min:0',
             'items.*.instrucciones_especiales' => 'nullable|string|max:200',
         ]);
 
-        $trabajador = Trabajador::where('user_id', Auth::id())->firstOrFail();
+        $data['items'] = array_map(function (array $item): array {
+            $descripcion = trim((string) ($item['detalleProducto'] ?? $item['productoDesc'] ?? ''));
+
+            if ($descripcion === '') {
+                abort(422, 'Cada ítem debe incluir una descripción del producto.');
+            }
+
+            return [
+                'detalleProducto' => $descripcion,
+                'productoDesc' => $descripcion,
+                'cantidad' => $item['cantidad'],
+                'precio_unitario' => $item['precio_unitario'],
+                'instrucciones_especiales' => $item['instrucciones_especiales'] ?? null,
+            ];
+        }, $data['items']);
+
+        $trabajador = $this->trabajadorCajaActual();
 
         $pedido = DB::transaction(function () use ($data, $trabajador) {
             $total = collect($data['items'])->sum(fn($i) => $i['cantidad'] * $i['precio_unitario']);
@@ -83,7 +128,8 @@ class CajaController extends Controller
             foreach ($data['items'] as $item) {
                 DetallePedido::create([
                     'pedido_id'     => $pedido->id,
-                    'productoDesc' => $item['productoDesc'],               //'detalleProducto' => $item['detalleProducto'],
+                    'detalleProducto' => $item['detalleProducto'],
+                    'productoDesc' => $item['productoDesc'],
                     'cantidad'      => $item['cantidad'],
                     'precio_unitario' => $item['precio_unitario'],
                     'subtotal'      => $item['cantidad'] * $item['precio_unitario'],
@@ -127,12 +173,14 @@ class CajaController extends Controller
     public function cambiarEstado(Request $request, Pedido $pedido)
     {
         $data = $request->validate([
-            'estado'        => ['required', Rule::in(self::ESTADOS)],
+            'estado'        => ['required', Rule::in(config('estado_acceso_pedido.estados', ['REGISTRADO', 'PREPARANDO', 'LISTO', 'ENTREGADO', 'CANCELADO']))],
             'observaciones' => 'nullable|string|max:300',
         ]);
 
-        $trabajador = Trabajador::where('user_id', Auth::id())->firstOrFail();
+        $trabajador = $this->trabajadorCajaActual();
+        abort_if($pedido->trabajador_caja_id !== $trabajador->id, 403);
         abort_if($pedido->local_id !== $trabajador->local_id, 403);
+        $this->validarCambioEstado($trabajador, $pedido, $data['estado']);
 
         DB::transaction(function () use ($pedido, $data, $trabajador) {
             $anterior = $pedido->estado;
@@ -169,6 +217,9 @@ class CajaController extends Controller
 
     public function show(Pedido $pedido)
     {
+        $trabajador = $this->trabajadorCajaActual();
+        abort_if($pedido->trabajador_caja_id !== $trabajador->id, 403);
+
         $pedido->load(['cliente', 'detalle_pedidos', 'historial_estados.trabajadore.user']);
         return response()->json($pedido);
     }

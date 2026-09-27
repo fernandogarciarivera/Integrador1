@@ -113,10 +113,14 @@
                                 </span>
                             </div>
 
+                            @php($estadoPermitidoPerfil = config('caja.permisos.' . ($trabajador->rol ?? 'default'), config('caja.permisos.default', ['REGISTRADO','PREPARANDO','LISTO','ENTREGADO','CANCELADO'])) )
                             <select class="caja-estado-select caja-control !min-h-9 !text-xs"
-                                    @change="cambiarEstado({{ $pedido->id }}, $event.target.value, $event)">
+                                    @change="cambiarEstado({{ $pedido->id }}, $event.target.value, $event)"
+                                    @disabled(in_array($pedido->estado, config('caja.finalizados', ['ENTREGADO', 'CANCELADO']), true))>
                                 @foreach (['REGISTRADO','PREPARANDO','LISTO','ENTREGADO','CANCELADO'] as $opt)
-                                    <option value="{{ $opt }}" @selected($pedido->estado === $opt)>{{ $estados[$opt]['label'] }}</option>
+                                    @if (in_array($opt, $estadoPermitidoPerfil, true) || $pedido->estado === $opt)
+                                        <option value="{{ $opt }}" @selected($pedido->estado === $opt)>{{ $estados[$opt]['label'] }}</option>
+                                    @endif
                                 @endforeach
                             </select>
 
@@ -310,15 +314,24 @@
                 <div class="caja-modal-panel__body">
                     <template x-if="detail">
                         <div class="flex flex-col gap-sm">
-                            <p class="text-body-md"><strong x-text="'#' + detail.codigo_pedido"></strong></p>
-                            <p class="text-body-md text-on-surface-variant" x-text="'Estado: ' + detail.estado"></p>
+                            <div class="flex items-center justify-between gap-sm">
+                                <p class="text-body-md"><strong x-text="'#' + detail.codigo_pedido"></strong></p>
+                                <span class="text-label-caps font-label-caps px-sm py-0.5 rounded-full bg-primary-container text-on-primary-container"
+                                      x-text="detail.estado"></span>
+                            </div>
                             <p class="text-body-md text-on-surface-variant" x-text="'Total: S/ ' + Number(detail.total ?? 0).toFixed(2)"></p>
+                            <p class="text-body-md text-on-surface-variant" x-text="detail.codigo_qr ? 'QR: ' + detail.codigo_qr : 'QR no disponible'"></p>
+
+                            <div class="rounded-2xl border border-outline-variant bg-surface-container p-sm" x-show="detail.codigo_qr">
+                                <img :src="qrUrlFromCode(detail.codigo_qr)" alt="Código QR del pedido" class="w-40 h-40 object-contain rounded-lg bg-white mx-auto">
+                            </div>
+
                             <div class="border-t border-outline-variant pt-sm">
                                 <h4 class="font-bold mb-xs">Ítems</h4>
                                 <template x-for="d in (detail.detalle_pedidos || [])" :key="d.id">
-                                    <div class="flex justify-between text-body-md py-1">
-                                        <span x-text="`${d.cantidad}× ${d.productoDesc}`"></span>
-                                        <span x-text="'S/ ' + Number(d.subtotal).toFixed(2)"></span>
+                                    <div class="flex justify-between text-body-md py-1 gap-sm">
+                                        <span x-text="`${d.cantidad}× ${d.detalleProducto || d.productoDesc || 'Producto'}`"></span>
+                                        <span x-text="'S/ ' + Number(d.subtotal ?? (Number(d.cantidad) * Number(d.precio_unitario))).toFixed(2)"></span>
                                     </div>
                                 </template>
                             </div>
@@ -448,6 +461,10 @@
             qrUrl() {
                 const data = encodeURIComponent(this.qrData.qr || '');
                 return `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${data}`;
+            },
+            qrUrlFromCode(code) {
+                const value = encodeURIComponent(code || '');
+                return `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${value}`;
             },
             closeQr() { this.qrOpen = false; },
             resetForm() {

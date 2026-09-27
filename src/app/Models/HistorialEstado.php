@@ -8,7 +8,6 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\FiltraPorAcceso;
 
 /**
@@ -31,7 +30,7 @@ use App\Models\Concerns\FiltraPorAcceso;
  */
 class HistorialEstado extends Model
 {
-	use SoftDeletes, FiltraPorAcceso;
+	use FiltraPorAcceso;
 
 	protected $table = 'historial_estados';
 

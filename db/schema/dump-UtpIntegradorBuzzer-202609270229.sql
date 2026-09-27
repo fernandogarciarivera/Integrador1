@@ -23,8 +23,8 @@ DROP TABLE IF EXISTS `cache`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cache` (
-  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `expiration` int NOT NULL,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -47,8 +47,8 @@ DROP TABLE IF EXISTS `cache_locks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cache_locks` (
-  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `owner` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `owner` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `expiration` int NOT NULL,
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -103,19 +103,17 @@ DROP TABLE IF EXISTS `detalle_pedidos`;
 CREATE TABLE `detalle_pedidos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `pedido_id` bigint unsigned NOT NULL,
-  `producto_id` bigint unsigned NOT NULL,
+  `productoDesc` varchar(100) DEFAULT NULL,
   `cantidad` int unsigned NOT NULL DEFAULT '1',
-  `precio_unitario` decimal(10,2) NOT NULL,
-  `subtotal` decimal(10,2) NOT NULL,
+  `precio_unitario` decimal(10,2) unsigned NOT NULL,
+  `subtotal` decimal(10,2) unsigned NOT NULL,
   `instrucciones_especiales` text,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_detalle_pedido` (`pedido_id`),
-  KEY `idx_detalle_producto` (`producto_id`),
-  CONSTRAINT `fk_detalle_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_detalle_producto` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_detalle_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -124,6 +122,7 @@ CREATE TABLE `detalle_pedidos` (
 
 LOCK TABLES `detalle_pedidos` WRITE;
 /*!40000 ALTER TABLE `detalle_pedidos` DISABLE KEYS */;
+INSERT INTO `detalle_pedidos` VALUES (1,2,'fdfdf',1,2.00,2.00,NULL,'2026-09-27 06:47:44','2026-09-27 06:47:44'),(2,2,'papa huevo',1,5.00,5.00,NULL,'2026-09-27 06:47:44','2026-09-27 06:47:44'),(3,3,'dsd',1,3.00,3.00,NULL,'2026-09-27 06:48:10','2026-09-27 06:48:10'),(4,4,'jk',1,2.00,2.00,NULL,'2026-09-27 07:00:09','2026-09-27 07:00:09'),(5,4,'fgffg',3,1.00,3.00,NULL,'2026-09-27 07:00:09','2026-09-27 07:00:09'),(6,7,'hjk',1,5.00,5.00,NULL,'2026-09-27 07:27:20','2026-09-27 07:27:20');
 /*!40000 ALTER TABLE `detalle_pedidos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -136,11 +135,11 @@ DROP TABLE IF EXISTS `failed_jobs`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `failed_jobs` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
@@ -204,7 +203,7 @@ CREATE TABLE `historial_estados` (
   KEY `idx_hist_trabajador` (`trabajador_id`),
   CONSTRAINT `fk_hist_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_hist_trabajador` FOREIGN KEY (`trabajador_id`) REFERENCES `trabajadores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -213,6 +212,7 @@ CREATE TABLE `historial_estados` (
 
 LOCK TABLES `historial_estados` WRITE;
 /*!40000 ALTER TABLE `historial_estados` DISABLE KEYS */;
+INSERT INTO `historial_estados` VALUES (1,2,1,NULL,'REGISTRADO','2026-09-27 06:47:44','Pedido registrado en caja','2026-09-27 06:47:44','2026-09-27 06:47:44'),(2,3,1,NULL,'REGISTRADO','2026-09-27 06:48:10','Pedido registrado en caja','2026-09-27 06:48:10','2026-09-27 06:48:10'),(3,4,1,NULL,'REGISTRADO','2026-09-27 07:00:09','Pedido registrado en caja','2026-09-27 07:00:09','2026-09-27 07:00:09'),(4,7,1,NULL,'REGISTRADO','2026-09-27 07:27:20','Pedido registrado en caja','2026-09-27 07:27:20','2026-09-27 07:27:20');
 /*!40000 ALTER TABLE `historial_estados` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -224,13 +224,13 @@ DROP TABLE IF EXISTS `job_batches`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `job_batches` (
-  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `total_jobs` int NOT NULL,
   `pending_jobs` int NOT NULL,
   `failed_jobs` int NOT NULL,
-  `failed_job_ids` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `options` mediumtext COLLATE utf8mb4_unicode_ci,
+  `failed_job_ids` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `options` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `cancelled_at` int DEFAULT NULL,
   `created_at` int NOT NULL,
   `finished_at` int DEFAULT NULL,
@@ -256,8 +256,8 @@ DROP TABLE IF EXISTS `jobs`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jobs` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `attempts` tinyint unsigned NOT NULL,
   `reserved_at` int unsigned DEFAULT NULL,
   `available_at` int unsigned NOT NULL,
@@ -354,7 +354,7 @@ DROP TABLE IF EXISTS `migrations`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `migrations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -394,7 +394,7 @@ CREATE TABLE `notificaciones` (
   KEY `idx_notif_estado` (`estado`),
   CONSTRAINT `fk_notif_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_notif_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -403,6 +403,7 @@ CREATE TABLE `notificaciones` (
 
 LOCK TABLES `notificaciones` WRITE;
 /*!40000 ALTER TABLE `notificaciones` DISABLE KEYS */;
+INSERT INTO `notificaciones` VALUES (1,2,NULL,'VISUAL','Pedido dffd registrado','2026-09-27 06:47:44',NULL,'ENVIADA','2026-09-27 06:47:44','2026-09-27 06:47:44'),(2,3,NULL,'VISUAL','Pedido 1045dd registrado','2026-09-27 06:48:10',NULL,'ENVIADA','2026-09-27 06:48:10','2026-09-27 06:48:10'),(3,4,NULL,'VISUAL','Pedido 1045j registrado','2026-09-27 07:00:09',NULL,'ENVIADA','2026-09-27 07:00:09','2026-09-27 07:00:09'),(4,7,NULL,'VISUAL','Pedido 14444 registrado','2026-09-27 07:27:20',NULL,'ENVIADA','2026-09-27 07:27:20','2026-09-27 07:27:20');
 /*!40000 ALTER TABLE `notificaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -414,8 +415,8 @@ DROP TABLE IF EXISTS `password_reset_tokens`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `password_reset_tokens` (
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -465,7 +466,7 @@ CREATE TABLE `pedidos` (
   CONSTRAINT `fk_pedidos_cliente` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_pedidos_local` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_pedidos_trabajador_caja` FOREIGN KEY (`trabajador_caja_id`) REFERENCES `trabajadores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -474,6 +475,7 @@ CREATE TABLE `pedidos` (
 
 LOCK TABLES `pedidos` WRITE;
 /*!40000 ALTER TABLE `pedidos` DISABLE KEYS */;
+INSERT INTO `pedidos` VALUES (2,10,NULL,1,'dffd','10-dffd',NULL,'2026-09-27 07:47:44','PARA_LLEVAR','REGISTRADO','2026-09-27 06:47:44',20,NULL,7.00,'dff','2026-09-27 06:47:44','2026-09-27 06:47:44',NULL),(3,10,NULL,1,'1045dd','10-1045dd',NULL,'2026-09-27 07:48:10','PRESENCIAL','REGISTRADO','2026-09-27 06:48:10',20,NULL,3.00,NULL,'2026-09-27 06:48:10','2026-09-27 06:48:10',NULL),(4,10,NULL,1,'1045j','10-1045j',NULL,'2026-09-27 08:00:09','PRESENCIAL','REGISTRADO','2026-09-27 07:00:09',20,NULL,5.00,'hjkhgjk','2026-09-27 07:00:09','2026-09-27 07:00:09',NULL),(7,10,NULL,1,'14444','10-14444',NULL,'2026-09-27 08:27:19','PARA_LLEVAR','REGISTRADO','2026-09-27 07:27:19',20,NULL,5.00,'vhjkhjk','2026-09-27 07:27:19','2026-09-27 07:27:19',NULL);
 /*!40000 ALTER TABLE `pedidos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -531,41 +533,6 @@ INSERT INTO `perfilesFormularios` VALUES (475,1,1),(476,1,5),(477,1,7),(478,1,8)
 UNLOCK TABLES;
 
 --
--- Table structure for table `productos`
---
-
-DROP TABLE IF EXISTS `productos`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `productos` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `local_id` bigint unsigned NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `descripcion` text,
-  `precio` decimal(10,2) NOT NULL,
-  `categoria` varchar(50) DEFAULT NULL,
-  `disponible` tinyint(1) NOT NULL DEFAULT '1',
-  `url_imagen` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_productos_local` (`local_id`),
-  KEY `idx_productos_categoria` (`categoria`),
-  CONSTRAINT `fk_productos_local` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `productos`
---
-
-LOCK TABLES `productos` WRITE;
-/*!40000 ALTER TABLE `productos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `productos` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `restaurantes`
 --
 
@@ -606,11 +573,11 @@ DROP TABLE IF EXISTS `sessions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sessions` (
-  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` bigint unsigned DEFAULT NULL,
-  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_agent` text COLLATE utf8mb4_unicode_ci,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_activity` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `sessions_user_id_index` (`user_id`),
@@ -655,7 +622,7 @@ CREATE TABLE `trabajadores` (
   CONSTRAINT `fk_trabajadores_local` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_trabajadores_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_trabajadores_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -664,7 +631,7 @@ CREATE TABLE `trabajadores` (
 
 LOCK TABLES `trabajadores` WRITE;
 /*!40000 ALTER TABLE `trabajadores` DISABLE KEYS */;
-INSERT INTO `trabajadores` VALUES (1,2,2,10,'CAJA','pppp','984318804','/storage/trabajadores/XiV0WsviDHRitaimOcWVfxC1vvMfV1bAV24qD1QM.jpg',1,'2026-09-24 15:34:22','2026-09-24 15:34:22',NULL),(2,3,12,NULL,'ADMIN_REST','pppp','4646',NULL,1,'2026-09-25 15:29:14','2026-09-25 15:29:14',NULL);
+INSERT INTO `trabajadores` VALUES (1,2,2,10,'CAJA','pppp','984318804','/storage/trabajadores/XiV0WsviDHRitaimOcWVfxC1vvMfV1bAV24qD1QM.jpg',1,'2026-09-24 15:34:22','2026-09-24 15:34:22',NULL),(2,3,2,NULL,'ADMIN_REST','pppp','4646',NULL,1,'2026-09-25 15:29:14','2026-09-25 15:29:14',NULL),(3,4,12,NULL,'CAJA','pppp',NULL,NULL,1,'2026-09-27 06:03:31','2026-09-27 06:03:31',NULL);
 /*!40000 ALTER TABLE `trabajadores` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -677,17 +644,17 @@ DROP TABLE IF EXISTS `users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `must_change_password` tinyint(1) NOT NULL DEFAULT '0',
-  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -696,13 +663,9 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Super Admin','admin@integrador1.com','2026-09-24 15:20:53','$2y$12$EmosjNAphX.V2LscDHNdIuXnAYeQlO4KJXFwRcQGx9bhNo4pTNjKe',0,NULL,'2026-09-24 15:20:53','2026-09-24 15:20:53'),(2,'caja','caja@prueba.com','2026-09-24 15:34:22','$2y$12$.yQvm6rKcyJHWY2P0GY5PujFaqlQl3KjHX0i/lpuc8wex89CEu4We',0,NULL,'2026-09-24 15:34:22','2026-09-24 15:34:22'),(3,'carlos','carlos@prueba','2026-09-25 15:29:14','$2y$12$eV2mEtf28thJKSznVOn6Be3qqDOwS4d9Ie1MEeKZBkJeX2Dzjyzaq',0,NULL,'2026-09-25 15:29:14','2026-09-25 15:29:14');
+INSERT INTO `users` VALUES (1,'Super Admin','admin@integrador1.com','2026-09-24 15:20:53','$2y$12$EmosjNAphX.V2LscDHNdIuXnAYeQlO4KJXFwRcQGx9bhNo4pTNjKe',0,NULL,'2026-09-24 15:20:53','2026-09-24 15:20:53'),(2,'caja','caja@prueba.com','2026-09-24 15:34:22','$2y$12$.yQvm6rKcyJHWY2P0GY5PujFaqlQl3KjHX0i/lpuc8wex89CEu4We',0,NULL,'2026-09-24 15:34:22','2026-09-24 15:34:22'),(3,'carlos','carlos@prueba','2026-09-25 15:29:14','$2y$12$eV2mEtf28thJKSznVOn6Be3qqDOwS4d9Ie1MEeKZBkJeX2Dzjyzaq',0,NULL,'2026-09-25 15:29:14','2026-09-25 15:29:14'),(4,'ROKYS','ROKY@PRUEBA.COM','2026-09-27 06:03:31','$2y$12$7XSM9WZJQXgZKkfLKqaNmur8YO6Yw4tYKnxmn0g53oDkbDI/hGoD.',1,NULL,'2026-09-27 06:03:31','2026-09-27 06:03:31');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping events for database 'UtpIntegradorBuzzer'
---
 
 --
 -- Dumping routines for database 'UtpIntegradorBuzzer'
@@ -717,4 +680,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-25 13:10:09
+-- Dump completed on 2026-09-27  2:29:00
