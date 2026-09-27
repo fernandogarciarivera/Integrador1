@@ -54,7 +54,7 @@ class CajaController extends Controller
             'tipo'             => ['required', Rule::in(['PRESENCIAL', 'PARA_LLEVAR'])],
             'notas'            => 'nullable|string|max:500',
             'items'            => 'required|array|min:1',
-            'items.*.detalleProducto'      => 'required|string|max:100',
+            'items.*.productoDesc' => 'required|string|max:100',   // 'items.*.detalleProducto'      => 'required|string|max:100',
             'items.*.cantidad'             => 'required|integer|min:1',
             'items.*.precio_unitario'      => 'required|numeric|min:0',
             'items.*.instrucciones_especiales' => 'nullable|string|max:200',
@@ -83,7 +83,7 @@ class CajaController extends Controller
             foreach ($data['items'] as $item) {
                 DetallePedido::create([
                     'pedido_id'     => $pedido->id,
-                    'detalleProducto' => $item['detalleProducto'],
+                    'productoDesc' => $item['productoDesc'],               //'detalleProducto' => $item['detalleProducto'],
                     'cantidad'      => $item['cantidad'],
                     'precio_unitario' => $item['precio_unitario'],
                     'subtotal'      => $item['cantidad'] * $item['precio_unitario'],

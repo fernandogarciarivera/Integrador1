@@ -28,8 +28,7 @@ class TrabajadorController extends Controller
 
         $roles        = PerfilAcceso::orderBy('id')->pluck('perfil');
 
-        $locales      = Locale::delUsuario(['id' => 'local_id'])
-            ->when($trabajador?->restaurante_id !== null, fn($query) => $query->where('restaurante_id', $trabajador->restaurante_id))
+        $locales      = Locale::delUsuario(['restaurante_id' => 'restaurante_id'])
             ->when($trabajador?->local_id !== null, fn($query) => $query->whereKey($trabajador->local_id))
             ->orderBy('nombre')->get(['id', 'nombre', 'restaurante_id']);
 
@@ -43,7 +42,7 @@ class TrabajadorController extends Controller
             'restaurantes' => Restaurante::delUsuario(['id' => 'restaurante_id'])
                 ->orderBy('nombre')
                 ->get(['id', 'nombre']),
-            'locales' => collect(),
+            'locales' => $this->localesDe(auth()->user()?->trabajador?->restaurante_id),
             'perfiles' => PerfilAcceso::orderBy('id')->get(['perfil']),
         ]);
     }
@@ -61,7 +60,15 @@ class TrabajadorController extends Controller
 
     public function locales(Restaurante $restaurante)
     {
-        return $restaurante->locales()->orderBy('nombre')->get(['id', 'nombre']);
+        return $this->localesDe($restaurante->id);
+    }
+
+    private function localesDe($restauranteId)
+    {
+        return Locale::delUsuario(['restaurante_id' => 'restaurante_id', 'id' => 'local_id'])
+            ->where('restaurante_id', $restauranteId)
+            ->orderBy('nombre')
+            ->get(['id', 'nombre']);
     }
 
     public function store(Request $request)

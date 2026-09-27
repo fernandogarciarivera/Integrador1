@@ -33,7 +33,6 @@ class DetallePedido extends Model
 
 	protected $casts = [
 		'pedido_id' => 'int',
-		'producto_id' => 'int',
 		'cantidad' => 'int',
 		'precio_unitario' => 'float',
 		'subtotal' => 'float'
@@ -41,7 +40,7 @@ class DetallePedido extends Model
 
 	protected $fillable = [
 		'pedido_id',
-		'producto_id',
+		'productoDesc',
 		'cantidad',
 		'precio_unitario',
 		'subtotal',
@@ -52,9 +51,5 @@ class DetallePedido extends Model
 	{
 		return $this->belongsTo(Pedido::class);
 	}
-
-	public function producto()
-	{
-		return $this->belongsTo(Producto::class);
-	}
+	// se eliminó producto(): la columna producto_id ya no existe y el modelo Producto tampoco
 }

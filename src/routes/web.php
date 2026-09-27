@@ -24,7 +24,9 @@ Route::middleware('auth')->group(function () {
         ->except(['show'])
         ->parameters(['trabajadores' => 'trabajador']);
 
-    //Route::get('restaurantes/{restaurante}/locales', [TrabajadorController::class, 'locales'])->name('restaurantes.locales');
+    // routes/web.php — descomentar (el formulario la llama por fetch y hoy recibe 404)
+    Route::get('restaurantes/{restaurante}/locales', [TrabajadorController::class, 'locales'])->name('restaurantes.locales');
+
     Route::post('trabajadores/{trabajador}/reset-password', [TrabajadorController::class, 'resetPassword'])->name('trabajadores.reset-password');
     Route::post('trabajadores/{trabajador}/toggle-activo', [TrabajadorController::class, 'toggleActivo'])->name('trabajadores.toggle-activo');
 

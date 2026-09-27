@@ -215,7 +215,7 @@
                                 <div class="grid grid-cols-12 gap-sm items-end bg-surface-container-low p-sm rounded-lg">
                                     <div class="col-span-5 flex flex-col gap-xs">
                                         <label class="font-label-caps text-label-caps text-on-surface-variant">Producto</label>
-                                        <input type="text" x-model="item.detalleProducto" required
+                                        <input type="text" x-model="item.productoDesc" required
                                                class="w-full px-sm py-xs rounded border border-outline-variant bg-surface-container-lowest">
                                     </div>
                                     <div class="col-span-2 flex flex-col gap-xs">
@@ -317,7 +317,7 @@
                                 <h4 class="font-bold mb-xs">Ítems</h4>
                                 <template x-for="d in (detail.detalle_pedidos || [])" :key="d.id">
                                     <div class="flex justify-between text-body-md py-1">
-                                        <span x-text="`${d.cantidad}× ${d.detalleProducto}`"></span>
+                                        <span x-text="`${d.cantidad}× ${d.productoDesc}`"></span>
                                         <span x-text="'S/ ' + Number(d.subtotal).toFixed(2)"></span>
                                     </div>
                                 </template>
@@ -352,7 +352,7 @@
                 cliente_id: null,
                 cliente_input: '',
                 notas: '',
-                items: [{ detalleProducto: '', cantidad: 1, precio_unitario: 0, instrucciones_especiales: '' }],
+                items: [{ productoDesc: '', cantidad: 1, precio_unitario: 0, instrucciones_especiales: '' }],
             },
             clientesResultados: [],
 
@@ -375,7 +375,7 @@
                 this.formOpen = false;
             },
             addItem() {
-                this.form.items.push({ detalleProducto: '', cantidad: 1, precio_unitario: 0, instrucciones_especiales: '' });
+                this.form.items.push({ productoDesc: '', cantidad: 1, precio_unitario: 0, instrucciones_especiales: '' });
             },
             removeItem(idx) {
                 this.form.items.splice(idx, 1);
@@ -458,7 +458,7 @@
                     cliente_id: null,
                     cliente_input: '',
                     notas: '',
-                    items: [{ detalleProducto: '', cantidad: 1, precio_unitario: 0, instrucciones_especiales: '' }],
+                    items: [{ productoDesc: '', cantidad: 1, precio_unitario: 0, instrucciones_especiales: '' }],
                 };
                 setTimeout(() => window.location.reload(), 200);
             },
