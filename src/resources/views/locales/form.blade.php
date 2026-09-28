@@ -16,15 +16,18 @@
                         @csrf
                         @if ($editing) @method('PUT') @endif
                         <div class="worker-fields">
-                            <div class="worker-field worker-field--full">
-                                <label class="worker-label" for="restaurante_id">Empresa</label>
-                                <select class="worker-control" id="restaurante_id" name="restaurante_id" required>
-                                    <option value="">— Selecciona —</option>
-                                    @foreach ($restaurantes as $r)
-                                        <option value="{{ $r->id }}" @selected(old('restaurante_id', $local->restaurante_id) == $r->id)>{{ $r->nombre }}</option>
+
+                            <div class="worker-field">
+                                <label class="worker-label" for="restaurante_input">Empresa</label>
+                                <input class="worker-control" id="restaurante_input" list="restaurantes" value="{{ old('restaurante_id') ? $restaurantes->firstWhere('id', old('restaurante_id'))?->nombre : $restaurantes->firstWhere('id', $trabajador->restaurante_id ?? null)?->nombre }}" placeholder="Escribe para buscar" autocomplete="off" required>
+                                <datalist id="restaurantes">
+                                    @foreach ($restaurantes as $restaurante)
+                                        <option value="{{ $restaurante->nombre }}" data-id="{{ $restaurante->id }}">
                                     @endforeach
-                                </select>
+                                </datalist>
+                                <input type="hidden" id="restaurante_id" name="restaurante_id" value="{{ old('restaurante_id', $trabajador->restaurante_id ?? '') }}">
                             </div>
+
                             <div class="worker-field">
                                 <label class="worker-label" for="nombre">Nombre</label>
                                 <input class="worker-control" id="nombre" name="nombre" value="{{ old('nombre', $local->nombre) }}" required>
