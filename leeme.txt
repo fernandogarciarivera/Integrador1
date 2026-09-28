@@ -22,3 +22,7 @@ docker compose exec -T -u www-data app php artisan view:clear
 docker compose exec -T -u www-data app php artisan view:cache
 docker compose exec -T -u www-data app npm run build
 docker compose exec -T app composer dump-autoload -o
+
+# 3) Agregar un nuvo estado a columna rol a trabajadores
+ALTER TABLE `UtpIntegradorBuzzer`.`trabajadores` 
+CHANGE COLUMN `rol` `rol` ENUM('SUPER_ADMIN', 'ADMIN', 'GERENTE', 'CAJA', 'DESPACHO', 'COCINA') NOT NULL ;

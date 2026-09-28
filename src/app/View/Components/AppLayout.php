@@ -69,13 +69,19 @@ class AppLayout extends Component
     public static function resolveMenuUrl(?string $controller, ?string $label): string
     {
         $exactRoutes = [
-            'Dashboard' => 'dashboard',
-            'DashboardController' => 'dashboard',
-            'ProfileController' => 'profile.edit',
+            'Dashboard'             => 'dashboard',
+            'DashboardController'   => 'dashboard',
+            'ProfileController'     => 'profile.edit',
 
-            'CajaController' => 'caja.index',
-            'Caja' => 'caja.index',
-            'Pedidos Caja' => 'caja.index',
+            'CajaController'        => 'caja.index',
+            'Caja'                  => 'caja.index',
+            'Pedidos Caja'          => 'caja.index',
+
+            'RestaurantController'  => 'restaurantes.index',
+            'Restaurant'            => 'restaurantes.index',
+
+            'LocalesController'     => 'locales.index',
+            'Locales'               => 'locales.index',
 
             //'CocinaController' => 'cocina.index',
             //'Cocina' => 'cocina.index',
@@ -88,19 +94,16 @@ class AppLayout extends Component
             //'ReporteController' => 'reporte.index',
             //'Reporte' => 'reporte.index',
 
+            'ClienteController'     => 'clientes.index',
+            'Clientes'              => 'clientes.index',
+
             'TrabajadoresController' => 'trabajadores.index',
-            'Trabajadores' => 'trabajadores.index',
-            'Trabajador' => 'trabajadores.index',
+            'Trabajadores'          => 'trabajadores.index',
+            'Trabajador'            => 'trabajadores.index',
 
-            //'RestaurantController' => 'restaurant.index',
-            //'Restaurant' => 'restaurant.index',
-
-            //'LocalesController' => 'locales.index',
-            //'Locales' => 'locales.index',
-
-            'Perfil' => 'trabajadores.index',
-            'Perfiles' => 'trabajadores.index',
-            'Gestion de perfiles' => 'trabajadores.index',
+            'Perfil'                => 'trabajadores.index',
+            'Perfiles'              => 'trabajadores.index',
+            'Gestion de perfiles'   => 'trabajadores.index',
         ];
 
         foreach ([$controller, $label] as $value) {

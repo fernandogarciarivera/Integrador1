@@ -86,7 +86,7 @@ CREATE TABLE `trabajadores` (
   `user_id` bigint unsigned NOT NULL,
   `restaurante_id` bigint unsigned NOT NULL,
   `local_id` bigint unsigned DEFAULT NULL,
-  `rol` enum('SUPER_ADMIN','ADMIN','GERENTE','CAJA','COCINA') NOT NULL,
+  `rol` enum('SUPER_ADMIN','ADMIN','GERENTE','CAJA','DESPACHO','COCINA') NOT NULL,
   `puesto` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT '1',

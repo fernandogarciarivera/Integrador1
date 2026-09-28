@@ -52,7 +52,7 @@ class TrabajadorController extends Controller
         $trabajador = Trabajador::with('user')->findOrFail($trabajador);
         return view('trabajadores.form', [
             'trabajador' => $trabajador,
-            'restaurantes' => Restaurante::elUsuario()->orderBy('nombre')->get(['id', 'nombre']),
+            'restaurantes' => Restaurante::delUsuario()->orderBy('nombre')->get(['id', 'nombre']),
             'locales' => Locale::where('restaurante_id', $trabajador->restaurante_id)->orderBy('nombre')->get(['id', 'nombre']),
             'perfiles' => PerfilAcceso::orderBy('id')->get(['perfil']),
         ]);
@@ -113,7 +113,8 @@ class TrabajadorController extends Controller
             ]);
         });
 
-        return back()->with('status', 'Trabajador creado. Contraseña inicial: 12345678');
+        //return back()->with('status', 'Trabajador creado. Contraseña inicial: 12345678');
+        return redirect()->route('trabajadores.index')->with('status', 'Trabajador creado. Contraseña inicial');
     }
 
     public function update(Request $request, Trabajador $trabajador)
@@ -146,7 +147,8 @@ class TrabajadorController extends Controller
             $trabajador->update($data);
         });
 
-        return back()->with('status', 'Trabajador actualizado.');
+        //return back()->with('status', 'Trabajador actualizado.');
+        return redirect()->route('trabajadores.index')->with('status', 'Trabajador actualizado.');
     }
 
     public function resetPassword(Trabajador $trabajador)
@@ -155,7 +157,8 @@ class TrabajadorController extends Controller
             'password'             => Hash::make('12345678'),
             'must_change_password' => true,
         ]);
-        return back()->with('status', 'Contraseña reiniciada a 12345678.');
+        //return back()->with('status', 'Contraseña reiniciada a 12345678.');
+        return redirect()->route('trabajadores.index')->with('status', 'Contraseña reiniciada.');
     }
 
     public function toggleActivo(Trabajador $trabajador)
@@ -164,7 +167,8 @@ class TrabajadorController extends Controller
             $trabajador->update(['activo' => !$trabajador->activo]);
             $trabajador->user->update(['email_verified_at' => $trabajador->activo ? now() : null]);
         });
-        return back()->with('status', $trabajador->activo ? 'Desactivado.' : 'Activado.');
+        //return back()->with('status', $trabajador->activo ? 'Desactivado.' : 'Activado.');
+        return redirect()->route('trabajadores.index')->with('status', $trabajador->activo ? 'Desactivado.' : 'Activado.');
     }
 
     public function destroy(Trabajador $trabajador)
@@ -176,6 +180,7 @@ class TrabajadorController extends Controller
             $trabajador->delete();
             $trabajador->user->delete();
         });
-        return back()->with('status', 'Trabajador eliminado.');
+        //return back()->with('status', 'Trabajador eliminado.');
+        return redirect()->route('trabajadores.index')->with('status', 'Trabajador eliminado.');
     }
 }
