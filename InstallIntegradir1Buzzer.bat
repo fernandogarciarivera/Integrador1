@@ -163,9 +163,9 @@ set /a MYSQL_WAIT=0
 docker inspect --format='{{.State.Health.Status}}' UtpIntegrador-mysql 2>nul | findstr "healthy" >nul
 if errorlevel 1 (
     set /a MYSQL_WAIT+=1
-    if !MYSQL_WAIT! GEQ 60 goto :fallo
+    if !MYSQL_WAIT! GEQ 120 goto :fallo
     echo ⏳ Esperando MySQL...
-    timeout /t 5 >nul
+    timeout /t 10 >nul
     goto wait_mysql
 )
 echo ✅ MySQL listo.
