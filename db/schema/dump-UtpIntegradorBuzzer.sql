@@ -259,6 +259,8 @@ CREATE TABLE `metricas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+ALTER TABLE `UtpIntegradorBuzzer`.`trabajadores` CHANGE COLUMN `rol` `rol` ENUM('SUPER_ADMIN', 'ADMIN', 'GERENTE', 'CAJA', 'DESPACHO', 'COCINA') NOT NULL ;
+
 --
 -- Data para tabla `restaurantes`
 --

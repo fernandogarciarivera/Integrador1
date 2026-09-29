@@ -101,14 +101,51 @@ if "%APP_KEY%"=="" (
     exit /b 1
 )
 echo 📝 Creando/Actualizando archivo .env con valores correctos...
-if not exist src\.env type nul > src\.env
-docker compose up -d app
-if errorlevel 1 goto :fallo
-docker compose exec -T app bash -c "printf 'APP_NAME=UtpIntegradorBuzzer\nAPP_ENV=local\nAPP_DEBUG=true\nAPP_URL=http://localhost:8282\nAPP_TIMEZONE=UTC\n\nAPP_LOCALE=es\nAPP_FALLBACK_LOCALE=es\nAPP_FAKER_LOCALE=es_PE\n\nLOG_CHANNEL=stack\nLOG_LEVEL=debug\n\nDB_CONNECTION=mysql\nDB_HOST=mysql\nDB_PORT=3306\nDB_DATABASE=UtpIntegradorBuzzer\nDB_USERNAME=UtpIntegradorBuzzerBD\nDB_PASSWORD=12345678\n\nSESSION_DRIVER=file\nSESSION_LIFETIME=120\nSESSION_ENCRYPT=false\nSESSION_PATH=/\nSESSION_DOMAIN=null\n\nBROADCAST_CONNECTION=log\nFILESYSTEM_DISK=local\nQUEUE_CONNECTION=database\n\nCACHE_STORE=redis\nCACHE_PREFIX=UtpIntegradortienda\n\nREDIS_CLIENT=phpredis\nREDIS_HOST=redis\nREDIS_PASSWORD=null\nREDIS_PORT=6379\n\nMAIL_MAILER=smtp\nMAIL_HOST=mailhog\nMAIL_PORT=1025\nMAIL_USERNAME=null\nMAIL_PASSWORD=null\nMAIL_ENCRYPTION=null\nMAIL_FROM_ADDRESS=hello@example.com\nMAIL_FROM_NAME=UtpIntegradorBuzzer\n\nADMIN_JQADM=1\nAPP_KEY=%APP_KEY%\n\nXDEBUG_MODE=debug\n' > .env"
+REM if not exist src\.env type nul > src\.env
+REM docker compose up -d app
+REM if errorlevel 1 goto :fallo
+REM docker compose exec -T app bash -c "printf 'APP_NAME=UtpIntegradorBuzzer\nAPP_ENV=local\nAPP_DEBUG=true\nAPP_URL=http://localhost:8282\nAPP_TIMEZONE=UTC\n\nAPP_LOCALE=es\nAPP_FALLBACK_LOCALE=es\nAPP_FAKER_LOCALE=es_PE\n\nLOG_CHANNEL=stack\nLOG_LEVEL=debug\n\nDB_CONNECTION=mysql\nDB_HOST=mysql\nDB_PORT=3306\nDB_DATABASE=UtpIntegradorBuzzer\nDB_USERNAME=UtpIntegradorBuzzerBD\nDB_PASSWORD=12345678\n\nSESSION_DRIVER=file\nSESSION_LIFETIME=120\nSESSION_ENCRYPT=false\nSESSION_PATH=/\nSESSION_DOMAIN=null\n\nBROADCAST_CONNECTION=log\nFILESYSTEM_DISK=local\nQUEUE_CONNECTION=database\n\nCACHE_STORE=redis\nCACHE_PREFIX=UtpIntegradortienda\n\nREDIS_CLIENT=phpredis\nREDIS_HOST=redis\nREDIS_PASSWORD=null\nREDIS_PORT=6379\n\nMAIL_MAILER=smtp\nMAIL_HOST=mailhog\nMAIL_PORT=1025\nMAIL_USERNAME=null\nMAIL_PASSWORD=null\nMAIL_ENCRYPTION=null\nMAIL_FROM_ADDRESS=hello@example.com\nMAIL_FROM_NAME=UtpIntegradorBuzzer\n\nADMIN_JQADM=1\nAPP_KEY=%APP_KEY%\n\nXDEBUG_MODE=debug\n' > .env"
+REM if errorlevel 1 goto :fallo
+REM if not exist src\.env goto :fallo
+REM findstr /b /c:"APP_NAME=UtpIntegradorBuzzer" /c:"APP_URL=http://localhost:8282" /c:"DB_CONNECTION=mysql" /c:"DB_HOST=mysql" src\.env >nul || goto :fallo
+REM echo ✅ .env creado/actualizado con APP_KEY.
+
+
+if exist "%PROJECT_PATH%\.env.template" (
+    copy /y "%PROJECT_PATH%\.env.template" "%PROJECT_PATH%\src\.env" >nul
+    echo  OK - .env restored from template
+)
 if errorlevel 1 goto :fallo
 if not exist src\.env goto :fallo
+
+REM ============================================================
+REM Reemplazar APP_KEY en el .env copiado desde el template
+REM ============================================================
+echo 🔑 Inyectando APP_KEY generado en src\.env ...
+set "ENV_FILE=%PROJECT_PATH%\src\.env"
+set "TEMP_ENV=%PROJECT_PATH%\src\.env.tmp"
+
+REM Eliminar cualquier línea previa de APP_KEY y añadir la nueva al final
+if exist "%TEMP_ENV%" del /q "%TEMP_ENV%"
+for /f "usebackq delims=" %%L in ("%ENV_FILE%") do (
+    echo %%L | findstr /b /c:"APP_KEY=" >nul
+    if errorlevel 1 (
+        >>"%TEMP_ENV%" echo %%L
+    )
+)
+>>"%TEMP_ENV%" echo APP_KEY=%APP_KEY%
+move /y "%TEMP_ENV%" "%ENV_FILE%" >nul
+if errorlevel 1 goto :fallo
+echo ✅ APP_KEY inyectado correctamente en src\.env
+
+REM Validar que el .env quedó bien
 findstr /b /c:"APP_NAME=UtpIntegradorBuzzer" /c:"APP_URL=http://localhost:8282" /c:"DB_CONNECTION=mysql" /c:"DB_HOST=mysql" src\.env >nul || goto :fallo
+findstr /b /c:"APP_KEY=base64:" src\.env >nul || (
+    echo ❌ APP_KEY no quedo correctamente en src\.env
+    goto :fallo
+)
 echo ✅ .env creado/actualizado con APP_KEY.
+
 
 echo 🐳 Reconstruyendo la imagen 'app' (si el Dockerfile cambió) y levantando servicios...
 REM echo Si has modificado el Dockerfile (p.ej. para habilitar WebP), se recomienda reconstruir la imagen del servicio 'app'.
