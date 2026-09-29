@@ -59,6 +59,21 @@
                     </form>
                 </section>
 
+                @if ($editing)
+                    <section class="worker-panel worker-access-panel">
+                        <h2>Gestion de acceso</h2>
+                        <div class="worker-access-list">
+                            <div class="worker-access-item">
+                                <div><strong>Acceso al sistema</strong><small>Regenerar token API del local.</small></div>
+                                <form method="POST" action="{{ route('locales.regenerar-token', $local) }}" onsubmit="return confirm('¿Regenerar el token API de este local? El token anterior dejará de funcionar.')">
+                                    @csrf
+                                    <button type="submit" class="worker-edit" title="Regenerar token API" aria-label="Regenerar token">&#8635;</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+                @endif
+
                 <aside class="worker-panel">
                     <div class="worker-profile">
                         <div class="worker-avatar">{{ strtoupper(substr($local->nombre ?? 'L', 0, 1)) }}</div>

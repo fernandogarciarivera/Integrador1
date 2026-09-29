@@ -47,6 +47,7 @@ class Locale extends Model
 		'nombre',
 		'direccion',
 		'codigo',
+		'api_token',
 		'estado'
 	];
 

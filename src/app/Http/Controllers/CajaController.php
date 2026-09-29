@@ -16,6 +16,13 @@ class CajaController extends Controller
 
     private function trabajadorCajaActual(): Trabajador
     {
+        //return Trabajador::with('local')->where('user_id', Auth::id())->firstOrFail();
+        // Marca: si el Request trae `_api_trabajador_id`, lo usamos.
+        // Esto permite que la API REST reuse TODO el flujo sin Auth::id().
+        $id = request()->input('_api_trabajador_id');
+        if ($id) {
+            return Trabajador::with('local')->findOrFail($id);
+        }
         return Trabajador::with('local')->where('user_id', Auth::id())->firstOrFail();
     }
 

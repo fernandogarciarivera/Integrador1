@@ -78,4 +78,10 @@ class LocaleController extends Controller
             'estado'         => ['required', Rule::in(['ACTIVO', 'INACTIVO'])],
         ]);
     }
+
+    public function regenerarToken(Locale $local)
+    {
+        $local->update(['api_token' => \Illuminate\Support\Str::random(64)]);
+        return back()->with('status', "Token regenerado para {$local->nombre}.");
+    }
 }

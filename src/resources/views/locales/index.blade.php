@@ -53,7 +53,16 @@
                             <div class="worker-detail">{{ $local->direccion ?: 'Sin dirección' }}</div>
                         </div>
                         <div class="worker-detail">{{ $local->restaurante?->nombre ?? '—' }}</div>
-                        <div class="worker-detail">{{ $local->codigo ?: '—' }}</div>
+                        <div>
+                            <div class="worker-detail">Código: {{ $local->codigo ?: '—' }}</div>
+                            @if ($local->api_token)
+                                <div class="worker-detail" style="font-family:monospace;font-size:10px;word-break:break-all;">
+                                    Token: {{ $local->api_token }}
+                                </div>
+                            @else
+                                <div class="worker-detail" style="color:#999;">Token: no generado</div>
+                            @endif
+                        </div>
                         <span class="worker-status {{ $local->estado !== 'ACTIVO' ? 'worker-status--off' : '' }}">
                             {{ $local->estado }}
                         </span>

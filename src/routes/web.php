@@ -26,9 +26,8 @@ Route::middleware('auth')->group(function () {
         ->except(['show'])
         ->parameters(['restaurantes' => 'restaurante']);
 
-    Route::resource('locales', LocaleController::class)
-        ->except(['show'])
-        ->parameters(['locales' => 'local']);
+    Route::resource('locales', LocaleController::class)->except(['show'])->parameters(['locales' => 'local']);
+    Route::post('locales/{local}/regenerar-token', [LocaleController::class, 'regenerarToken'])->name('locales.regenerar-token');
 
     // trabajadores
     Route::resource('trabajadores', TrabajadorController::class)

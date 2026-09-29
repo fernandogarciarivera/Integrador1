@@ -20,7 +20,6 @@ DROP TABLE IF EXISTS `formularios`;
 --
 -- Table structure for table `restaurantes`
 --
-
 DROP TABLE IF EXISTS `restaurantes`;
 CREATE TABLE `restaurantes` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -40,7 +39,6 @@ CREATE TABLE `restaurantes` (
 --
 -- Table structure for table `locales`
 --
-
 DROP TABLE IF EXISTS `locales`;
 CREATE TABLE `locales` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -61,7 +59,6 @@ CREATE TABLE `locales` (
 --
 -- Table structure for table `clientes`
 --
-
 DROP TABLE IF EXISTS `clientes`;
 CREATE TABLE `clientes` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -79,7 +76,6 @@ CREATE TABLE `clientes` (
 --
 -- Table structure for table `trabajadores`
 --
-
 DROP TABLE IF EXISTS `trabajadores`;
 CREATE TABLE `trabajadores` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -106,7 +102,6 @@ CREATE TABLE `trabajadores` (
 --
 -- Table structure for table `pedidos`
 --
-
 DROP TABLE IF EXISTS `pedidos`;
 CREATE TABLE `pedidos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -141,7 +136,6 @@ CREATE TABLE `pedidos` (
 --
 -- Table structure for table `detalle_pedidos`
 --
-
 DROP TABLE IF EXISTS `detalle_pedidos`;
 CREATE TABLE `detalle_pedidos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -161,7 +155,6 @@ CREATE TABLE `detalle_pedidos` (
 --
 -- Table structure for table `notificaciones`
 --
-
 DROP TABLE IF EXISTS `notificaciones`;
 CREATE TABLE `notificaciones` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -186,7 +179,6 @@ CREATE TABLE `notificaciones` (
 --
 -- Table structure for table `historial_estados`
 --
-
 DROP TABLE IF EXISTS `historial_estados`;
 CREATE TABLE `historial_estados` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -208,7 +200,6 @@ CREATE TABLE `historial_estados` (
 --
 -- Table structure for table `perfilAccesos`
 --
-
 DROP TABLE IF EXISTS `perfilAccesos`;
 CREATE TABLE `perfilAccesos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -219,7 +210,6 @@ CREATE TABLE `perfilAccesos` (
 --
 -- Table structure for table `formularios`
 --
-
 DROP TABLE IF EXISTS `formularios`;
 CREATE TABLE `formularios` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -233,7 +223,6 @@ CREATE TABLE `formularios` (
 --
 -- Table structure for table `perfilesFormularios`
 --
-
 DROP TABLE IF EXISTS `perfilesFormularios`;
 CREATE TABLE `perfilesFormularios` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -249,7 +238,6 @@ CREATE TABLE `perfilesFormularios` (
 --
 -- Table structure for table `metricas`
 --
-
 DROP TABLE IF EXISTS `metricas`;
 CREATE TABLE `metricas` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -271,13 +259,9 @@ CREATE TABLE `metricas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-
-
-
-
-
-
-
+--
+-- Data para tabla `restaurantes`
+--
 DROP TABLE IF EXISTS `restaurantTmp`;
 CREATE TABLE `restaurantTmp` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -325,6 +309,9 @@ SELECT rst.id, TRIM(SUBSTRING_INDEX(lcl.nombre, '-', -1)) AS nombre, lcl.direcci
 
 DROP TABLE `UtpIntegradorBuzzer`.`restaurantTmp`;
 
+--
+-- Data para tabla `perfilAccesos`, `formularios` y `perfilesFormularios`
+--
 SET SQL_SAFE_UPDATES = 0;
 DELETE FROM `UtpIntegradorBuzzer`.`perfilesFormularios`;
 DELETE FROM `UtpIntegradorBuzzer`.`perfilAccesos`;
@@ -361,19 +348,3 @@ INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `for
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 6 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (4);
 
 -- SELECT pf.*, pa.*, frm.* FROM UtpIntegradorBuzzer.perfilesFormularios AS pf INNER JOIN UtpIntegradorBuzzer.perfilAccesos AS pa ON pa.id = pf.perfilAcceso_id INNER JOIN UtpIntegradorBuzzer.formularios AS frm ON frm.id = pf.formulario_id;
-
-/*
-DROP TABLE `UtpIntegradorBuzzer`.`clientes`;
-DROP TABLE `UtpIntegradorBuzzer`.`detalle_pedidos`;
-DROP TABLE `UtpIntegradorBuzzer`.`formularios`;
-DROP TABLE `UtpIntegradorBuzzer`.`historial_estados`;
-DROP TABLE `UtpIntegradorBuzzer`.`locales`;
-DROP TABLE `UtpIntegradorBuzzer`.`metricas`;
-DROP TABLE `UtpIntegradorBuzzer`.`notificaciones`;
-DROP TABLE `UtpIntegradorBuzzer`.`pedidos`;
-DROP TABLE `UtpIntegradorBuzzer`.`perfilAccesos`;
-DROP TABLE `UtpIntegradorBuzzer`.`perfilesFormularios`;
-DROP TABLE `UtpIntegradorBuzzer`.`productos`;
-DROP TABLE `UtpIntegradorBuzzer`.`restaurantes`;
-DROP TABLE `UtpIntegradorBuzzer`.`trabajadores`;
-*/
