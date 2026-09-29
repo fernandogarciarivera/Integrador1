@@ -1,3 +1,7 @@
+@php
+    $selectedRestauranteId = request('restaurante_id');
+    $selectedRestauranteNombre = $selectedRestauranteId ? $restaurantes->firstWhere('id', $selectedRestauranteId)?->nombre : null;
+@endphp
 <x-app-layout>
     <div class="worker-page">
         <div class="worker-shell">
@@ -17,14 +21,19 @@
                 <label class="worker-filter-field" for="local">Local
                     <input class="worker-control" id="local" type="search" name="local" value="{{ request('local') }}" placeholder="Nombre del local">
                 </label>
-                <label class="worker-filter-field" for="restaurante_id">Empresa
-                    <select class="worker-control" id="restaurante_id" name="restaurante_id">
-                        <option value="">Todas</option>
+                
+                <label class="worker-filter-field" for="restaurante_input">Empresa
+                    <input class="worker-control" id="restaurante_input" list="restaurantes_filtro"
+                           value="{{ $selectedRestauranteNombre }}"
+                           placeholder="Escribe para buscar" autocomplete="off">
+                    <datalist id="restaurantes_filtro">
                         @foreach ($restaurantes as $r)
-                            <option value="{{ $r->id }}" @selected(request('restaurante_id') == $r->id)>{{ $r->nombre }}</option>
+                            <option value="{{ $r->nombre }}" data-id="{{ $r->id }}">
                         @endforeach
-                    </select>
+                    </datalist>
+                    <input type="hidden" id="restaurante_id" name="restaurante_id" value="{{ $selectedRestauranteId ?? '' }}">
                 </label>
+
                 <label class="worker-filter-field" for="estado">Estado
                     <select class="worker-control" id="estado" name="estado">
                         <option value="">Todos</option>
@@ -58,4 +67,22 @@
             <div class="worker-pagination">{{ $locales->links() }}</div>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const input = document.querySelector('#restaurante_input');
+            const hidden = document.querySelector('#restaurante_id');
+            const list  = document.querySelector('#restaurantes_filtro');
+            if (!input || !hidden || !list) return;
+
+            const sync = () => {
+                const found = [...list.options].find(o => o.value.trim() === input.value.trim());
+                hidden.value = found?.dataset.id ?? '';
+            };
+
+            input.addEventListener('input', sync);
+            input.addEventListener('change', sync);
+            input.addEventListener('blur', sync);
+        })();
+    </script>
 </x-app-layout>

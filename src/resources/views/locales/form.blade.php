@@ -1,4 +1,8 @@
-@php($editing = $local->exists)
+@php
+    $editing = $local->exists;
+    $selectedRestauranteId = old('restaurante_id', $local->restaurante_id ?? null);
+    $selectedRestauranteNombre = $selectedRestauranteId ? $restaurantes->firstWhere('id', $selectedRestauranteId)?->nombre : null;
+@endphp
 <x-app-layout>
     <div class="worker-page">
         <div class="worker-shell">
@@ -19,13 +23,13 @@
 
                             <div class="worker-field">
                                 <label class="worker-label" for="restaurante_input">Empresa</label>
-                                <input class="worker-control" id="restaurante_input" list="restaurantes" value="{{ old('restaurante_id') ? $restaurantes->firstWhere('id', old('restaurante_id'))?->nombre : $restaurantes->firstWhere('id', $trabajador->restaurante_id ?? null)?->nombre }}" placeholder="Escribe para buscar" autocomplete="off" required>
+                                <input class="worker-control" id="restaurante_input" list="restaurantes" value="{{ old('restaurante_id') ? $restaurantes->firstWhere('id', old('restaurante_id'))?->nombre : $selectedRestauranteNombre }}" placeholder="Escribe para buscar" autocomplete="off" required>
                                 <datalist id="restaurantes">
                                     @foreach ($restaurantes as $restaurante)
                                         <option value="{{ $restaurante->nombre }}" data-id="{{ $restaurante->id }}">
                                     @endforeach
                                 </datalist>
-                                <input type="hidden" id="restaurante_id" name="restaurante_id" value="{{ old('restaurante_id', $trabajador->restaurante_id ?? '') }}">
+                                <input type="hidden" id="restaurante_id" name="restaurante_id" value="{{ $selectedRestauranteId ?? '' }}">
                             </div>
 
                             <div class="worker-field">
@@ -71,4 +75,30 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const companyInput = document.querySelector('#restaurante_input');
+            const companyId = document.querySelector('#restaurante_id');
+            const companyList = document.querySelector('#restaurantes');
+
+            const selectedId = (list, value) => [...list.options].find((option) => option.value.trim() === String(value).trim())?.dataset.id || '';
+
+            const syncCompanyId = () => {
+                if (!companyInput || !companyList || !companyId) return;
+                const selected = selectedId(companyList, companyInput.value);
+                companyId.value = selected;
+            };
+
+            if (companyInput && companyList && companyId) {
+                companyInput.addEventListener('input', syncCompanyId);
+                companyInput.addEventListener('change', syncCompanyId);
+                companyInput.addEventListener('blur', syncCompanyId);
+
+                if (companyInput.value && !companyId.value) {
+                    syncCompanyId();
+                }
+            }
+        })();
+    </script>
 </x-app-layout>
