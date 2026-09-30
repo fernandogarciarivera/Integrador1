@@ -42,5 +42,8 @@ return [
             'DESPACHO' => ['ENTREGADO', 'CANCELADO'],
             'default' => ['REGISTRADO', 'CANCELADO'],
         ],
+        'pos' => [
+            'POS' => ['PREPARANDO', 'LISTO', 'ENTREGADO', 'CANCELADO'],
+        ],
     ],
 ];

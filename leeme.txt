@@ -2,4 +2,46 @@
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_22_150000_add_must_change_password_to_users_table.php --force
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_23_000000_add_imagen_url_to_trabajadores_table.php --force
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_29_000000_add_api_token_to_locales_table.php --force
+docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_30_000000_add_seguimiento_token_to_pedidos_table.php --force
+
+# 2) llamar a API de caja
+
+-- login
+curl -c cookies.txt -X POST http://localhost:8282/api/pos/login \
+	-H "Authorization: Bearer eGV8YEwqA6l13TnR8ILd62J1TQJALbgRh42wxvZ8F247C6F6tLayF0TAw8cBOLEK" \
+	-H "Accept: application/json" \
+	-H "Content-Type: application/json" \
+	-d '{"email":"pos.26@local.api","password":"12345678"}'
+	
+-- datos de pedido
+curl -b cookies.txt -X POST http://localhost:8282/api/pos/pedidos \
+  -H "Authorization: Bearer eGV8YEwqA6l13TnR8ILd62J1TQJALbgRh42wxvZ8F247C6F6tLayF0TAw8cBOLEK" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"tipo":"PRESENCIAL","codigo_pedido":"11225","trabajador_id":6,"items":[{"productoDesc":"Pollo","cantidad":1,"precio_unitario":25}]}'
+
+-- cambiar estado a pedido indicando el codigo del pedido en la url
+
+curl -b cookies.txt -X PATCH http://localhost:8282/api/pos/pedidos/11225/estado \
+  -H "Authorization: Bearer eGV8YEwqA6l13TnR8ILd62J1TQJALbgRh42wxvZ8F247C6F6tLayF0TAw8cBOLEK" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"estado":"PREPARANDO","observaciones":"En cocina"}'
+
+curl -b cookies.txt -X PATCH http://localhost:8282/api/pos/pedidos/11225/estado \
+  -H "Authorization: Bearer eGV8YEwqA6l13TnR8ILd62J1TQJALbgRh42wxvZ8F247C6F6tLayF0TAw8cBOLEK" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"estado":"LISTO","observaciones":"En cocina"}'
+
+curl -b cookies.txt -X PATCH http://localhost:8282/api/pos/pedidos/11225/estado \
+  -H "Authorization: Bearer eGV8YEwqA6l13TnR8ILd62J1TQJALbgRh42wxvZ8F247C6F6tLayF0TAw8cBOLEK" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"estado":"ENTREGADO","observaciones":"En despacho"}'
+
+
+que es:
+    -- Bearer  ==>  el numero de api key de local
+    -- -d '{"email":"pos.26@local.api","password":"12345678"}' ==> datos de usuario perfil POS que se crear cuando se registra un nuevo local este es el usuario para los endpoint
 

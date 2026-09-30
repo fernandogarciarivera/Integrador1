@@ -10,5 +10,8 @@ Route::middleware('api.local')->prefix('pos')->group(function () {
 
     Route::middleware('auth:web')->group(function () {
         Route::post('pedidos', [PosPedidoController::class, 'store']);
+
+        // Cambia el estado de un pedido del local del token, por código
+        Route::patch('pedidos/{codigoPedido}/estado', [PosPedidoController::class, 'cambiarEstadoPorCodigo']);
     });
 });

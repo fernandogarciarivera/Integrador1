@@ -120,72 +120,6 @@ class CajaController extends Controller
         }
 
         return redirect()->route('caja.index')->with('status', "Pedido {$pedido->codigo_pedido} registrado.");
-
-        /*
-        $trabajador = $this->trabajadorCajaActual();
-
-        $pedido = DB::transaction(function () use ($data, $trabajador) {
-            $total = collect($data['items'])->sum(fn($i) => $i['cantidad'] * $i['precio_unitario']);
-
-            $pedido = Pedido::create([
-                'local_id'                    => $trabajador->local_id,
-                'cliente_id'                  => $data['cliente_id'] ?? null,
-                'trabajador_caja_id'          => $trabajador->id,
-                'codigo_pedido'               => $data['codigo_pedido'],
-                'codigo_qr'                   => $trabajador->local_id . '-' . $data['codigo_pedido'],
-                'fecha_expira_qr'             => now()->addHour(),
-                'tipo'                        => $data['tipo'],
-                'estado'                      => 'REGISTRADO',
-                'fecha_pedido'                => now(),
-                'tiempo_preparacion_estimado' => 20,
-                'total'                       => $total,
-                'notas'                       => $data['notas'] ?? null,
-            ]);
-
-            foreach ($data['items'] as $item) {
-                DetallePedido::create([
-                    'pedido_id'     => $pedido->id,
-                    'detalleProducto' => $item['detalleProducto'],
-                    'productoDesc' => $item['productoDesc'],
-                    'cantidad'      => $item['cantidad'],
-                    'precio_unitario' => $item['precio_unitario'],
-                    'subtotal'      => $item['cantidad'] * $item['precio_unitario'],
-                    'instrucciones_especiales' => $item['instrucciones_especiales'] ?? null,
-                ]);
-            }
-
-            HistorialEstado::create([
-                'pedido_id'       => $pedido->id,
-                'trabajador_id'   => $trabajador->id,
-                'estado_anterior' => null,
-                'estado_nuevo'    => 'REGISTRADO',
-                'fecha_cambio'    => now(),
-                'observaciones'   => 'Pedido registrado en caja',
-            ]);
-
-            Notificacione::create([
-                'pedido_id'  => $pedido->id,
-                'cliente_id' => $pedido->cliente_id,
-                'tipo'       => 'VISUAL',
-                'mensaje'    => "Pedido {$pedido->codigo_pedido} registrado",
-                'estado'     => 'ENVIADA',
-            ]);
-
-            return $pedido;
-        });
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'ok'        => true,
-                'pedido_id' => $pedido->id,
-                'codigo'    => $pedido->codigo_pedido,
-                'qr'        => $pedido->codigo_qr,
-                'expira'    => $pedido->fecha_expira_qr->toIso8601String(),
-            ]);
-        }
-
-        return redirect()->route('caja.index')->with('status', "Pedido {$pedido->codigo_pedido} registrado.");
-        */
     }
 
     /** Registro compartido por la caja web y la API POS. */
@@ -203,7 +137,8 @@ class CajaController extends Controller
                 'cliente_id'                  => $data['cliente_id'] ?? null,
                 'trabajador_caja_id'          => $trabajador->id,
                 'codigo_pedido'               => $codigo,
-                'codigo_qr'                   => $trabajador->local_id . '-' . $codigo,
+                'codigo_qr'                   => $trabajador->local_id . '-' . $codigo, // QR de seguimiento (no secreto)
+                'seguimiento_token'           => \Illuminate\Support\Str::random(40), // token único para seguimiento de pedidos
                 'fecha_expira_qr'             => now()->addHour(),
                 'tipo'                        => $data['tipo'],
                 'estado'                      => 'REGISTRADO',
@@ -241,9 +176,15 @@ class CajaController extends Controller
                 'estado'     => 'ENVIADA',
             ]);
 
-            // QR gráfico del pedido (SVG en storage/app/public/qr, visible con storage:link).
+            /**
+             * se genera un QR que apunta a la ruta de seguimiento del pedido, usando el token único de seguimiento.
+             * La ruta de seguimiento es algo como: /pedidos/seguimiento/{token}
+             * El QR se guarda en storage/app/public/qr/{pedido_id}.svg y se almacena la URL pública en el campo imagen_qr del pedido.
+             * El token de seguimiento es único y se genera al crear el pedido
+             */
+            $urlSeguimiento = route('pedidos.seguimiento', ['token' => $pedido->seguimiento_token]);
             $ruta = "qr/{$pedido->id}.svg";
-            Storage::disk('public')->put($ruta, (new QRCode(new QROptions(['outputBase64' => false])))->render($pedido->codigo_qr));
+            Storage::disk('public')->put($ruta, (new QRCode(new QROptions(['outputBase64' => false])))->render($urlSeguimiento));
             $pedido->update(['imagen_qr' => Storage::url($ruta)]);
 
             return $pedido;
@@ -254,13 +195,14 @@ class CajaController extends Controller
     protected function respuestaPedido(Pedido $pedido): array
     {
         return [
-            'ok'        => true,
-            'pedido_id' => $pedido->id,
-            'codigo'    => $pedido->codigo_pedido,
-            'qr'        => $pedido->codigo_qr,
-            'qr_url'    => asset($pedido->imagen_qr),
-            'qr_base64' => 'data:image/svg+xml;base64,' . base64_encode(Storage::disk('public')->get("qr/{$pedido->id}.svg")),
-            'expira'    => $pedido->fecha_expira_qr->toIso8601String(),
+            'ok'         => true,
+            'pedido_id'  => $pedido->id,
+            'codigo'     => $pedido->codigo_pedido,
+            'qr'         => $pedido->codigo_qr,
+            'qr_url'     => asset($pedido->imagen_qr),
+            'qr_base64'  => 'data:image/svg+xml;base64,' . base64_encode(Storage::disk('public')->get("qr/{$pedido->id}.svg")),
+            'seguimiento_url' => route('pedidos.seguimiento', ['token' => $pedido->seguimiento_token]), // ← nuevo
+            'expira'     => $pedido->fecha_expira_qr->toIso8601String(),
         ];
     }
 

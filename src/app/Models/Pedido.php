@@ -74,7 +74,8 @@ class Pedido extends Model
 		'tiempo_preparacion_estimado',
 		'tiempo_preparacion_real',
 		'total',
-		'notas'
+		'notas',
+		'seguimiento_token',
 	];
 
 	public function cliente()

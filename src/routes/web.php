@@ -6,11 +6,15 @@ use App\Http\Controllers\TrabajadorController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\CajaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\PedidoSeguimientoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('mi-pedido/{token}', [\App\Http\Controllers\PedidoSeguimientoController::class, 'show'])
+    ->name('pedidos.seguimiento');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
