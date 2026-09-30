@@ -16,6 +16,9 @@ Route::get('/', function () {
 Route::get('mi-pedido/{token}', [\App\Http\Controllers\PedidoSeguimientoController::class, 'show'])
     ->name('pedidos.seguimiento');
 
+Route::post('mi-pedido/{token}/asociar-cliente', [\App\Http\Controllers\PedidoSeguimientoController::class, 'asociarCliente'])
+    ->name('pedidos.asociar-cliente');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
