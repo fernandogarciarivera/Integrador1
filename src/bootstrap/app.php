@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\ForcePasswordChange::class,
         ]);
+        $middleware->api(prepend: [
+            \Illuminate\Session\Middleware\StartSession::class,
+        ]);
         $middleware->alias([
             'api.local' => \App\Http\Middleware\ApiTokenLocal::class,
         ]);

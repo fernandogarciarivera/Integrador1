@@ -169,7 +169,7 @@ CREATE TABLE `formularios` (
   `controller` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `formulario_UNIQUE` (`formulario`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -178,7 +178,7 @@ CREATE TABLE `formularios` (
 
 LOCK TABLES `formularios` WRITE;
 /*!40000 ALTER TABLE `formularios` DISABLE KEYS */;
-INSERT INTO `formularios` VALUES (1,'Dashboard','DashboardController'),(2,'Pedidos Caja','CajaController'),(3,'Pedidos Cocina','CocinaController'),(4,'Pedidos Despacho','DespachoController'),(5,'Reporte','ReporteController'),(6,'Trabajadores','TrabajadoresController'),(7,'Empresa Contrata','RestaurantController'),(8,'Locales','LocalesController'),(9,'Clientes','ClientesController');
+INSERT INTO `formularios` VALUES (1,'Dashboard','DashboardController'),(2,'Pedidos Caja','CajaController'),(3,'Pedidos Cocina','CocinaController'),(4,'Pedidos Despacho','DespachoController'),(5,'Reporte','ReporteController'),(6,'Trabajadores','TrabajadoresController'),(7,'Empresa Contrata','RestaurantController'),(8,'Locales','LocalesController'),(9,'Clientes','ClientesController'),(10,'POS','PosPedidoController');
 /*!40000 ALTER TABLE `formularios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -299,7 +299,7 @@ CREATE TABLE `locales` (
   UNIQUE KEY `locales_api_token_unique` (`api_token`),
   KEY `idx_locales_restaurante` (`restaurante_id`),
   CONSTRAINT `fk_locales_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -308,7 +308,7 @@ CREATE TABLE `locales` (
 
 LOCK TABLES `locales` WRITE;
 /*!40000 ALTER TABLE `locales` DISABLE KEYS */;
-INSERT INTO `locales` VALUES (1,7,'Larco','Av. José Larco 999, Miraflores, Lima','','6sLRQE9aBXkfIebp8BBWUPhtMuxFSzBigjNFqRpobp3UuLQD9Hc5JFc5dHeFWTUZ','ACTIVO','2026-09-24 15:18:59','2026-09-30 04:22:04',NULL),(2,7,'Diagonal','Av. Diagonal 308, Miraflores, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(3,14,'Centro','Jr. Chancay 894, Cercado de Lima, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(4,14,'Surco','Av. Caminos del Inca 1151, Santiago de Surco, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(5,16,'Lince','Av. Gral. Juan Antonio Álvarez de Arenales 2499, Lince, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(6,10,'Aeropuerto','Av. Elmer Faucett s/n (Aeropuerto Internacional Jorge Chávez), Callao','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(7,2,'Larco','Av. José Larco 401, Miraflores, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(8,2,'Jockey Plaza','Av. Javier Prado Este 4200 (CC Jockey Plaza), Santiago de Surco, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(9,3,'Plaza San Miguel','Av. Universitaria 2000 (CC Plaza San Miguel), San Miguel, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(10,8,'Centro','Av. Abancay 601, Cercado de Lima, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(11,12,'Angamos','Av. Angamos Este 1502, Surquillo, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(12,15,'Angamos','Av. Angamos Este 609, Surquillo, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(13,15,'Lince','Av. Arequipa 2394, Lince, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(14,13,'Barranco','Av. de la Aviación 3005, San Borja, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(15,5,'La Mar','Av. Mariscal La Mar 1328, Miraflores, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(16,9,'Larcomar','Malecón de la Reserva 610 (CC Larcomar), Miraflores, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(17,11,'Megaplaza','Av. Alfredo Mendiola 3698 (CC MegaPlaza), Los Olivos, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(18,4,'Centro','Jr. de la Unión 500, Cercado de Lima, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(19,6,'Canaval y Moreyra','Av. Canaval y Moreyra 501, San Isidro, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(20,1,'Luna Pizarro','Av. Luna Pizarro 415, La Victoria, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(21,1,'erstes','setr','sert','1uPoRTTvPMQJaiwN1KfIm10zfS7G3beMRQzQXvOPP6ukasxeTvMtoyv9Axt6Bifl','ACTIVO','2026-09-29 04:17:24','2026-09-30 04:23:59',NULL);
+INSERT INTO `locales` VALUES (1,7,'Larco','Av. José Larco 999, Miraflores, Lima','','6sLRQE9aBXkfIebp8BBWUPhtMuxFSzBigjNFqRpobp3UuLQD9Hc5JFc5dHeFWTUZ','ACTIVO','2026-09-24 15:18:59','2026-09-30 04:22:04',NULL),(2,7,'Diagonal','Av. Diagonal 308, Miraflores, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(3,14,'Centro','Jr. Chancay 894, Cercado de Lima, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(4,14,'Surco','Av. Caminos del Inca 1151, Santiago de Surco, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(5,16,'Lince','Av. Gral. Juan Antonio Álvarez de Arenales 2499, Lince, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(6,10,'Aeropuerto','Av. Elmer Faucett s/n (Aeropuerto Internacional Jorge Chávez), Callao','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(7,2,'Larco','Av. José Larco 401, Miraflores, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(8,2,'Jockey Plaza','Av. Javier Prado Este 4200 (CC Jockey Plaza), Santiago de Surco, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(9,3,'Plaza San Miguel','Av. Universitaria 2000 (CC Plaza San Miguel), San Miguel, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(10,8,'Centro','Av. Abancay 601, Cercado de Lima, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(11,12,'Angamos','Av. Angamos Este 1502, Surquillo, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(12,15,'Angamos','Av. Angamos Este 609, Surquillo, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(13,15,'Lince','Av. Arequipa 2394, Lince, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(14,13,'Barranco','Av. de la Aviación 3005, San Borja, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(15,5,'La Mar','Av. Mariscal La Mar 1328, Miraflores, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(16,9,'Larcomar','Malecón de la Reserva 610 (CC Larcomar), Miraflores, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(17,11,'Megaplaza','Av. Alfredo Mendiola 3698 (CC MegaPlaza), Los Olivos, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(18,4,'Centro','Jr. de la Unión 500, Cercado de Lima, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(19,6,'Canaval y Moreyra','Av. Canaval y Moreyra 501, San Isidro, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(20,1,'Luna Pizarro','Av. Luna Pizarro 415, La Victoria, Lima','',NULL,'ACTIVO','2026-09-24 15:18:59','2026-09-24 15:18:59',NULL),(21,1,'erstes','setr','sert','1uPoRTTvPMQJaiwN1KfIm10zfS7G3beMRQzQXvOPP6ukasxeTvMtoyv9Axt6Bifl','ACTIVO','2026-09-29 04:17:24','2026-09-30 04:23:59',NULL),(22,1,'begi moll','moll sjl','58425','sJGuotKHpxBTmnKwHCFlc8OWQwY0NBB33uSZuTIcpxSqsCaxmpKKINwVq3aL0gll','ACTIVO','2026-09-30 14:04:31','2026-09-30 14:04:31',NULL),(23,1,'begi moll2','moll sjl2','58425','8JQlm7jV9CfljfQZqKv3nDiePbzmnFzL4Q1e9EObClzLt4gc297XTzsVqCSOGSz4','ACTIVO','2026-09-30 14:12:38','2026-09-30 14:12:38',NULL),(24,1,'begi moll22','moll sjl2','58425','n3UkO13idxZNfsFNTaGTc1i4k2YMu17Iq9ss1MirF67OIQl9tFqCORnx0pBpI2Hi','ACTIVO','2026-09-30 14:17:32','2026-09-30 14:17:32',NULL),(25,2,'carretilla','assagasd','2222|','N4kOXmI5QN9IXmuCdiP51ysQI2ZtaTujeaWqdBc5X1BxoLxnFsN3BLrqyd4SaEDm','ACTIVO','2026-09-30 14:54:49','2026-09-30 14:54:49',NULL),(26,1,'local0101','local0101','local0101','eGV8YEwqA6l13TnR8ILd62J1TQJALbgRh42wxvZ8F247C6F6tLayF0TAw8cBOLEK','ACTIVO','2026-09-30 15:23:11','2026-09-30 15:23:11',NULL);
 /*!40000 ALTER TABLE `locales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -493,7 +493,7 @@ CREATE TABLE `perfilAccesos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `perfil` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -502,7 +502,7 @@ CREATE TABLE `perfilAccesos` (
 
 LOCK TABLES `perfilAccesos` WRITE;
 /*!40000 ALTER TABLE `perfilAccesos` DISABLE KEYS */;
-INSERT INTO `perfilAccesos` VALUES (1,'SUPER_ADMIN'),(2,'ADMIN_REST'),(3,'GERENTE_LOCAL'),(4,'CAJA'),(5,'COCINA'),(6,'DESPACHO');
+INSERT INTO `perfilAccesos` VALUES (1,'SUPER_ADMIN'),(2,'ADMIN_REST'),(3,'GERENTE_LOCAL'),(4,'CAJA'),(5,'COCINA'),(6,'DESPACHO'),(7,'POS');
 /*!40000 ALTER TABLE `perfilAccesos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -522,7 +522,7 @@ CREATE TABLE `perfilesFormularios` (
   KEY `fk_perfilesFormularios_formularios1_idx` (`formulario_id`),
   CONSTRAINT `fk_perfilesFormularios_formularios1` FOREIGN KEY (`formulario_id`) REFERENCES `formularios` (`id`),
   CONSTRAINT `fk_perfilesFormularios_perfilAccesos1` FOREIGN KEY (`perfilAcceso_id`) REFERENCES `perfilAccesos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=619 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -531,7 +531,7 @@ CREATE TABLE `perfilesFormularios` (
 
 LOCK TABLES `perfilesFormularios` WRITE;
 /*!40000 ALTER TABLE `perfilesFormularios` DISABLE KEYS */;
-INSERT INTO `perfilesFormularios` VALUES (595,1,9),(596,1,1),(597,1,7),(598,1,8),(599,1,5),(602,2,9),(603,2,1),(604,2,8),(605,2,5),(606,2,6),(609,3,1),(610,3,2),(611,3,3),(612,3,4),(613,3,5),(614,3,6),(615,3,9),(616,4,2),(617,5,3),(618,6,4);
+INSERT INTO `perfilesFormularios` VALUES (1,1,9),(2,1,1),(3,1,7),(4,1,8),(5,1,5),(8,2,9),(9,2,1),(10,2,8),(11,2,5),(12,2,6),(15,3,1),(16,3,2),(17,3,3),(18,3,4),(19,3,5),(20,3,6),(21,3,9),(22,4,2),(23,5,3),(24,6,4),(25,7,10);
 /*!40000 ALTER TABLE `perfilesFormularios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -609,7 +609,7 @@ CREATE TABLE `trabajadores` (
   `user_id` bigint unsigned NOT NULL,
   `restaurante_id` bigint unsigned NOT NULL,
   `local_id` bigint unsigned DEFAULT NULL,
-  `rol` enum('SUPER_ADMIN','ADMIN_REST','GERENTE_LOCAL','CAJA','COCINA','DESPACHO') NOT NULL,
+  `rol` enum('SUPER_ADMIN','ADMIN_REST','GERENTE_LOCAL','CAJA','COCINA','DESPACHO','POS') NOT NULL,
   `puesto` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `imagen_url` varchar(255) DEFAULT NULL,
@@ -625,7 +625,7 @@ CREATE TABLE `trabajadores` (
   CONSTRAINT `fk_trabajadores_local` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_trabajadores_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_trabajadores_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -634,7 +634,7 @@ CREATE TABLE `trabajadores` (
 
 LOCK TABLES `trabajadores` WRITE;
 /*!40000 ALTER TABLE `trabajadores` DISABLE KEYS */;
-INSERT INTO `trabajadores` VALUES (1,2,2,10,'CAJA','pppp','984318804','/storage/trabajadores/XiV0WsviDHRitaimOcWVfxC1vvMfV1bAV24qD1QM.jpg',1,'2026-09-24 15:34:22','2026-09-24 15:34:22',NULL),(2,3,2,NULL,'ADMIN_REST','pppp','4646',NULL,1,'2026-09-25 15:29:14','2026-09-25 15:29:14',NULL),(3,4,12,NULL,'CAJA','pppp',NULL,NULL,1,'2026-09-27 06:03:31','2026-09-27 06:03:31',NULL);
+INSERT INTO `trabajadores` VALUES (1,2,2,10,'CAJA','pppp','984318804','/storage/trabajadores/XiV0WsviDHRitaimOcWVfxC1vvMfV1bAV24qD1QM.jpg',1,'2026-09-24 15:34:22','2026-09-24 15:34:22',NULL),(2,3,2,NULL,'ADMIN_REST','pppp','4646',NULL,1,'2026-09-25 15:29:14','2026-09-25 15:29:14',NULL),(3,4,12,NULL,'CAJA','pppp',NULL,NULL,1,'2026-09-27 06:03:31','2026-09-27 06:03:31',NULL),(4,7,1,24,'POS','POS',NULL,NULL,1,'2026-09-30 14:17:32','2026-09-30 14:17:32',NULL),(5,8,2,25,'POS','POS',NULL,NULL,1,'2026-09-30 14:54:49','2026-09-30 14:54:49',NULL),(6,9,1,26,'POS','POS',NULL,NULL,1,'2026-09-30 15:23:11','2026-09-30 15:23:11',NULL);
 /*!40000 ALTER TABLE `trabajadores` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -657,7 +657,7 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -666,9 +666,13 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Super Admin','admin@integrador1.com','2026-09-24 15:20:53','$2y$12$EmosjNAphX.V2LscDHNdIuXnAYeQlO4KJXFwRcQGx9bhNo4pTNjKe',0,NULL,'2026-09-24 15:20:53','2026-09-24 15:20:53'),(2,'caja','caja@prueba.com','2026-09-24 15:34:22','$2y$12$.yQvm6rKcyJHWY2P0GY5PujFaqlQl3KjHX0i/lpuc8wex89CEu4We',0,NULL,'2026-09-24 15:34:22','2026-09-24 15:34:22'),(3,'carlos','carlos@prueba','2026-09-25 15:29:14','$2y$12$eV2mEtf28thJKSznVOn6Be3qqDOwS4d9Ie1MEeKZBkJeX2Dzjyzaq',0,NULL,'2026-09-25 15:29:14','2026-09-25 15:29:14'),(4,'ROKYS','ROKY@PRUEBA.COM','2026-09-27 06:03:31','$2y$12$7XSM9WZJQXgZKkfLKqaNmur8YO6Yw4tYKnxmn0g53oDkbDI/hGoD.',1,NULL,'2026-09-27 06:03:31','2026-09-27 06:03:31');
+INSERT INTO `users` VALUES (1,'Super Admin','admin@integrador1.com','2026-09-24 15:20:53','$2y$12$EmosjNAphX.V2LscDHNdIuXnAYeQlO4KJXFwRcQGx9bhNo4pTNjKe',0,NULL,'2026-09-24 15:20:53','2026-09-24 15:20:53'),(2,'caja','caja@prueba.com','2026-09-24 15:34:22','$2y$12$.yQvm6rKcyJHWY2P0GY5PujFaqlQl3KjHX0i/lpuc8wex89CEu4We',0,NULL,'2026-09-24 15:34:22','2026-09-24 15:34:22'),(3,'carlos','carlos@prueba','2026-09-25 15:29:14','$2y$12$eV2mEtf28thJKSznVOn6Be3qqDOwS4d9Ie1MEeKZBkJeX2Dzjyzaq',0,NULL,'2026-09-25 15:29:14','2026-09-25 15:29:14'),(4,'ROKYS','ROKY@PRUEBA.COM','2026-09-27 06:03:31','$2y$12$7XSM9WZJQXgZKkfLKqaNmur8YO6Yw4tYKnxmn0g53oDkbDI/hGoD.',1,NULL,'2026-09-27 06:03:31','2026-09-27 06:03:31'),(7,'POS begi moll22 (1)','pos.24@local.api','2026-09-30 14:17:32','$2y$12$OVIcdl4OVhL7s.98GzjzeePPHkJ7yr/FaqhBgJTd7sB69/H5t0hky',0,NULL,'2026-09-30 14:17:32','2026-09-30 14:17:32'),(8,'POS carretilla (1)','pos.25@local.api','2026-09-30 14:54:49','N4kOXmI5QN9IXmuCdiP51ysQI2ZtaTujeaWqdBc5X1BxoLxnFsN3BLrqyd4SaEDm',0,NULL,'2026-09-30 14:54:49','2026-09-30 14:54:49'),(9,'POS  1 local0101','pos.26@local.api','2026-09-30 15:23:11','$2y$12$/E0ZGLt/LscemncFUr/C7ewXuoOwxxZiVXZ9Pp37uXy5z17C0p6pC',0,NULL,'2026-09-30 15:23:11','2026-09-30 15:23:11');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping events for database 'UtpIntegradorBuzzer'
+--
 
 --
 -- Dumping routines for database 'UtpIntegradorBuzzer'
@@ -683,47 +687,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-29 23:30:20
-
---
--- Data para tabla `perfilAccesos`, `formularios` y `perfilesFormularios`
---
-SET SQL_SAFE_UPDATES = 0;
-DELETE FROM `UtpIntegradorBuzzer`.`perfilesFormularios`;
-DELETE FROM `UtpIntegradorBuzzer`.`perfilAccesos`;
-DELETE FROM `UtpIntegradorBuzzer`.`formularios`;
-SET SQL_SAFE_UPDATES = 1;
-
-ALTER TABLE `UtpIntegradorBuzzer`.`perfilAccesos` AUTO_INCREMENT = 1;
-ALTER TABLE `UtpIntegradorBuzzer`.`formularios` AUTO_INCREMENT = 1;
-
-INSERT INTO `UtpIntegradorBuzzer`.`perfilAccesos` (`perfil`) VALUES 
-  ('SUPER_ADMIN'), 
-  ('ADMIN_REST'), 
-  ('GERENTE_LOCAL'), 
-  ('CAJA'), 
-  ('COCINA'), 
-  ('DESPACHO'), 
-  ('POS');
-
-INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VALUES 
-  ('Dashboard', 'DashboardController'), 
-  ('Pedidos Caja', 'CajaController'), 
-  ('Pedidos Cocina', 'CocinaController'),
-  ('Pedidos Despacho', 'DespachoController'),
-  ('Reporte', 'ReporteController'), 
-  ('Trabajadores', 'TrabajadoresController'), 
-  ('Empresa Contrata', 'RestaurantController'), 
-  ('Locales', 'LocalesController'),
-  ('Clientes', 'ClientesController'),
-  ('POS', 'PosPedidoController');
-
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,6,10);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,7,10);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 3 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (7,8,10);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 4 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (2);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 5 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (3);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 6 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (4);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 7 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (10);
-
--- SELECT pf.*, pa.*, frm.* FROM UtpIntegradorBuzzer.perfilesFormularios AS pf INNER JOIN UtpIntegradorBuzzer.perfilAccesos AS pa ON pa.id = pf.perfilAcceso_id INNER JOIN UtpIntegradorBuzzer.formularios AS frm ON frm.id = pf.formulario_id;
+-- Dump completed on 2026-09-30 11:08:07

@@ -169,7 +169,7 @@ CREATE TABLE `formularios` (
   `controller` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `formulario_UNIQUE` (`formulario`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -178,7 +178,7 @@ CREATE TABLE `formularios` (
 
 LOCK TABLES `formularios` WRITE;
 /*!40000 ALTER TABLE `formularios` DISABLE KEYS */;
-INSERT INTO `formularios` VALUES (1,'Dashboard','DashboardController'),(2,'Pedidos Caja','CajaController'),(3,'Pedidos Cocina','CocinaController'),(4,'Pedidos Despacho','DespachoController'),(5,'Reporte','ReporteController'),(6,'Trabajadores','TrabajadoresController'),(7,'Empresa Contrata','RestaurantController'),(8,'Locales','LocalesController'),(9,'Clientes','ClientesController');
+INSERT INTO `formularios` VALUES (1,'Dashboard','DashboardController'),(2,'Pedidos Caja','CajaController'),(3,'Pedidos Cocina','CocinaController'),(4,'Pedidos Despacho','DespachoController'),(5,'Reporte','ReporteController'),(6,'Trabajadores','TrabajadoresController'),(7,'Empresa Contrata','RestaurantController'),(8,'Locales','LocalesController'),(9,'Clientes','ClientesController'),(10,'POS','PosPedidoController');
 /*!40000 ALTER TABLE `formularios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -493,7 +493,7 @@ CREATE TABLE `perfilAccesos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `perfil` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -502,7 +502,7 @@ CREATE TABLE `perfilAccesos` (
 
 LOCK TABLES `perfilAccesos` WRITE;
 /*!40000 ALTER TABLE `perfilAccesos` DISABLE KEYS */;
-INSERT INTO `perfilAccesos` VALUES (1,'SUPER_ADMIN'),(2,'ADMIN_REST'),(3,'GERENTE_LOCAL'),(4,'CAJA'),(5,'COCINA'),(6,'DESPACHO');
+INSERT INTO `perfilAccesos` VALUES (1,'SUPER_ADMIN'),(2,'ADMIN_REST'),(3,'GERENTE_LOCAL'),(4,'CAJA'),(5,'COCINA'),(6,'DESPACHO'),(7,'POS');
 /*!40000 ALTER TABLE `perfilAccesos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -522,7 +522,7 @@ CREATE TABLE `perfilesFormularios` (
   KEY `fk_perfilesFormularios_formularios1_idx` (`formulario_id`),
   CONSTRAINT `fk_perfilesFormularios_formularios1` FOREIGN KEY (`formulario_id`) REFERENCES `formularios` (`id`),
   CONSTRAINT `fk_perfilesFormularios_perfilAccesos1` FOREIGN KEY (`perfilAcceso_id`) REFERENCES `perfilAccesos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=619 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -531,7 +531,7 @@ CREATE TABLE `perfilesFormularios` (
 
 LOCK TABLES `perfilesFormularios` WRITE;
 /*!40000 ALTER TABLE `perfilesFormularios` DISABLE KEYS */;
-INSERT INTO `perfilesFormularios` VALUES (595,1,9),(596,1,1),(597,1,7),(598,1,8),(599,1,5),(602,2,9),(603,2,1),(604,2,8),(605,2,5),(606,2,6),(609,3,1),(610,3,2),(611,3,3),(612,3,4),(613,3,5),(614,3,6),(615,3,9),(616,4,2),(617,5,3),(618,6,4);
+INSERT INTO `perfilesFormularios` VALUES (1,1,9),(2,1,1),(3,1,7),(4,1,8),(5,1,5),(8,2,9),(9,2,1),(10,2,8),(11,2,5),(12,2,6),(15,3,1),(16,3,2),(17,3,3),(18,3,4),(19,3,5),(20,3,6),(21,3,9),(22,4,2),(23,5,3),(24,6,4),(25,7,10);
 /*!40000 ALTER TABLE `perfilesFormularios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -671,6 +671,10 @@ INSERT INTO `users` VALUES (1,'Super Admin','admin@integrador1.com','2026-09-24 
 UNLOCK TABLES;
 
 --
+-- Dumping events for database 'UtpIntegradorBuzzer'
+--
+
+--
 -- Dumping routines for database 'UtpIntegradorBuzzer'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -683,47 +687,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-29 23:30:20
-
---
--- Data para tabla `perfilAccesos`, `formularios` y `perfilesFormularios`
---
-SET SQL_SAFE_UPDATES = 0;
-DELETE FROM `UtpIntegradorBuzzer`.`perfilesFormularios`;
-DELETE FROM `UtpIntegradorBuzzer`.`perfilAccesos`;
-DELETE FROM `UtpIntegradorBuzzer`.`formularios`;
-SET SQL_SAFE_UPDATES = 1;
-
-ALTER TABLE `UtpIntegradorBuzzer`.`perfilAccesos` AUTO_INCREMENT = 1;
-ALTER TABLE `UtpIntegradorBuzzer`.`formularios` AUTO_INCREMENT = 1;
-
-INSERT INTO `UtpIntegradorBuzzer`.`perfilAccesos` (`perfil`) VALUES 
-  ('SUPER_ADMIN'), 
-  ('ADMIN_REST'), 
-  ('GERENTE_LOCAL'), 
-  ('CAJA'), 
-  ('COCINA'), 
-  ('DESPACHO'), 
-  ('POS');
-
-INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VALUES 
-  ('Dashboard', 'DashboardController'), 
-  ('Pedidos Caja', 'CajaController'), 
-  ('Pedidos Cocina', 'CocinaController'),
-  ('Pedidos Despacho', 'DespachoController'),
-  ('Reporte', 'ReporteController'), 
-  ('Trabajadores', 'TrabajadoresController'), 
-  ('Empresa Contrata', 'RestaurantController'), 
-  ('Locales', 'LocalesController'),
-  ('Clientes', 'ClientesController'),
-  ('POS', 'PosPedidoController');
-
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,6,10);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,7,10);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 3 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (7,8,10);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 4 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (2);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 5 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (3);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 6 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (4);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 7 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (10);
-
--- SELECT pf.*, pa.*, frm.* FROM UtpIntegradorBuzzer.perfilesFormularios AS pf INNER JOIN UtpIntegradorBuzzer.perfilAccesos AS pa ON pa.id = pf.perfilAcceso_id INNER JOIN UtpIntegradorBuzzer.formularios AS frm ON frm.id = pf.formulario_id;
+-- Dump completed on 2026-09-30  8:29:38

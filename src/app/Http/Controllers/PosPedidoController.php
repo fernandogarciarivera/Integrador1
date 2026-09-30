@@ -12,6 +12,7 @@ class PosPedidoController extends CajaController
     public function store(Request $request)
     {
         $local = $request->attributes->get('api_local');
+        $trabajador = $request->attributes->get('api_trabajador');
 
         $data = $request->validate([
             // Token ya validado por middleware; aquí validamos payload
@@ -26,12 +27,6 @@ class PosPedidoController extends CajaController
             'items.*.precio_unitario'          => 'required|numeric|min:0',
             'items.*.instrucciones_especiales' => 'nullable|string|max:200',
         ]);
-
-        // El trabajador debe pertenecer al local del token
-        $trabajador = Trabajador::where('id', $data['trabajador_id'])
-            ->where('local_id', $local->id)
-            ->where('activo', true)
-            ->firstOrFail();
 
         // Construimos un Request interno "como si" viniera de la caja web
         // y delegamos TODA la lógica a CajaController@store.

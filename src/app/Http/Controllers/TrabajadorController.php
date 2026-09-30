@@ -183,4 +183,29 @@ class TrabajadorController extends Controller
         //return back()->with('status', 'Trabajador eliminado.');
         return redirect()->route('trabajadores.index')->with('status', 'Trabajador eliminado.');
     }
+
+    /**
+     * Crea un trabajador con rol POS para un local específico.
+     */
+    public function crearUsuario0ParaLocal(Locale $local): Trabajador
+    {
+        return DB::transaction(function () use ($local) {
+            $user = User::create([
+                'name'                 => 'POS ' . ' 1 ' . $local->nombre,
+                'email'                => 'pos.' . $local->id . '@local.api',
+                'password'             => Hash::make('12345678'), // contraseña fija inicial
+                'must_change_password' => false,
+                'email_verified_at'    => now(),
+            ]);
+
+            return Trabajador::create([
+                'user_id'        => $user->id,
+                'restaurante_id' => $local->restaurante_id,
+                'local_id'       => $local->id,
+                'rol'            => 'POS',
+                'puesto'         => 'POS',
+                'activo'         => true,
+            ]);
+        });
+    }
 }

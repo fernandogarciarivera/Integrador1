@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Locale;
 use App\Models\Restaurante;
+use App\Http\Controllers\TrabajadorController;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -40,9 +41,13 @@ class LocaleController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, TrabajadorController $trabajadorController)
     {
-        Locale::create($this->validar($request));
+        $local = Locale::create($this->validar($request));
+        // 1. Generar Token API
+        $local->update(['api_token' => \Illuminate\Support\Str::random(64)]);
+        // 2. Trabajador POS1 (reutiliza lógica de TrabajadorController)
+        $trabajadorController->crearUsuario0ParaLocal($local);
 
         return redirect()->route('locales.index')->with('status', 'Local creado.');
     }

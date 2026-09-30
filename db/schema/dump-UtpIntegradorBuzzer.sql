@@ -82,7 +82,7 @@ CREATE TABLE `trabajadores` (
   `user_id` bigint unsigned NOT NULL,
   `restaurante_id` bigint unsigned NOT NULL,
   `local_id` bigint unsigned DEFAULT NULL,
-  `rol` enum('SUPER_ADMIN','ADMIN','GERENTE','CAJA','DESPACHO','COCINA') NOT NULL,
+  `rol` enum('SUPER_ADMIN', 'ADMIN', 'GERENTE', 'CAJA', 'DESPACHO', 'COCINA', 'POS') NOT NULL,
   `puesto` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT '1',
@@ -259,8 +259,6 @@ CREATE TABLE `metricas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-ALTER TABLE `UtpIntegradorBuzzer`.`trabajadores` CHANGE COLUMN `rol` `rol` ENUM('SUPER_ADMIN', 'ADMIN', 'GERENTE', 'CAJA', 'DESPACHO', 'COCINA') NOT NULL ;
-
 --
 -- Data para tabla `restaurantes`
 --
@@ -320,6 +318,7 @@ DELETE FROM `UtpIntegradorBuzzer`.`perfilAccesos`;
 DELETE FROM `UtpIntegradorBuzzer`.`formularios`;
 SET SQL_SAFE_UPDATES = 1;
 
+ALTER TABLE `UtpIntegradorBuzzer`.`perfilesFormularios` AUTO_INCREMENT = 1;
 ALTER TABLE `UtpIntegradorBuzzer`.`perfilAccesos` AUTO_INCREMENT = 1;
 ALTER TABLE `UtpIntegradorBuzzer`.`formularios` AUTO_INCREMENT = 1;
 
@@ -329,7 +328,8 @@ INSERT INTO `UtpIntegradorBuzzer`.`perfilAccesos` (`perfil`) VALUES
   ('GERENTE_LOCAL'), 
   ('CAJA'), 
   ('COCINA'), 
-  ('DESPACHO');
+  ('DESPACHO'), 
+  ('POS');
 
 INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VALUES 
   ('Dashboard', 'DashboardController'), 
@@ -340,7 +340,8 @@ INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VAL
   ('Trabajadores', 'TrabajadoresController'), 
   ('Empresa Contrata', 'RestaurantController'), 
   ('Locales', 'LocalesController'),
-  ('Clientes', 'ClientesController');
+  ('Clientes', 'ClientesController'),
+  ('POS', 'PosPedidoController');
 
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,6,10);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,7,10);
@@ -348,5 +349,6 @@ INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `for
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 4 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (2);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 5 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (3);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 6 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (4);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 7 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (10);
 
--- SELECT pf.*, pa.*, frm.* FROM UtpIntegradorBuzzer.perfilesFormularios AS pf INNER JOIN UtpIntegradorBuzzer.perfilAccesos AS pa ON pa.id = pf.perfilAcceso_id INNER JOIN UtpIntegradorBuzzer.formularios AS frm ON frm.id = pf.formulario_id;
+-- SELECT pf.*, pa.*, frm.* FROM UtpIntegradorBuzzer.perfilesFormularios AS pf INNER JOIN UtpIntegradorBuzzer.perfilAccesos AS pa ON pa.id = pf.perfilAcceso_id INNER JOIN UtpIntegradorBuzzer.formularios AS frm ON frm.id = pf.formulario_id ORDER BY pf.perfilAcceso_id, pf.formulario_id;
