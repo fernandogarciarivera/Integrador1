@@ -3,27 +3,6 @@ docker compose exec -T -u www-data app php artisan migrate --path=database/migra
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_23_000000_add_imagen_url_to_trabajadores_table.php --force
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_29_000000_add_api_token_to_locales_table.php --force
 
-
-# 2) Limpiar caches como www-data
-docker compose exec -T -u www-data app php artisan config:clear
-docker compose exec -T -u www-data app php artisan route:clear
-docker compose exec -T -u www-data app php artisan view:clear
-# (cache:clear puede fallar si redis no está arriba; opcional)
-
-# 3) Regenerar autoloader (como root, dueño de vendor/)
-docker compose exec -T app composer dump-autoload -o
-
-
-
-
-
-docker compose exec -T -u www-data app php artisan config:clear
-docker compose exec -T -u www-data app php artisan route:clear
-docker compose exec -T -u www-data app php artisan view:clear
-docker compose exec -T -u www-data app php artisan view:cache
-docker compose exec -T -u www-data app npm run build
-docker compose exec -T app composer dump-autoload -o
-
-# 3) Agregar un nuvo estado a columna rol a trabajadores
+# 2) Agregar un nuvo estado a columna rol a trabajadores
 ALTER TABLE `UtpIntegradorBuzzer`.`trabajadores` 
 CHANGE COLUMN `rol` `rol` ENUM('SUPER_ADMIN', 'ADMIN', 'GERENTE', 'CAJA', 'DESPACHO', 'COCINA') NOT NULL ;

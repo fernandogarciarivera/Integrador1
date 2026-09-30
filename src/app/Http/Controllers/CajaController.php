@@ -6,8 +6,9 @@ use App\Models\{Pedido, DetallePedido, HistorialEstado, Notificacione, Cliente};
 use App\Models\Trabajador;
 use App\Support\EstadoAccesoPedido;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, DB};
+use Illuminate\Support\Facades\{Auth, DB, Storage};
 use Illuminate\Validation\Rule;
+use chillerlan\QRCode\{QRCode, QROptions};
 
 class CajaController extends Controller
 {
@@ -112,6 +113,15 @@ class CajaController extends Controller
             ];
         }, $data['items']);
 
+        $pedido = $this->registrarPedido($data, $this->trabajadorCajaActual());
+
+        if ($request->wantsJson()) {
+            return response()->json($this->respuestaPedido($pedido));
+        }
+
+        return redirect()->route('caja.index')->with('status', "Pedido {$pedido->codigo_pedido} registrado.");
+
+        /*
         $trabajador = $this->trabajadorCajaActual();
 
         $pedido = DB::transaction(function () use ($data, $trabajador) {
@@ -175,6 +185,83 @@ class CajaController extends Controller
         }
 
         return redirect()->route('caja.index')->with('status', "Pedido {$pedido->codigo_pedido} registrado.");
+        */
+    }
+
+    /** Registro compartido por la caja web y la API POS. */
+    protected function registrarPedido(array $data, Trabajador $trabajador): Pedido
+    {
+        return DB::transaction(function () use ($data, $trabajador) {
+            // Si no llega código (POS), se genera el siguiente correlativo; lockForUpdate evita duplicados entre cajas.
+            $codigo = $data['codigo_pedido']
+                ?? (string) ((int) Pedido::withTrashed()->lockForUpdate()->max(DB::raw('CAST(codigo_pedido AS UNSIGNED)')) + 1);
+
+            $total = collect($data['items'])->sum(fn($i) => $i['cantidad'] * $i['precio_unitario']);
+
+            $pedido = Pedido::create([
+                'local_id'                    => $trabajador->local_id,
+                'cliente_id'                  => $data['cliente_id'] ?? null,
+                'trabajador_caja_id'          => $trabajador->id,
+                'codigo_pedido'               => $codigo,
+                'codigo_qr'                   => $trabajador->local_id . '-' . $codigo,
+                'fecha_expira_qr'             => now()->addHour(),
+                'tipo'                        => $data['tipo'],
+                'estado'                      => 'REGISTRADO',
+                'fecha_pedido'                => now(),
+                'tiempo_preparacion_estimado' => 20,
+                'total'                       => $total,
+                'notas'                       => $data['notas'] ?? null,
+            ]);
+
+            foreach ($data['items'] as $item) {
+                DetallePedido::create([
+                    'pedido_id'     => $pedido->id,
+                    'productoDesc' => $item['productoDesc'],
+                    'cantidad'      => $item['cantidad'],
+                    'precio_unitario' => $item['precio_unitario'],
+                    'subtotal'      => $item['cantidad'] * $item['precio_unitario'],
+                    'instrucciones_especiales' => $item['instrucciones_especiales'] ?? null,
+                ]);
+            }
+
+            HistorialEstado::create([
+                'pedido_id'       => $pedido->id,
+                'trabajador_id'   => $trabajador->id,
+                'estado_anterior' => null,
+                'estado_nuevo'    => 'REGISTRADO',
+                'fecha_cambio'    => now(),
+                'observaciones'   => 'Pedido registrado en caja',
+            ]);
+
+            Notificacione::create([
+                'pedido_id'  => $pedido->id,
+                'cliente_id' => $pedido->cliente_id,
+                'tipo'       => 'VISUAL',
+                'mensaje'    => "Pedido {$pedido->codigo_pedido} registrado",
+                'estado'     => 'ENVIADA',
+            ]);
+
+            // QR gráfico del pedido (SVG en storage/app/public/qr, visible con storage:link).
+            $ruta = "qr/{$pedido->id}.svg";
+            Storage::disk('public')->put($ruta, (new QRCode(new QROptions(['outputBase64' => false])))->render($pedido->codigo_qr));
+            $pedido->update(['imagen_qr' => Storage::url($ruta)]);
+
+            return $pedido;
+        });
+    }
+
+    /** Respuesta JSON con el QR: URL de la imagen y la misma imagen en base64 para imprimir sin otra llamada. */
+    protected function respuestaPedido(Pedido $pedido): array
+    {
+        return [
+            'ok'        => true,
+            'pedido_id' => $pedido->id,
+            'codigo'    => $pedido->codigo_pedido,
+            'qr'        => $pedido->codigo_qr,
+            'qr_url'    => asset($pedido->imagen_qr),
+            'qr_base64' => 'data:image/svg+xml;base64,' . base64_encode(Storage::disk('public')->get("qr/{$pedido->id}.svg")),
+            'expira'    => $pedido->fecha_expira_qr->toIso8601String(),
+        ];
     }
 
     public function cambiarEstado(Request $request, Pedido $pedido)

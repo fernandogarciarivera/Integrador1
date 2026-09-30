@@ -197,6 +197,23 @@ if errorlevel 1 (
 
 echo.
 
+rem ===================================================================
+rem STEP 6B: Ensure PHP dependencies (incluye chillerlan/php-qrcode)
+rem ===================================================================
+echo [6B/7] Installing PHP dependencies from composer.lock...
+docker exec UtpIntegrador-app sh -c "cd /var/www && composer install --no-interaction --prefer-dist"
+if errorlevel 1 (
+    echo  ERROR: composer install failed
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
+echo  OK - PHP dependencies installed
+echo.
+
+rem docker compose exec -T app php artisan storage:link
+
+echo.
+
 echo  - Rebuilding frontend assets cleanly...
 if exist "%PROJECT_PATH%\src\public\build" (
     rmdir /s /q "%PROJECT_PATH%\src\public\build"
@@ -217,6 +234,7 @@ if errorlevel 1 (
     set /a ERRORS+=1
     goto :ERROR_SUMMARY
 )
+
 if exist "%PROJECT_PATH%\src\public\build\manifest.json" (
     findstr /i /c:"resources/css/app.css" "%PROJECT_PATH%\src\public\build\manifest.json" >nul
     if errorlevel 1 (

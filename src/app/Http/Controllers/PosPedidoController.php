@@ -30,6 +30,7 @@ class PosPedidoController extends CajaController
         // El trabajador debe pertenecer al local del token
         $trabajador = Trabajador::where('id', $data['trabajador_id'])
             ->where('local_id', $local->id)
+            ->where('activo', true)
             ->firstOrFail();
 
         // Construimos un Request interno "como si" viniera de la caja web

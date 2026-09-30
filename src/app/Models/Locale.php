@@ -42,6 +42,9 @@ class Locale extends Model
 		'restaurante_id' => 'int'
 	];
 
+	// El token nunca sale en JSON.
+	// protected $hidden = ['api_token'];
+
 	protected $fillable = [
 		'restaurante_id',
 		'nombre',
