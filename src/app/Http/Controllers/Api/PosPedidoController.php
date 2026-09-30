@@ -6,13 +6,21 @@ use App\Http\Controllers\CajaController;
 use App\Models\Trabajador;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class PosPedidoController extends CajaController
 {
     public function store(Request $request)
     {
         $local = $request->attributes->get('api_local');
-        $trabajador = $request->attributes->get('api_trabajador');
+
+        $trabajador = Auth::user()?->trabajador()
+            ->where('local_id', $local->id)
+            ->where('rol', 'POS')
+            ->where('activo', true)
+            ->first();
+
+        abort_unless($trabajador, 403, 'No autorizado para este local.');
 
         $data = $request->validate([
             // Token ya validado por middleware; aquí validamos payload
@@ -42,7 +50,7 @@ class PosPedidoController extends CajaController
                 'precio_unitario'          => $i['precio_unitario'],
                 'instrucciones_especiales' => $i['instrucciones_especiales'] ?? null,
             ], $data['items']),
-            '_api_trabajador_id' => $trabajador->id,   // <-- ver punto 4
+            'trabajador_id' => $trabajador->id,   // <-- ver punto 4
         ]);
         $interno->setUserResolver(fn() => $trabajador->user);
         $interno->headers->set('Accept', 'application/json');
