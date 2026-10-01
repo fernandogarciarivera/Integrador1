@@ -113,6 +113,19 @@ if not exist "%PROJECT_PATH%\src\.env" (
 ) else (
     echo  OK - .env already exists
 )
+
+:ASK_APP_URL
+set "APP_URL_INPUT="
+set /p "APP_URL_INPUT=Enter APP_URL (e.g. http://localhost:8282): "
+if not defined APP_URL_INPUT goto :ASK_APP_URL
+set "ENV_FILE=%PROJECT_PATH%\src\.env"
+powershell -NoProfile -Command "$path = $env:ENV_FILE; $url = $env:APP_URL_INPUT; $content = [IO.File]::ReadAllText($path); if ($content -match '(?m)^APP_URL=.*$') { $content = [regex]::Replace($content, '(?m)^APP_URL=.*$', [System.Text.RegularExpressions.MatchEvaluator]{ param($match) 'APP_URL=' + $url }) } else { $content = $content.TrimEnd() + [Environment]::NewLine + 'APP_URL=' + $url + [Environment]::NewLine }; [IO.File]::WriteAllText($path, $content, [Text.UTF8Encoding]::new($false))"
+if errorlevel 1 (
+    echo  ERROR: Could not update APP_URL in src\.env
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
+echo  OK - APP_URL updated in src\.env
 echo.
 
 REM ===================================================================

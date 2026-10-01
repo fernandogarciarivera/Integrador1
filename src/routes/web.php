@@ -5,6 +5,7 @@ use App\Http\Controllers\RestauranteController;
 use App\Http\Controllers\TrabajadorController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\CajaController;
+use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\PedidoSeguimientoController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,10 @@ Route::middleware('auth')->group(function () {
     Route::post('caja', [CajaController::class, 'store'])->name('caja.store');
     Route::get('caja/{pedido}/detalle', [CajaController::class, 'show'])->name('caja.show');
     Route::match(['patch', 'post'], 'caja/{pedido}/estado', [CajaController::class, 'cambiarEstado'])->name('caja.estado');
+
+    // Cocina / Cola de pedidos
+    Route::get('cocina', [CocinaController::class, 'index'])->name('cocina.index');
+    Route::patch('cocina/{pedido}/estado', [CocinaController::class, 'cambiarEstado'])->name('cocina.estado');
 
     Route::resource('clientes', ClienteController::class)
         ->except(['show'])

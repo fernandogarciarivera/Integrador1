@@ -77,15 +77,15 @@ class AppLayout extends Component
             'Caja'                  => 'caja.index',
             'Pedidos Caja'          => 'caja.index',
 
+            'CocinaController'      => 'cocina.index',
+            'Cocina'                => 'cocina.index',
+            'Pedidos Cocina'        => 'cocina.index',
+
             'RestaurantController'  => 'restaurantes.index',
             'Restaurant'            => 'restaurantes.index',
 
             'LocalesController'     => 'locales.index',
             'Locales'               => 'locales.index',
-
-            //'CocinaController' => 'cocina.index',
-            //'Cocina' => 'cocina.index',
-            //'Pedidos Cocina' => 'cocina.index',
 
             //'DespachoController' => 'despacho.index',
             //'Despacho' => 'despacho.index',

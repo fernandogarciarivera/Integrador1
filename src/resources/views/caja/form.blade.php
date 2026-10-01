@@ -282,7 +282,7 @@
                         Muestra este código al cliente para completar el pago.
                     </p>
                     <div class="bg-surface-container p-md rounded-2xl mb-lg border border-outline-variant inline-block">
-                        <img :src="qrUrl()" alt="Código QR" class="w-64 h-64 object-contain rounded-lg bg-white">
+                        <img :src="qrUrl()" alt="Código QR" class="w-40 h-40 object-contain rounded-lg bg-white">
                     </div>
                     <p class="font-label-caps text-label-caps text-on-surface-variant mb-md">
                         Expira: <span x-text="qrData.expira"></span>

@@ -220,7 +220,7 @@ class CajaController extends Controller
     /** Respuesta JSON con el QR: URL de la imagen y la misma imagen en base64 para imprimir sin otra llamada. */
     protected function respuestaPedido(Pedido $pedido): array
     {
-        $seguimientoUrl = $this->urlPublica('pedidos/seguimiento/' . $pedido->seguimiento_token);
+        $seguimientoUrl = $this->urlPublica('mi-pedido/' . $pedido->seguimiento_token);
 
         return [
             'ok'         => true,
@@ -286,7 +286,7 @@ class CajaController extends Controller
 
         $pedido->load(['cliente', 'detalle_pedidos', 'historial_estados.trabajadore.user']);
         $pedido->qr_url = $pedido->imagen_qr ?: $this->urlPublica('storage/qr/' . $pedido->id . '.svg');
-        $pedido->seguimiento_url = $this->urlPublica('pedidos/seguimiento/' . $pedido->seguimiento_token);
+        $pedido->seguimiento_url = $this->urlPublica('mi-pedido/' . $pedido->seguimiento_token);
 
         return response()->json($pedido);
     }
