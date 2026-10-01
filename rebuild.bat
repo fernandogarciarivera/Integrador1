@@ -16,10 +16,10 @@ echo  Project Validation and Rebuild
 echo ============================================================
 echo.
 
-REM ===================================================================
-REM STEP 1: Validate Docker Installation
-REM ===================================================================
-echo [1/7] Validating Docker installation...
+ECHO ===================================================================
+ECHO STEP 1: Validar Docker Installacion
+ECHO ===================================================================
+echo [1/7] Validando Docker installacion...
 docker --version >nul 2>&1
 if errorlevel 1 (
     echo  ERROR: Docker is not installed or not in PATH
@@ -29,10 +29,10 @@ if errorlevel 1 (
 echo  OK - Docker found
 echo.
 
-REM ===================================================================
-REM STEP 2: Validate Project Structure
-REM ===================================================================
-echo [2/7] Validating project structure...
+ECHO ===================================================================
+ECHO STEP 2: Validar Project Structure
+ECHO ===================================================================
+echo [2/7] Validando project structure...
 set "MISSING=0"
 
 if not exist "%PROJECT_PATH%\src" (
@@ -60,9 +60,9 @@ if !MISSING! equ 0 (
 )
 echo.
 
-REM ===================================================================
-REM STEP 3A: Validate and refresh frontend dependencies from the lockfile
-REM ===================================================================
+ECHO ===================================================================
+ECHO STEP 3A: Validate and refresh frontend dependencies from the lockfile
+ECHO ===================================================================
 if exist "%PROJECT_PATH%\package.json.template" (
     copy /y "%PROJECT_PATH%\package.json.template" "%PROJECT_PATH%\src\package.json" >nul
     echo  OK - package.json restored from template
@@ -87,9 +87,9 @@ if exist "%PROJECT_PATH%\src\package.json" (
 )
 echo.
 
-REM ===================================================================
-REM STEP 3: Create Missing Config Files
-REM ===================================================================
+ECHO ===================================================================
+ECHO STEP 3: Create Missing Config Files
+ECHO ===================================================================
 echo [3/7] Ensuring config files exist...
 
 if not exist "%PROJECT_PATH%\src\postcss.config.js" (
@@ -128,9 +128,9 @@ if errorlevel 1 (
 echo  OK - APP_URL updated in src\.env
 echo.
 
-REM ===================================================================
-REM STEP 4: Validate Docker Compose File
-REM ===================================================================
+ECHO ===================================================================
+ECHO STEP 4: Validate Docker Compose File
+ECHO ===================================================================
 echo [4/7] Validating docker-compose.yml...
 docker compose -f "%PROJECT_PATH%\docker-compose.yml" config >nul 2>&1
 if errorlevel 1 (
@@ -144,20 +144,20 @@ echo.
 REM ===================================================================
 REM STEP 4.5: Ensure Windows Firewall allows incoming traffic to nginx port
 REM ===================================================================
-echo [4.5/7] Ensuring Windows Firewall allows port 8282 (nginx)...
-powershell -Command "if (-not (Get-NetFirewallRule -DisplayName 'UtpIntegrador nginx' -ErrorAction SilentlyContinue)) { New-NetFirewallRule -DisplayName 'UtpIntegrador nginx' -Direction Inbound -LocalPort 8282 -Protocol TCP -Action Allow; Write-Output 'Firewall rule created' } else { Write-Output 'Firewall rule already exists' }"
-if errorlevel 1 (
-    echo  WARN: Could not create firewall rule (requires Administrator privilege)
-    echo  You may need to run this script as Administrator or create the rule manually:
-    echo    New-NetFirewallRule -DisplayName "UtpIntegrador nginx" -Direction Inbound -LocalPort 8282 -Protocol TCP -Action Allow
-) else (
-    echo  OK - Firewall rule ensured
-)
-echo.
+REM [4.5/7] Ensuring Windows Firewall allows port 8282 (nginx)...
+REM powershell -Command "if (-not (Get-NetFirewallRule -DisplayName 'UtpIntegrador nginx' -ErrorAction SilentlyContinue)) { New-NetFirewallRule -DisplayName 'UtpIntegrador nginx' -Direction Inbound -LocalPort 8282 -Protocol TCP -Action Allow; Write-Output 'Firewall rule created' } else { Write-Output 'Firewall rule already exists' }"
+REM if errorlevel 1 (
+REM     echo  WARN: Could not create firewall rule (requires Administrator privilege)
+REM     echo  You may need to run this script as Administrator or create the rule manually:
+REM     echo    New-NetFirewallRule -DisplayName "UtpIntegrador nginx" -Direction Inbound -LocalPort 8282 -Protocol TCP -Action Allow
+REM ) else (
+REM     echo  OK - Firewall rule ensured
+REM )
+REM echo.
 
-REM ===================================================================
-REM STEP 5: Rebuild Docker Containers
-REM ===================================================================
+ECHO ===================================================================
+ECHO STEP 5: Rebuild Docker Containers
+ECHO ===================================================================
 echo [5/7] Rebuilding Docker containers...
 echo  - Stopping existing containers (preserving database and uploaded assets)...
 docker compose -f "%PROJECT_PATH%\docker-compose.yml" down 2>nul
@@ -207,10 +207,10 @@ echo  OK - Vite dev server responds
 echo  OK - Containers started
 echo.
 
-REM ===================================================================
-REM STEP 6: Verify npm Dependencies
-REM ===================================================================
-echo [6/7] Verifying npm dependencies...
+ECHO ===================================================================
+ECHO STEP 6: Verify npm Dependencies
+ECHO ===================================================================
+ECHO [6/7] Verifying npm dependencies...
 
 docker exec UtpIntegrador-app sh -c "test -f /var/www/node_modules/vite/package.json" >nul 2>&1
 if errorlevel 1 (
@@ -224,9 +224,9 @@ if errorlevel 1 (
 
 echo.
 
-rem ===================================================================
-rem STEP 6B: Ensure PHP dependencies (incluye chillerlan/php-qrcode)
-rem ===================================================================
+ECHO ===================================================================
+ECHO STEP 6B: Ensure PHP dependencies (incluye chillerlan/php-qrcode)
+ECHO ===================================================================
 echo [6B/7] Installing PHP dependencies from composer.lock...
 docker exec UtpIntegrador-app sh -c "cd /var/www && composer install --no-interaction --prefer-dist"
 if errorlevel 1 (
@@ -313,9 +313,9 @@ if errorlevel 1 (
 
 echo.
 
-REM ===================================================================
-REM Final Summary
-REM ===================================================================
+ECHO ===================================================================
+ECHO Final Summary
+ECHO ===================================================================
 :ERROR_SUMMARY
 if not !ERRORS! equ 0 goto :BUILD_FAILED
 echo ============================================================

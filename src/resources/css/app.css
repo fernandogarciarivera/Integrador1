@@ -412,6 +412,7 @@
 .cocina-column__body { display: grid; align-content: start; gap: 12px; padding: 12px; }
 .cocina-card { overflow: hidden; border: 1px solid var(--cocina-line); background: #fff; }
 .cocina-card--active { order: -1; border-color: #d89b35; }
+.cocina-card--active .cocina-card__header { background: #dcfce7; color: #14532d; }
 .cocina-card__header { min-height: 50px; padding: 8px 12px; border-bottom: 1px solid var(--cocina-line); background: #fcdeb5; color: #271901; }
 .cocina-card__header strong { font-size: 24px; }
 .cocina-card__header time, .cocina-card__header > span { font-size: 15px; font-weight: 700; }
