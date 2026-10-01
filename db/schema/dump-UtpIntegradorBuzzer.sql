@@ -34,7 +34,7 @@ CREATE TABLE `restaurantes` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_restaurantes_estado` (`estado`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `locales`
@@ -53,7 +53,7 @@ CREATE TABLE `locales` (
   PRIMARY KEY (`id`),
   KEY `idx_locales_restaurante` (`restaurante_id`),
   CONSTRAINT `fk_locales_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 --
@@ -140,7 +140,7 @@ DROP TABLE IF EXISTS `detalle_pedidos`;
 CREATE TABLE `detalle_pedidos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `pedido_id` bigint unsigned NOT NULL,
-  `detalleProducto` varchar(100) DEFAULT NULL,
+  `productoDesc` varchar(100) DEFAULT NULL,
   `cantidad` int unsigned NOT NULL DEFAULT '1',
   `precio_unitario` decimal(10,2) NOT NULL,
   `subtotal` decimal(10,2) NOT NULL,
@@ -205,7 +205,7 @@ CREATE TABLE `perfilAccesos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `perfil` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `formularios`
@@ -217,7 +217,7 @@ CREATE TABLE `formularios` (
   `controller` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `formulario_UNIQUE` (`formulario`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 --
@@ -233,7 +233,7 @@ CREATE TABLE `perfilesFormularios` (
   KEY `fk_perfilesFormularios_formularios1_idx` (`formulario_id`),
   CONSTRAINT `fk_perfilesFormularios_formularios1` FOREIGN KEY (`formulario_id`) REFERENCES `formularios` (`id`),
   CONSTRAINT `fk_perfilesFormularios_perfilAccesos1` FOREIGN KEY (`perfilAcceso_id`) REFERENCES `perfilAccesos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `metricas`
@@ -324,8 +324,8 @@ ALTER TABLE `UtpIntegradorBuzzer`.`formularios` AUTO_INCREMENT = 1;
 
 INSERT INTO `UtpIntegradorBuzzer`.`perfilAccesos` (`perfil`) VALUES 
   ('SUPER_ADMIN'), 
-  ('ADMIN_REST'), 
-  ('GERENTE_LOCAL'), 
+  ('ADMIN'), 
+  ('GERENTE'), 
   ('CAJA'), 
   ('COCINA'), 
   ('DESPACHO'), 

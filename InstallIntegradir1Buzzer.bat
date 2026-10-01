@@ -289,15 +289,15 @@ docker compose exec -T app php artisan code:models --connection=mysql
 if errorlevel 1 goto :fallo
 echo Modelos generados en app/Models
 
-echo.
-echo ============================================================
-echo 11.3 - Creando Controllers API para cada modelo
-echo ============================================================
-for %%M in (Restaurante Local Trabajador Cliente Producto Pedido DetallePedido HistorialEstado Notificacion Metrica) do (
-    docker compose exec -T app php artisan make:controller Api/%%MController --api --model=%%M
-    if errorlevel 1 goto :fallo
-)
-echo Controllers creados en app/Http/Controllers/Api
+REM echo.
+REM echo ============================================================
+REM echo 11.3 - Creando Controllers API para cada modelo
+REM echo ============================================================
+REM for %%M in (Restaurante Local Trabajador Cliente Producto Pedido DetallePedido HistorialEstado Notificacion Metrica) do (
+REM     docker compose exec -T app php artisan make:controller Api/%%MController --api --model=%%M
+REM     if errorlevel 1 goto :fallo
+REM )
+REM echo Controllers creados en app/Http/Controllers/Api
 
 :rutas_preservadas
 if "%opcion%"=="2" echo Rutas existentes preservadas.
