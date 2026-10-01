@@ -13,7 +13,7 @@ class ForcePasswordChange
 
         if (
             $user && $user->must_change_password
-            && ! $request->routeIs('profile.edit', 'profile.update', 'logout')
+            && ! $request->routeIs('profile.edit', 'profile.update', 'password.update', 'logout')
         ) {
             return redirect()->route('profile.edit')
                 ->with('status', 'Debes cambiar tu contraseña inicial.');

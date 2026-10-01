@@ -31,6 +31,28 @@ class PasswordUpdateTest extends TestCase
         $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
     }
 
+    public function test_forced_password_change_updates_password_and_clears_flag(): void
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('12345678'),
+            'must_change_password' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => '12345678',
+                'password' => '123456789',
+                'password_confirmation' => '123456789',
+            ]);
+
+        $response->assertSessionHasNoErrors()->assertRedirect('/profile');
+        $user->refresh();
+        $this->assertTrue(Hash::check('123456789', $user->password));
+        $this->assertFalse($user->must_change_password);
+    }
+
     public function test_correct_password_must_be_provided_to_update_password(): void
     {
         $user = User::factory()->create();
