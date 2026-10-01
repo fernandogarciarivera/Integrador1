@@ -32,6 +32,32 @@ class CajaController extends Controller
         return EstadoAccesoPedido::permisosPorPerfil($perfil);
     }
 
+    private function baseUrlDesdeRequest(): string
+    {
+        $requestHost = request()->getSchemeAndHttpHost();
+        $configUrl = config('app.url');
+        $lanHost = env('LAN_HOST_IP');
+
+        if ($requestHost && ! str_contains($requestHost, 'localhost') && ! str_contains($requestHost, '127.0.0.1')) {
+            return rtrim($requestHost, '/');
+        }
+
+        if ($lanHost) {
+            return rtrim('http://' . $lanHost . ':8282', '/');
+        }
+
+        if ($configUrl && ! str_contains($configUrl, 'localhost') && ! str_contains($configUrl, '127.0.0.1')) {
+            return rtrim($configUrl, '/');
+        }
+
+        return 'http://127.0.0.1';
+    }
+
+    private function urlPublica(string $path): string
+    {
+        return rtrim($this->baseUrlDesdeRequest(), '/') . '/' . ltrim($path, '/');
+    }
+
     private function validarCambioEstado(Trabajador $trabajador, Pedido $pedido, string $estadoDestino): void
     {
         $perfil = $trabajador->rol ?? null;
@@ -182,10 +208,10 @@ class CajaController extends Controller
              * El QR se guarda en storage/app/public/qr/{pedido_id}.svg y se almacena la URL pública en el campo imagen_qr del pedido.
              * El token de seguimiento es único y se genera al crear el pedido
              */
-            $urlSeguimiento = route('pedidos.seguimiento', ['token' => $pedido->seguimiento_token]);
+            $urlSeguimiento = $this->urlPublica('pedidos/seguimiento/' . $pedido->seguimiento_token);
             $ruta = "qr/{$pedido->id}.svg";
             Storage::disk('public')->put($ruta, (new QRCode(new QROptions(['outputBase64' => false])))->render($urlSeguimiento));
-            $pedido->update(['imagen_qr' => Storage::url($ruta)]);
+            $pedido->update(['imagen_qr' => $this->urlPublica('storage/' . $ruta)]);
 
             return $pedido;
         });
@@ -194,14 +220,16 @@ class CajaController extends Controller
     /** Respuesta JSON con el QR: URL de la imagen y la misma imagen en base64 para imprimir sin otra llamada. */
     protected function respuestaPedido(Pedido $pedido): array
     {
+        $seguimientoUrl = $this->urlPublica('pedidos/seguimiento/' . $pedido->seguimiento_token);
+
         return [
             'ok'         => true,
             'pedido_id'  => $pedido->id,
             'codigo'     => $pedido->codigo_pedido,
             'qr'         => $pedido->codigo_qr,
-            'qr_url'     => asset($pedido->imagen_qr),
+            'qr_url'     => $pedido->imagen_qr ?: $this->urlPublica('storage/qr/' . $pedido->id . '.svg'),
             'qr_base64'  => 'data:image/svg+xml;base64,' . base64_encode(Storage::disk('public')->get("qr/{$pedido->id}.svg")),
-            'seguimiento_url' => route('pedidos.seguimiento', ['token' => $pedido->seguimiento_token]), // ← nuevo
+            'seguimiento_url' => $seguimientoUrl,
             'expira'     => $pedido->fecha_expira_qr->toIso8601String(),
         ];
     }

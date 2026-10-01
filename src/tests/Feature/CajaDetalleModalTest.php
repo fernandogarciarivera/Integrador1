@@ -62,4 +62,46 @@ class CajaDetalleModalTest extends TestCase
         $response->assertJsonPath('codigo_qr', '10-PO-TEST-001');
         $response->assertJsonPath('estado', 'REGISTRADO');
     }
+
+    public function test_qr_tracking_url_uses_request_host_instead_of_localhost(): void
+    {
+        config(['app.url' => 'http://localhost']);
+
+        $user = User::factory()->create();
+        $restaurante = Restaurante::create([
+            'nombre' => 'Restaurante Test',
+            'estado' => 'ACTIVO',
+            'plan' => 'BASICO',
+        ]);
+        $local = Locale::create([
+            'restaurante_id' => $restaurante->id,
+            'nombre' => 'Local Test',
+            'estado' => 'ACTIVO',
+        ]);
+        $trabajador = Trabajadore::create([
+            'user_id' => $user->id,
+            'restaurante_id' => $restaurante->id,
+            'local_id' => $local->id,
+            'rol' => 'CAJA',
+            'puesto' => 'Caja',
+            'activo' => true,
+        ]);
+
+        $response = $this
+            ->withServerVariables(['HTTP_HOST' => '192.168.1.18:8282'])
+            ->withHeader('Accept', 'application/json')
+            ->actingAs($user)
+            ->post('/caja', [
+                'codigo_pedido' => 'QR-TEST-001',
+                'tipo' => 'PRESENCIAL',
+                'items' => [
+                    ['productoDesc' => 'Pollo', 'cantidad' => 1, 'precio_unitario' => 25],
+                ],
+            ]);
+
+        $response->assertOk();
+        $seguimientoUrl = $response->json('seguimiento_url');
+        $this->assertStringContainsString('192.168.1.18:8282', $seguimientoUrl);
+        $this->assertStringNotContainsString('localhost', $seguimientoUrl);
+    }
 }

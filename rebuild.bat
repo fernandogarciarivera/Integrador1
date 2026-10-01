@@ -129,6 +129,20 @@ echo  OK - docker-compose.yml is valid
 echo.
 
 REM ===================================================================
+REM STEP 4.5: Ensure Windows Firewall allows incoming traffic to nginx port
+REM ===================================================================
+echo [4.5/7] Ensuring Windows Firewall allows port 8282 (nginx)...
+powershell -Command "if (-not (Get-NetFirewallRule -DisplayName 'UtpIntegrador nginx' -ErrorAction SilentlyContinue)) { New-NetFirewallRule -DisplayName 'UtpIntegrador nginx' -Direction Inbound -LocalPort 8282 -Protocol TCP -Action Allow; Write-Output 'Firewall rule created' } else { Write-Output 'Firewall rule already exists' }"
+if errorlevel 1 (
+    echo  WARN: Could not create firewall rule (requires Administrator privilege)
+    echo  You may need to run this script as Administrator or create the rule manually:
+    echo    New-NetFirewallRule -DisplayName "UtpIntegrador nginx" -Direction Inbound -LocalPort 8282 -Protocol TCP -Action Allow
+) else (
+    echo  OK - Firewall rule ensured
+)
+echo.
+
+REM ===================================================================
 REM STEP 5: Rebuild Docker Containers
 REM ===================================================================
 echo [5/7] Rebuilding Docker containers...
