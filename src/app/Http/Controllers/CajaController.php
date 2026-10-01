@@ -285,6 +285,9 @@ class CajaController extends Controller
         abort_if($pedido->trabajador_caja_id !== $trabajador->id, 403);
 
         $pedido->load(['cliente', 'detalle_pedidos', 'historial_estados.trabajadore.user']);
+        $pedido->qr_url = $pedido->imagen_qr ?: $this->urlPublica('storage/qr/' . $pedido->id . '.svg');
+        $pedido->seguimiento_url = $this->urlPublica('pedidos/seguimiento/' . $pedido->seguimiento_token);
+
         return response()->json($pedido);
     }
 }

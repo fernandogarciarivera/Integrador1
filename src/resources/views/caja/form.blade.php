@@ -327,7 +327,7 @@
                             <p class="text-body-md text-on-surface-variant" x-text="detail.codigo_qr ? 'QR: ' + detail.codigo_qr : 'QR no disponible'"></p>
 
                             <div class="rounded-2xl border border-outline-variant bg-surface-container p-sm" x-show="detail.codigo_qr">
-                                <img :src="qrUrlFromCode(detail.codigo_qr)" alt="Código QR del pedido" class="w-40 h-40 object-contain rounded-lg bg-white mx-auto">
+                                <img :src="qrUrlFromCode(detail.imagen_qr || detail.qr_url || detail.seguimiento_url)" alt="Código QR del pedido" class="w-40 h-40 object-contain rounded-lg bg-white mx-auto">
                             </div>
 
                             <div class="border-t border-outline-variant pt-sm">
@@ -375,7 +375,7 @@
 
             // Estado QR
             qrOpen: false,
-            qrData: { codigo: '', qr: '', expira: '', total: 0 },
+            qrData: { codigo: '', qr: '', qr_url: '', seguimiento_url: '', expira: '', total: 0 },
 
             // Estado detalle
             detailOpen: false,
@@ -449,6 +449,8 @@
                     this.qrData = {
                         codigo: body.codigo,
                         qr: body.qr,
+                        qr_url: body.qr_url || body.seguimiento_url || '',
+                        seguimiento_url: body.seguimiento_url || '',
                         expira: new Date(body.expira).toLocaleString(),
                         total: body.total,
                     };
@@ -463,12 +465,10 @@
 
             // ---------- QR ----------
             qrUrl() {
-                const data = encodeURIComponent(this.qrData.qr || '');
-                return `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${data}`;
+                return this.qrData.qr_url || this.qrData.seguimiento_url || '';
             },
-            qrUrlFromCode(code) {
-                const value = encodeURIComponent(code || '');
-                return `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${value}`;
+            qrUrlFromCode(value) {
+                return value || '';
             },
             closeQr() { this.qrOpen = false; },
             resetForm() {

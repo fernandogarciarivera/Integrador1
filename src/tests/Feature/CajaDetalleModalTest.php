@@ -15,6 +15,41 @@ class CajaDetalleModalTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_caja_form_uses_backend_generated_qr_url_instead_of_qrserver(): void
+    {
+        $trabajador = new class {
+            public $local;
+            public $puesto = 'Caja';
+            public $rol = 'CAJA';
+
+            public function __construct()
+            {
+                $this->local = (object) ['nombre' => 'Local Test'];
+            }
+        };
+
+        $html = view('caja.form', [
+            'pedidos' => collect(),
+            'metricas' => [
+                'total' => 0,
+                'ventas' => 0.0,
+                'en_proceso' => 0,
+                'estados' => [
+                    'REGISTRADO' => 0,
+                    'PREPARANDO' => 0,
+                    'LISTO' => 0,
+                    'ENTREGADO' => 0,
+                    'CANCELADO' => 0,
+                ],
+            ],
+            'trabajador' => $trabajador,
+            'estado' => null,
+        ])->render();
+
+        $this->assertStringContainsString('this.qrData.qr_url', $html);
+        $this->assertStringNotContainsString('api.qrserver.com', $html);
+    }
+
     public function test_caja_detail_endpoint_returns_order_data_and_qr(): void
     {
         $user = User::factory()->create();
