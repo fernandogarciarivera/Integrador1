@@ -5,6 +5,33 @@ REM ===================================================================
 REM This script validates and rebuilds the entire project environment
 
 setlocal enabledelayedexpansion
+
+REM --- Detectar IP LAN ---
+for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do (
+    set "LAN_IP=%%a"
+    set "LAN_IP=!LAN_IP:~1!"
+    goto :got_ip
+)
+:got_ip
+
+if "%LAN_IP%"=="" (
+    echo No se pudo detectar la IP LAN. Abortando.
+    exit /b 1
+)
+
+REM --- Puerto LAN (por defecto 8282 si no se pasa argumento) ---
+set "LAN_PORT=%~1"
+if "%LAN_PORT%"=="" set "LAN_PORT=8282"
+
+REM --- Asegurar que src/.env existe ---
+if not exist "src\.env" (
+    echo No existe src\.env. Abortando.
+    exit /b 1
+)
+
+echo LAN_HOST_IP=%LAN_IP%
+echo LAN_PORT=%LAN_PORT%
+
 set "PROJECT_PATH=%~dp0"
 if "%PROJECT_PATH:~-1%"=="\" set "PROJECT_PATH=%PROJECT_PATH:~0,-1%"
 pushd "%PROJECT_PATH%" >nul
@@ -114,6 +141,14 @@ if not exist "%PROJECT_PATH%\src\.env" (
     echo  OK - .env already exists
 )
 
+REM --- Puerto LAN (solicitar al usuario) ---
+:ASK_LAN_PORT
+set "LAN_PORT_INPUT="
+set /p "LAN_PORT_INPUT=Enter LAN_PORT (e.g. 8282): "
+if not defined LAN_PORT_INPUT goto :ASK_LAN_PORT
+set "LAN_PORT=%LAN_PORT_INPUT%"
+
+REM --- Solicitar web (solicitar al usuario) ---
 :ASK_APP_URL
 set "APP_URL_INPUT="
 set /p "APP_URL_INPUT=Enter APP_URL (e.g. http://localhost:8282): "
@@ -127,6 +162,25 @@ if errorlevel 1 (
 )
 echo  OK - APP_URL updated in src\.env
 echo.
+
+REM --- Grabar LAN_HOST_IP ---
+set "LAN_HOST_IP_VALUE=%LAN_IP%"
+powershell -NoProfile -Command "$path = $env:ENV_FILE; $value = $env:LAN_HOST_IP_VALUE; $content = [IO.File]::ReadAllText($path); if ($content -match '(?m)^LAN_HOST_IP=.*$') { $content = [regex]::Replace($content, '(?m)^LAN_HOST_IP=.*$', [System.Text.RegularExpressions.MatchEvaluator]{ param($match) 'LAN_HOST_IP=' + $value }) } else { $content = $content.TrimEnd() + [Environment]::NewLine + 'LAN_HOST_IP=' + $value + [Environment]::NewLine }; [IO.File]::WriteAllText($path, $content, [Text.UTF8Encoding]::new($false))"
+if errorlevel 1 (
+    echo  ERROR: Could not update LAN_HOST_IP in src\.env
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
+echo  OK - LAN_HOST_IP updated in src\.env
+
+REM --- Grabar LAN_PORT ---
+powershell -NoProfile -Command "$path = $env:ENV_FILE; $value = $env:LAN_PORT; $content = [IO.File]::ReadAllText($path); if ($content -match '(?m)^LAN_PORT=.*$') { $content = [regex]::Replace($content, '(?m)^LAN_PORT=.*$', [System.Text.RegularExpressions.MatchEvaluator]{ param($match) 'LAN_PORT=' + $value }) } else { $content = $content.TrimEnd() + [Environment]::NewLine + 'LAN_PORT=' + $value + [Environment]::NewLine }; [IO.File]::WriteAllText($path, $content, [Text.UTF8Encoding]::new($false))"
+if errorlevel 1 (
+    echo  ERROR: Could not update LAN_PORT in src\.env
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
+echo  OK - LAN_PORT updated in src\.env
 
 ECHO ===================================================================
 ECHO STEP 4: Validate Docker Compose File
@@ -276,6 +330,7 @@ if exist "%PROJECT_PATH%\src\public\build\manifest.json" (
         goto :ERROR_SUMMARY
     )
 )
+
 if exist "%PROJECT_PATH%\src\public\hot" (
     del "%PROJECT_PATH%\src\public\hot"
     echo  OK - Production assets selected
@@ -313,12 +368,10 @@ if errorlevel 1 (
 
 echo.
 
-
 REM ===================================================================
 REM STEP 8: Reghenetar token y QR
 REM ===================================================================
 docker compose exec -T -u www-data app php artisan pedidos:regenerar-qr
-
 
 ECHO ===================================================================
 ECHO Final Summary

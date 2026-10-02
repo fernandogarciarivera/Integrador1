@@ -17,7 +17,43 @@ docker compose exec -T -u www-data app php artisan pedidos:regenerar-qr --id=42
 docker compose exec -T -u www-data app php artisan pedidos:regenerar-qr --force
 
 
-# 3) llamar a API de caja
+# 5) Generar usuarios para los restaurantes y locales
+
+# Todos los locales activos
+docker compose exec -T -u www-data app php artisan usuarios:generar-por-local
+
+# Solo un restaurante
+docker compose exec -T -u www-data app php artisan usuarios:generar-por-local --restaurante=1
+
+# Solo un local
+docker compose exec -T -u www-data app php artisan usuarios:generar-por-local --local=20
+
+# Ver qué haría sin escribir
+docker compose exec -T -u www-data app php artisan usuarios:generar-por-local --dry-run
+
+# Otra contraseña
+docker compose exec -T -u www-data app php artisan usuarios:generar-por-local --password=MiClave123
+
+
+# 6) Generar pedidos aleatorios a trabajadores caja
+
+# 10 pedidos en cualquier local con CAJA
+docker compose exec -T -u www-data app php artisan pedidos:generar
+
+# 50 pedidos
+docker compose exec -T -u www-data app php artisan pedidos:generar 50
+
+# Solo un local
+docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=20
+
+# Solo un trabajador CAJA específico
+docker compose exec -T -u www-data app php artisan pedidos:generar 5 --trabajador=23
+
+# Simular
+docker compose exec -T -u www-data app php artisan pedidos:generar 100 --dry-run
+
+
+# 4) llamar a API de caja
 
 -- login
 curl -c cookies.txt -X POST http://localhost:8282/api/pos/login \

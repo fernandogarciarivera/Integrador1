@@ -23,8 +23,6 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-local}
       APP_DEBUG: ${APP_DEBUG:-true}
-      APP_URL: http://${LAN_HOST_IP:-192.168.1.18}:8282
-      LAN_HOST_IP: ${LAN_HOST_IP:-192.168.1.18}
       PHP_MEMORY_LIMIT: 512M
       PHP_MAX_EXECUTION_TIME: 300
       XDEBUG_MODE: ${XDEBUG_MODE:-debug}

@@ -123,4 +123,17 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | LAN Host IP and Port
+    |--------------------------------------------------------------------------
+    |
+    | These values are used to configure the LAN host IP and port for the
+    | application. You can set these values in your ".env" file to specify
+    | the desired IP address and port for LAN communication.
+    |
+    */
+    'lan_host_ip' => env('LAN_HOST_IP'),
+    'lan_port'    => env('LAN_PORT'),
+
 ];

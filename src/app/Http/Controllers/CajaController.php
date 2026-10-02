@@ -36,14 +36,16 @@ class CajaController extends Controller
     {
         $requestHost = request()->getSchemeAndHttpHost();
         $configUrl = config('app.url');
-        $lanHost = env('LAN_HOST_IP');
+        $lanHost = config('app.lan_host_ip');
 
         if ($requestHost && ! str_contains($requestHost, 'localhost') && ! str_contains($requestHost, '127.0.0.1')) {
             return rtrim($requestHost, '/');
         }
 
         if ($lanHost) {
-            return rtrim('http://' . $lanHost . ':8282', '/');
+            $port = config('app.lan_port');
+            $suffix = $port ? ":{$port}" : '';
+            return rtrim("http://{$lanHost}{$suffix}", '/');
         }
 
         if ($configUrl && ! str_contains($configUrl, 'localhost') && ! str_contains($configUrl, '127.0.0.1')) {
@@ -211,7 +213,7 @@ class CajaController extends Controller
             $urlSeguimiento = $this->urlPublica('pedidos/seguimiento/' . $pedido->seguimiento_token);
             $ruta = "qr/{$pedido->id}.svg";
             Storage::disk('public')->put($ruta, (new QRCode(new QROptions(['outputBase64' => false])))->render($urlSeguimiento));
-            $pedido->update(['imagen_qr' => $this->urlPublica('storage/' . $ruta)]);
+            $pedido->update(['imagen_qr' => 'storage/' . $ruta]);
 
             return $pedido;
         });

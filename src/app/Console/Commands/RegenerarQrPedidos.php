@@ -37,17 +37,15 @@ class RegenerarQrPedidos extends Command
             foreach ($pedidos as $pedido) {
                 // El QR embebe la URL de seguimiento (que depende de APP_URL/LAN_HOST_IP).
                 $urlSeguimiento = $this->urlPublica('mi-pedido/' . $pedido->seguimiento_token);
-
                 // Reescribe el SVG del QR con la URL actual.
                 $ruta = "qr/{$pedido->id}.svg";
                 Storage::disk('public')->put(
                     $ruta,
                     (new QRCode(new QROptions(['outputBase64' => false])))->render($urlSeguimiento)
                 );
-
                 // Reasigna imagen_qr con la nueva URL base.
-                $pedido->update(['imagen_qr' => $this->urlPublica('storage/' . $ruta)]);
-
+                //$pedido->update(['imagen_qr' => $this->urlPublica('storage/' . $ruta)]);
+                $pedido->update(['imagen_qr' => 'storage/' . $ruta]);
                 $actualizados++;
                 $bar->advance();
             }
@@ -64,7 +62,7 @@ class RegenerarQrPedidos extends Command
     private function urlPublica(string $path): string
     {
         $requestHost = request()->getSchemeAndHttpHost();
-        $lanHost = env('LAN_HOST_IP');
+        $lanHost = config('app.lan_host_ip');
         $configUrl = config('app.url');
 
         if ($requestHost && !str_contains($requestHost, 'localhost') && !str_contains($requestHost, '127.0.0.1')) {
@@ -72,7 +70,9 @@ class RegenerarQrPedidos extends Command
         }
 
         if ($lanHost) {
-            return rtrim('http://' . $lanHost . ':8282', '/') . '/' . ltrim($path, '/');
+            $port = config('app.lan_port');
+            $suffix = $port ? ":{$port}" : '';
+            return rtrim("http://{$lanHost}{$suffix}", '/') . '/' . ltrim($path, '/');
         }
 
         if ($configUrl && !str_contains($configUrl, 'localhost') && !str_contains($configUrl, '127.0.0.1')) {

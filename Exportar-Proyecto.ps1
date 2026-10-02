@@ -50,7 +50,8 @@ param(
                         jsx,
                         html,
                         xml,
-                        sql",
+                        sql,
+                        env",
 
     [string]$ExcludePatterns = "node_modules,
                 storage,
@@ -59,13 +60,13 @@ param(
                 .vscode,
                 package-lock.json,
                 composer.lock,
-                .env,
                 *.log,
                 *.cache,
                 *.tmp,
                 *.bak,
-                public/build,
-                public/hot,
+                public,
+                bootstrap,
+                config,
                 vendor"
                 )
 
