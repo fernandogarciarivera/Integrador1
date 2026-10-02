@@ -4,7 +4,20 @@ docker compose exec -T -u www-data app php artisan migrate --path=database/migra
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_29_000000_add_api_token_to_locales_table.php --force
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_30_000000_add_seguimiento_token_to_pedidos_table.php --force
 
-# 2) llamar a API de caja
+
+# 2) regenerar token y qr de pedido
+
+# Regenerar todos
+docker compose exec -T -u www-data app php artisan pedidos:regenerar-qr
+
+# Solo un pedido
+docker compose exec -T -u www-data app php artisan pedidos:regenerar-qr --id=42
+
+# Forzar aunque la URL parezca correcta
+docker compose exec -T -u www-data app php artisan pedidos:regenerar-qr --force
+
+
+# 3) llamar a API de caja
 
 -- login
 curl -c cookies.txt -X POST http://localhost:8282/api/pos/login \
