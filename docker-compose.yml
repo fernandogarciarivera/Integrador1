@@ -102,6 +102,7 @@ services:
       MYSQL_ROOT_PASSWORD: 12345678
       MYSQL_USER: UtpIntegradorBuzzerBD
       MYSQL_PASSWORD: 12345678
+      TZ: America/Lima
     ports:
       - "3307:3306"
     volumes:

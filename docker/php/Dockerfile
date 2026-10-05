@@ -33,6 +33,10 @@ RUN pecl install redis \
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 
+# Configurar zona horaria
+ARG TZ=America/Lima
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Instalar Composer
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 

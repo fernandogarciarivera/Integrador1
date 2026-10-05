@@ -141,6 +141,10 @@ if not exist "%PROJECT_PATH%\src\.env" (
     echo  OK - .env already exists
 )
 
+echo.
+echo ============================================================
+echo 1 - Solicitar al usuario la URL de la app y el puerto LAN
+echo ============================================================
 REM --- Puerto LAN (solicitar al usuario) ---
 :ASK_LAN_PORT
 set "LAN_PORT_INPUT="
@@ -367,6 +371,21 @@ if errorlevel 1 (
 )
 
 echo.
+
+echo.
+echo ============================================================
+echo 16a - Levantar migraciones adicionales (si existen) y cachear config
+echo ============================================================
+docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_22_150000_add_must_change_password_to_users_table.php --force
+docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_23_000000_add_imagen_url_to_trabajadores_table.php --force
+docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_29_000000_add_api_token_to_locales_table.php --force
+docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_30_000000_add_seguimiento_token_to_pedidos_table.php --force
+
+echo.
+echo ============================================================
+echo 16b - Crear usuarios por local
+echo ============================================================
+docker compose exec -T -u www-data app php artisan usuarios:generar-por-local
 
 REM ===================================================================
 REM STEP 8: Reghenetar token y QR
