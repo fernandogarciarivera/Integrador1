@@ -96,7 +96,41 @@ que es:
 
 
 
-
+# Limpiar proyecto en la consola bash
 docker compose exec -T -u www-data app php artisan optimize:clear
 docker compose exec -T -u www-data app sh -lc "find storage/framework/sessions -type f -delete"
 docker compose restart app
+
+# Ejecutar graphify en la consola bash
+python.exe -m graphify update "C:\GitHub\Integrador1"
+
+
+# Querys de visualizacion perfiles que accede a cada formulario y usuarios 
+
+/**
+PERFILES DE ACCESO A FORMULARIOS
+**/
+SELECT pf.*, pa.perfil AS ROL, 
+	frm.formulario, frm.controller
+FROM UtpIntegradorBuzzer.perfilesFormularios AS pf 
+	INNER JOIN UtpIntegradorBuzzer.perfilAccesos AS pa ON pa.id = pf.perfilAcceso_id 
+    INNER JOIN UtpIntegradorBuzzer.formularios AS frm ON frm.id = pf.formulario_id 
+ORDER BY pf.perfilAcceso_id, pf.formulario_id;
+
+/**
+USUARIOS
+**/
+SELECT usr.id, usr.name, usr.email, '12345678' AS 'pasw', 
+	trb.rol, -- trb.puesto,
+    trb.restaurante_id, 
+    trb.local_id, 
+    rst.nombre AS nombre_r, rst.direccion AS direccion_r, rst.plan, rst.estado,
+    lcl.nombre AS nombre_l, lcl.direccion AS direccion_l
+FROM UtpIntegradorBuzzer.users AS usr
+	INNER JOIN UtpIntegradorBuzzer.trabajadores AS trb ON trb.user_id = usr.id
+    LEFT OUTER JOIN UtpIntegradorBuzzer.restaurantes AS rst ON rst.id = trb.restaurante_id
+	LEFT OUTER JOIN UtpIntegradorBuzzer.locales AS lcl ON lcl.id = trb.local_id
+ORDER BY rst.id, trb.local_id, usr.id;
+
+
+
