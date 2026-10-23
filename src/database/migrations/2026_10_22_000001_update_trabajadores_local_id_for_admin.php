@@ -30,10 +30,6 @@ return new class extends Migration {
 
         DB::statement('SET SQL_SAFE_UPDATES = 0');
 
-        DB::table('trabajadores')
-            ->where('rol', 'ADMIN')
-            ->update(['local_id' => null]);
-
         $userId = DB::table('users')
             ->where('name', 'Super Admin')
             ->value('id');
