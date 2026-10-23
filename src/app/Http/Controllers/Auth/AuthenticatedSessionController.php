@@ -28,9 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if ($request->user()->trabajador?->rol === 'CAJA') {
-            return redirect()->route('caja.index');
-        }
+        if ($request->user()->trabajador?->rol === 'CAJA') return redirect()->route('caja.index');
+        if ($request->user()->trabajador?->rol === 'COCINA') return redirect()->route('cocina.index');
+        if ($request->user()->trabajador?->rol === 'DESPACHO') return redirect()->route('despacho.index');
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

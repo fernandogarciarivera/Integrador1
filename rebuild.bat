@@ -392,26 +392,26 @@ echo.
 echo ============================================================
 echo 16c - Crear pedidos por locals y usuario caja
 echo ============================================================
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=1
+docker compose exec -T -u www-data app php artisan pedidos:generar 5 --local=1
 docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=2
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=3
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=4
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=5
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=6
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=7
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=8
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=9
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=10
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=11
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=12
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=13
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=14
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=15
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=16
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=17
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=18
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=19
-docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=20
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=3
+docker compose exec -T -u www-data app php artisan pedidos:generar 10 --local=4
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=5
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=6
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=7
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=8
+docker compose exec -T -u www-data app php artisan pedidos:generar 2 --local=9
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=10
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=11
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=12
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=13
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=14
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=15
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=16
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=17
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=18
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=19
+REM docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=20
 
 echo.
 echo ============================================================
