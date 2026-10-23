@@ -380,6 +380,7 @@ docker compose exec -T -u www-data app php artisan migrate --path=database/migra
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_23_000000_add_imagen_url_to_trabajadores_table.php --force
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_29_000000_add_api_token_to_locales_table.php --force
 docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_09_30_000000_add_seguimiento_token_to_pedidos_table.php --force
+docker compose exec -T -u www-data app php artisan migrate --path=database/migrations/2026_10_22_000001_update_trabajadores_local_id_for_admin.php --force
 
 echo.
 echo ============================================================

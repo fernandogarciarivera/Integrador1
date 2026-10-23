@@ -80,8 +80,8 @@ DROP TABLE IF EXISTS `trabajadores`;
 CREATE TABLE `trabajadores` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint unsigned NOT NULL,
-  `restaurante_id` bigint unsigned NOT NULL,
-  `local_id` bigint unsigned DEFAULT NULL,
+  `restaurante_id` bigint DEFAULT NULL,
+  `local_id` bigint DEFAULT NULL,
   `rol` enum('SUPER_ADMIN', 'ADMIN', 'GERENTE', 'CAJA', 'DESPACHO', 'COCINA', 'POS') NOT NULL,
   `puesto` varchar(100) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
@@ -94,8 +94,8 @@ CREATE TABLE `trabajadores` (
   KEY `idx_trabajadores_local` (`local_id`),
   KEY `idx_trabajadores_restaurante` (`restaurante_id`),
   KEY `idx_trabajadores_rol` (`rol`),
-  CONSTRAINT `fk_trabajadores_local` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_trabajadores_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  -- CONSTRAINT `fk_trabajadores_local` FOREIGN KEY (`local_id`) REFERENCES `locales` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  -- CONSTRAINT `fk_trabajadores_restaurante` FOREIGN KEY (`restaurante_id`) REFERENCES `restaurantes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_trabajadores_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -343,9 +343,8 @@ INSERT INTO `UtpIntegradorBuzzer`.`formularios` (`formulario`, `controller`) VAL
   ('Clientes', 'ClientesController'),
   ('POS', 'PosPedidoController');
 
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,6,10);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (2,3,4,7,10);
-INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 3 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (7,8,10);
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 1 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm;
+INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 2 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id NOT IN (7,10);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 4 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (2);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 5 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (3);
 INSERT INTO `UtpIntegradorBuzzer`.`perfilesFormularios` (`perfilAcceso_id`, `formulario_id`) SELECT 6 as 'perfil_id', frm.id FROM `UtpIntegradorBuzzer`.`formularios` as frm WHERE frm.id IN (4);
