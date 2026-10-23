@@ -15,12 +15,15 @@ class AppLayout extends Component
 {
     public static function isSuperAdmin(User $user): bool
     {
+        if ($user->trabajador?->rol === 'SUPER_ADMIN') {
+            return true;
+        }
+
         $flags = [
             data_get($user, 'superuser'),
             data_get($user, 'is_superadmin'),
             data_get($user, 'is_super_admin'),
             data_get($user, 'es_super_admin'),
-            $user->name === 'Super Admin',
         ];
 
         return collect($flags)->contains(fn($value) => filter_var($value, FILTER_VALIDATE_BOOLEAN) === true);

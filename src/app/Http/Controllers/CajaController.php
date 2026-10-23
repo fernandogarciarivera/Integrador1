@@ -17,14 +17,7 @@ class CajaController extends Controller
 
     private function trabajadorCajaActual(): Trabajador
     {
-        //return Trabajador::with('local')->where('user_id', Auth::id())->firstOrFail();
-        // Marca: si el Request trae `_api_trabajador_id`, lo usamos.
-        // Esto permite que la API REST reuse TODO el flujo sin Auth::id().
-        $id = request()->input('_api_trabajador_id');
-        if ($id) {
-            return Trabajador::with('local')->findOrFail($id);
-        }
-        return Trabajador::with('local')->where('user_id', Auth::id())->firstOrFail();
+        return Trabajador::with('local')->where('user_id', Auth::id())->where('activo', true)->firstOrFail();
     }
 
     private function permisosEstadosPorPerfil(?string $perfil): array
@@ -74,9 +67,18 @@ class CajaController extends Controller
 
     private function pedidosDelTrabajador(Trabajador $trabajador)
     {
-        return Pedido::query()
-            ->where('trabajador_caja_id', $trabajador->id)
-            ->when($trabajador->local_id !== null, fn($query) => $query->where('local_id', $trabajador->local_id));
+        $query = Pedido::query()->enAlcanceDe($trabajador);
+
+        if (! in_array($trabajador->rol, ['SUPER_ADMIN', 'ADMIN'], true)) {
+            $query->where('trabajador_caja_id', $trabajador->id);
+        }
+
+        return $query;
+    }
+
+    private function puedeVerPedido(Trabajador $trabajador, Pedido $pedido): bool
+    {
+        return $this->pedidosDelTrabajador($trabajador)->whereKey($pedido->id)->exists();
     }
 
     public function index(Request $request)
@@ -112,6 +114,9 @@ class CajaController extends Controller
 
     public function store(Request $request)
     {
+        $trabajador = $this->trabajadorCajaActual();
+        abort_unless($trabajador->rol === 'CAJA', 403);
+
         $data = $request->validate([
             'cliente_id'       => 'nullable|exists:clientes,id',
             'codigo_pedido'    => 'required|string|max:20|unique:pedidos,codigo_pedido',
@@ -141,7 +146,7 @@ class CajaController extends Controller
             ];
         }, $data['items']);
 
-        $pedido = $this->registrarPedido($data, $this->trabajadorCajaActual());
+        $pedido = $this->registrarPedido($data, $trabajador);
 
         if ($request->wantsJson()) {
             return response()->json($this->respuestaPedido($pedido));
@@ -244,8 +249,7 @@ class CajaController extends Controller
         ]);
 
         $trabajador = $this->trabajadorCajaActual();
-        abort_if($pedido->trabajador_caja_id !== $trabajador->id, 403);
-        abort_if($pedido->local_id !== $trabajador->local_id, 403);
+        abort_unless($this->puedeVerPedido($trabajador, $pedido), 403);
         $this->validarCambioEstado($trabajador, $pedido, $data['estado']);
 
         DB::transaction(function () use ($pedido, $data, $trabajador) {
@@ -284,7 +288,7 @@ class CajaController extends Controller
     public function show(Pedido $pedido)
     {
         $trabajador = $this->trabajadorCajaActual();
-        abort_if($pedido->trabajador_caja_id !== $trabajador->id, 403);
+        abort_unless($this->puedeVerPedido($trabajador, $pedido), 403);
 
         $pedido->load(['cliente', 'detalle_pedidos', 'historial_estados.trabajadore.user']);
         $pedido->qr_url = $pedido->imagen_qr ?: $this->urlPublica('storage/qr/' . $pedido->id . '.svg');

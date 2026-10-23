@@ -43,29 +43,9 @@ class PosPedidoController extends CajaController
             'items.*.instrucciones_especiales' => 'nullable|string|max:200',
         ]);
 
-        // Construimos un Request interno "como si" viniera de la caja web
-        // y delegamos TODA la lógica a CajaController@store.
-        $interno = Request::create('', 'POST', [
-            'cliente_id'    => $data['cliente_id'] ?? null,
-            'codigo_pedido' => $data['codigo_pedido'],
-            'tipo'          => $data['tipo'],
-            'notas'         => $data['notas'] ?? null,
-            'items'         => array_map(fn($i) => [
-                'detalleProducto'          => $i['productoDesc'],
-                'productoDesc'             => $i['productoDesc'],
-                'cantidad'                 => $i['cantidad'],
-                'precio_unitario'          => $i['precio_unitario'],
-                'instrucciones_especiales' => $i['instrucciones_especiales'] ?? null,
-            ], $data['items']),
-            'trabajador_id' => $trabajador->id,
-        ]);
-        $interno->setUserResolver(fn() => $trabajador->user);
-        $interno->headers->set('Accept', 'application/json');
+        $pedido = $this->registrarPedido($data, $trabajador);
 
-        // Llamamos al método store de CajaController.
-        // Necesitamos resolver el trabajador con Auth, así que lo hacemos
-        // manualmente en el propio CajaController.
-        return parent::store($interno);
+        return response()->json($this->respuestaPedido($pedido));
     }
 
     /**

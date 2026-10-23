@@ -20,6 +20,7 @@ class DespachoController extends Controller
         abort_unless(in_array('ENTREGADO', EstadoAccesoPedido::permisosPorPerfil($trabajador->rol, 'despacho'), true), 403);
 
         $pedidos = Pedido::query()
+            ->enAlcanceDe($trabajador)
             ->with(['cliente', 'detalle_pedidos'])
             ->where(fn($query) => $query
                 ->whereIn('estado', ['REGISTRADO', 'LISTO'])
@@ -28,9 +29,6 @@ class DespachoController extends Controller
                     ->whereHas('historial_estados', fn($query) => $query
                         ->where('estado_nuevo', 'ENTREGADO')
                         ->whereDate('fecha_cambio', today()))))
-            ->whereHas('locale', fn($query) => $query
-                ->where('restaurante_id', $trabajador->restaurante_id)
-                ->when($trabajador->local_id !== null, fn($query) => $query->whereKey($trabajador->local_id)))
             ->orderBy('fecha_pedido')
             ->get();
 
@@ -51,10 +49,7 @@ class DespachoController extends Controller
         abort_unless($trabajador && $trabajador->activo, 403);
         abort_unless(in_array($data['estado'], EstadoAccesoPedido::permisosPorPerfil($trabajador->rol, 'despacho'), true), 403);
 
-        abort_unless($pedido->locale()
-            ->where('restaurante_id', $trabajador->restaurante_id)
-            ->when($trabajador->local_id !== null, fn($query) => $query->whereKey($trabajador->local_id))
-            ->exists(), 403);
+        abort_unless(Pedido::query()->enAlcanceDe($trabajador)->whereKey($pedido->id)->exists(), 403);
 
         DB::transaction(function () use ($pedido, $data, $trabajador) {
             $pedido = Pedido::query()->lockForUpdate()->findOrFail($pedido->id);

@@ -7,6 +7,7 @@ use App\Models\{User, Trabajador, Restaurante, Locale, PerfilAcceso};
 use App\Support\ImageCropper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash, Storage};
+use Illuminate\Validation\Rule;
 
 class TrabajadorController extends Controller
 {
@@ -16,6 +17,7 @@ class TrabajadorController extends Controller
 
         $trabajadores = Trabajador::with('user', 'restaurante', 'local')
             ->delUsuario() // adicionado para poder ver solo regstros de trabajadores que tienen usuario en su local y restaurante asignado, si el usuario es superadmin no filtra nada
+            ->when($trabajador?->rol !== 'SUPER_ADMIN', fn($query) => $query->whereNotIn('rol', ['SUPER_ADMIN', 'ADMIN']))
             ->when(request('trabajador'), fn($query, $value) => $query->whereHas('user', fn($user) => $user->where('name', 'like', "%{$value}%")->orWhere('email', 'like', "%{$value}%")))
             // ->when(request('restaurante_id'), fn($query, $value) => $query->where('restaurante_id', $value)) ->when(request('local_id'), fn($query, $value) => $query->where('local_id', $value))
             ->latest('id')
@@ -26,10 +28,9 @@ class TrabajadorController extends Controller
             ->when($trabajador?->restaurante_id !== null, fn($query) => $query->whereKey($trabajador->restaurante_id))
             ->orderBy('nombre')->get(['id', 'nombre']);
 
-        $roles        = PerfilAcceso::orderBy('id')->pluck('perfil');
+        $roles        = $this->perfilesDisponibles($trabajador);
 
-        $locales      = Locale::delUsuario(['restaurante_id' => 'restaurante_id'])
-            ->when($trabajador?->local_id !== null, fn($query) => $query->whereKey($trabajador->local_id))
+        $locales      = Locale::delUsuario(['restaurante_id' => 'restaurante_id', 'id' => 'local_id'])
             ->orderBy('nombre')->get(['id', 'nombre', 'restaurante_id']);
 
         return view('trabajadores.index', compact('trabajadores', 'restaurantes', 'roles', 'locales'));
@@ -37,24 +38,29 @@ class TrabajadorController extends Controller
 
     public function create()
     {
+        $actor = auth()->user()?->trabajador;
+
         return view('trabajadores.form', [
             'trabajador' => new Trabajador,
             'restaurantes' => Restaurante::delUsuario(['id' => 'restaurante_id'])
                 ->orderBy('nombre')
                 ->get(['id', 'nombre']),
-            'locales' => $this->localesDe(auth()->user()?->trabajador?->restaurante_id),
-            'perfiles' => PerfilAcceso::orderBy('id')->get(['perfil']),
+            'locales' => $this->localesDe($actor?->restaurante_id),
+            'perfiles' => $this->perfilesDisponibles($actor),
         ]);
     }
 
     public function edit(int $trabajador)
     {
-        $trabajador = Trabajador::with('user')->findOrFail($trabajador);
+        $trabajador = Trabajador::with('user')->delUsuario()->findOrFail($trabajador);
+        $actor = auth()->user()?->trabajador;
+        $this->assertCanManageWorker($actor, $trabajador);
+
         return view('trabajadores.form', [
             'trabajador' => $trabajador,
-            'restaurantes' => Restaurante::delUsuario()->orderBy('nombre')->get(['id', 'nombre']),
-            'locales' => Locale::where('restaurante_id', $trabajador->restaurante_id)->orderBy('nombre')->get(['id', 'nombre']),
-            'perfiles' => PerfilAcceso::orderBy('id')->get(['perfil']),
+            'restaurantes' => Restaurante::delUsuario(['id' => 'restaurante_id'])->orderBy('nombre')->get(['id', 'nombre']),
+            'locales' => $this->localesDe($trabajador->restaurante_id),
+            'perfiles' => $this->perfilesDisponibles($actor),
         ]);
     }
 
@@ -66,19 +72,20 @@ class TrabajadorController extends Controller
     private function localesDe($restauranteId)
     {
         return Locale::delUsuario(['restaurante_id' => 'restaurante_id', 'id' => 'local_id'])
-            ->where('restaurante_id', $restauranteId)
+            ->when($restauranteId !== null, fn($query) => $query->where('restaurante_id', $restauranteId))
             ->orderBy('nombre')
             ->get(['id', 'nombre']);
     }
 
     public function store(Request $request)
     {
+        $actor = $request->user()?->trabajador;
         $data = $request->validate([
             'name'           => 'required|string|max:255',
             'email'          => 'required|email|unique:users,email',
             'restaurante_id' => 'required|exists:restaurantes,id',
             'local_id'       => 'nullable|exists:locales,id',
-            'rol'            => 'required|exists:perfilAccesos,perfil',
+            'rol'            => ['required', Rule::in($this->rolesAsignables($actor))],
             'puesto'         => 'nullable|string|max:100',
             'telefono'       => 'nullable|string|max:20',
             'imagen'         => 'nullable|image|max:2048',
@@ -87,6 +94,8 @@ class TrabajadorController extends Controller
             'crop_width'    => 'nullable|numeric|min:0',
             'crop_height'   => 'nullable|numeric|min:0',
         ]);
+
+        $this->assertAsignacionAccesible($data['restaurante_id'], $data['local_id'] ?? null);
 
         $data['imagen_url'] = $request->hasFile('imagen')
             ? ImageCropper::cropAndStore($request->file('imagen'), $request->only(['crop_x', 'crop_y', 'crop_width', 'crop_height']), 'public', 'trabajadores')
@@ -119,12 +128,16 @@ class TrabajadorController extends Controller
 
     public function update(Request $request, Trabajador $trabajador)
     {
+        $trabajador = Trabajador::query()->delUsuario()->findOrFail($trabajador->id);
+        $actor = $request->user()?->trabajador;
+        $this->assertCanManageWorker($actor, $trabajador);
+
         $data = $request->validate([
             'name'           => 'required|string|max:255',
             'email'          => 'required|email|unique:users,email,' . $trabajador->user_id,
             'restaurante_id' => 'required|exists:restaurantes,id',
             'local_id'       => 'nullable|exists:locales,id',
-            'rol'            => 'required|exists:perfilAccesos,perfil',
+            'rol'            => ['required', Rule::in($this->rolesAsignables($actor))],
             'puesto'         => 'nullable|string|max:100',
             'telefono'       => 'nullable|string|max:20',
             'imagen'         => 'nullable|image|max:2048',
@@ -133,6 +146,8 @@ class TrabajadorController extends Controller
             'crop_width'    => 'nullable|numeric|min:0',
             'crop_height'   => 'nullable|numeric|min:0',
         ]);
+
+        $this->assertAsignacionAccesible($data['restaurante_id'], $data['local_id'] ?? null);
 
         unset($data['imagen']);
         if ($request->hasFile('imagen')) {
@@ -153,6 +168,7 @@ class TrabajadorController extends Controller
 
     public function resetPassword(Trabajador $trabajador)
     {
+        $trabajador = $this->trabajadorAccesible($trabajador);
         $trabajador->user->update([
             'password'             => Hash::make('12345678'),
             'must_change_password' => true,
@@ -163,6 +179,7 @@ class TrabajadorController extends Controller
 
     public function toggleActivo(Trabajador $trabajador)
     {
+        $trabajador = $this->trabajadorAccesible($trabajador);
         DB::transaction(function () use ($trabajador) {
             $trabajador->update(['activo' => !$trabajador->activo]);
             $trabajador->user->update(['email_verified_at' => $trabajador->activo ? now() : null]);
@@ -173,6 +190,7 @@ class TrabajadorController extends Controller
 
     public function destroy(Trabajador $trabajador)
     {
+        $trabajador = $this->trabajadorAccesible($trabajador);
         DB::transaction(function () use ($trabajador) {
             if ($trabajador->imagen_url) {
                 Storage::disk('public')->delete(str_replace('/storage/', '', $trabajador->imagen_url));
@@ -207,5 +225,54 @@ class TrabajadorController extends Controller
                 'activo'         => true,
             ]);
         });
+    }
+
+    private function perfilesDisponibles($actor)
+    {
+        return PerfilAcceso::query()
+            ->when($actor?->rol !== 'SUPER_ADMIN', fn($query) => $query->whereNotIn('perfil', ['SUPER_ADMIN', 'ADMIN']))
+            ->orderBy('id')
+            ->get(['perfil']);
+    }
+
+    private function rolesAsignables($actor): array
+    {
+        return $this->perfilesDisponibles($actor)->pluck('perfil')->all();
+    }
+
+    private function assertAsignacionAccesible(int $restauranteId, ?int $localId): void
+    {
+        abort_unless(
+            Restaurante::delUsuario(['id' => 'restaurante_id'])->whereKey($restauranteId)->exists(),
+            403
+        );
+
+        if ($localId !== null) {
+            abort_unless(
+                Locale::delUsuario(['restaurante_id' => 'restaurante_id', 'id' => 'local_id'])
+                    ->where('restaurante_id', $restauranteId)
+                    ->whereKey($localId)
+                    ->exists(),
+                403
+            );
+        }
+    }
+
+    private function assertCanManageWorker($actor, Trabajador $target): void
+    {
+        abort_unless(
+            $actor?->rol === 'SUPER_ADMIN'
+                || (in_array($actor?->rol, ['ADMIN', 'GERENTE'], true)
+                    && ! in_array($target->rol, ['SUPER_ADMIN', 'ADMIN'], true)),
+            403
+        );
+    }
+
+    private function trabajadorAccesible(Trabajador $trabajador): Trabajador
+    {
+        $trabajador = Trabajador::query()->delUsuario()->findOrFail($trabajador->id);
+        $this->assertCanManageWorker(auth()->user()?->trabajador, $trabajador);
+
+        return $trabajador;
     }
 }

@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'api.local' => \App\Http\Middleware\ApiTokenLocal::class,
+            'form.access' => \App\Http\Middleware\AutorizaFormulario::class,
         ]);
         //
     })

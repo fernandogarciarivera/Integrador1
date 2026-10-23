@@ -11,6 +11,7 @@ class RestauranteController extends Controller
     public function index()
     {
         $restaurantes = Restaurante::query()
+            ->delUsuario(['id' => 'restaurante_id'])
             ->when(request('restaurante'), fn($q, $v) => $q->where('nombre', 'like', "%{$v}%"))
             ->when(request('estado'), fn($q, $v) => $q->where('estado', $v))
             ->latest('id')

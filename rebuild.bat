@@ -413,11 +413,43 @@ docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=18
 docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=19
 docker compose exec -T -u www-data app php artisan pedidos:generar 20 --local=20
 
+echo.
+echo ============================================================
+echo 16c - Limpiar trabajadores locales admin (dry-run)
+echo ============================================================
+docker compose exec -T -u www-data app php artisan trabajadores:limpiar-local-admin
 
 REM ===================================================================
 REM STEP 8: Reghenetar token y QR
 REM ===================================================================
 docker compose exec -T -u www-data app php artisan pedidos:regenerar-qr
+
+REM ===================================================================
+REM STEP 9: Update Graphify knowledge graph
+REM ===================================================================
+echo.
+echo [9/9] Updating Graphify knowledge graph...
+set "GRAPHIFY_PYTHON=python"
+if exist "%PROJECT_PATH%\graphify-out\.graphify_python" (
+    set /p "GRAPHIFY_PYTHON="<"%PROJECT_PATH%\graphify-out\.graphify_python"
+)
+"%GRAPHIFY_PYTHON%" -m graphify info >nul 2>&1
+if errorlevel 1 (
+    set "GRAPHIFY_PYTHON=python"
+    "%GRAPHIFY_PYTHON%" -m graphify info >nul 2>&1
+)
+if errorlevel 1 (
+    echo  ERROR: Graphify is not installed for Python in PATH or graphify-out\.graphify_python
+    set /a ERRORS+=1
+) else (
+    "%GRAPHIFY_PYTHON%" -m graphify update "%PROJECT_PATH%"
+    if errorlevel 1 (
+        echo  ERROR: Graphify update failed
+        set /a ERRORS+=1
+    ) else (
+        echo  OK - Graphify knowledge graph updated
+    )
+)
 
 ECHO ===================================================================
 ECHO Final Summary

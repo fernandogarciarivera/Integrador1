@@ -23,11 +23,9 @@ class CocinaController extends Controller
             && in_array('LISTO', $estadosPermitidos, true), 403);
 
         $pedidos = Pedido::query()
+            ->enAlcanceDe($trabajador)
             ->with(['cliente', 'detalle_pedidos'])
             ->whereIn('estado', ['REGISTRADO', 'PREPARANDO', 'LISTO'])
-            ->whereHas('locale', fn($query) => $query
-                ->where('restaurante_id', $trabajador->restaurante_id)
-                ->when($trabajador->local_id !== null, fn($query) => $query->whereKey($trabajador->local_id)))
             ->orderByRaw("CASE estado WHEN 'PREPARANDO' THEN 0 WHEN 'REGISTRADO' THEN 1 ELSE 2 END")
             ->orderBy('fecha_pedido')
             ->get();
@@ -51,10 +49,7 @@ class CocinaController extends Controller
         $estadosPermitidos = EstadoAccesoPedido::permisosPorPerfil($trabajador->rol, 'cocina');
         abort_unless(in_array($data['estado'], $estadosPermitidos, true), 403);
 
-        abort_unless($pedido->locale()
-            ->where('restaurante_id', $trabajador->restaurante_id)
-            ->when($trabajador->local_id !== null, fn($query) => $query->whereKey($trabajador->local_id))
-            ->exists(), 403);
+        abort_unless(Pedido::query()->enAlcanceDe($trabajador)->whereKey($pedido->id)->exists(), 403);
 
         DB::transaction(function () use ($pedido, $data, $trabajador) {
             $pedido = Pedido::query()->lockForUpdate()->findOrFail($pedido->id);

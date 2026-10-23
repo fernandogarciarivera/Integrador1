@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\FiltraPorAcceso;
@@ -77,6 +78,26 @@ class Pedido extends Model
 		'notas',
 		'seguimiento_token',
 	];
+
+	public function scopeEnAlcanceDe(Builder $query, Trabajadore $trabajador): Builder
+	{
+		$rol = strtoupper((string) $trabajador->rol);
+
+		if ($rol === 'SUPER_ADMIN') {
+			return $query;
+		}
+
+		if ($trabajador->restaurante_id === null) {
+			return $query->whereRaw('1 = 0');
+		}
+
+		return $query->whereHas('locale', fn (Builder $locales) => $locales
+			->where('restaurante_id', $trabajador->restaurante_id)
+			->when(
+				$rol !== 'ADMIN' && $trabajador->local_id !== null,
+				fn (Builder $locales) => $locales->whereKey($trabajador->local_id)
+			));
+	}
 
 	public function cliente()
 	{

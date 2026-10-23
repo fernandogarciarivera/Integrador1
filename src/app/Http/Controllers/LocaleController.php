@@ -13,6 +13,7 @@ class LocaleController extends Controller
     public function index()
     {
         $locales = Locale::with('restaurante')
+            ->delUsuario()
             ->when(request('local'),      fn($q, $v) => $q->where('nombre', 'like', "%{$v}%"))
             ->when(request('restaurante_id'), fn($q, $v) => $q->where('restaurante_id', $v))
             ->when(request('estado'),     fn($q, $v) => $q->where('estado', $v))
@@ -20,7 +21,8 @@ class LocaleController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $restaurantes = Restaurante::orderBy('nombre')->get(['id', 'nombre']);
+        $restaurantes = Restaurante::delUsuario(['id' => 'restaurante_id'])
+            ->orderBy('nombre')->get(['id', 'nombre']);
 
         return view('locales.index', compact('locales', 'restaurantes'));
     }
@@ -29,21 +31,28 @@ class LocaleController extends Controller
     {
         return view('locales.form', [
             'local'        => new Locale(['estado' => 'ACTIVO']),
-            'restaurantes' => Restaurante::orderBy('nombre')->get(['id', 'nombre']),
+            'restaurantes' => Restaurante::delUsuario(['id' => 'restaurante_id'])
+                ->orderBy('nombre')->get(['id', 'nombre']),
         ]);
     }
 
     public function edit(Locale $local)
     {
+        $local = Locale::delUsuario()->findOrFail($local->id);
+
         return view('locales.form', [
             'local'        => $local,
-            'restaurantes' => Restaurante::orderBy('nombre')->get(['id', 'nombre']),
+            'restaurantes' => Restaurante::delUsuario(['id' => 'restaurante_id'])
+                ->orderBy('nombre')->get(['id', 'nombre']),
         ]);
     }
 
     public function store(Request $request, TrabajadorController $trabajadorController)
     {
-        $local = Locale::create($this->validar($request));
+        $data = $this->validar($request);
+        $this->assertRestauranteAccesible($data['restaurante_id']);
+
+        $local = Locale::create($data);
         // 1. Generar Token API
         $local->update(['api_token' => \Illuminate\Support\Str::random(64)]);
         // 2. Trabajador POS1 (reutiliza lógica de TrabajadorController)
@@ -54,13 +63,17 @@ class LocaleController extends Controller
 
     public function update(Request $request, Locale $local)
     {
-        $local->update($this->validar($request, $local->id));
+        $local = Locale::delUsuario()->findOrFail($local->id);
+        $data = $this->validar($request, $local->id);
+        $this->assertRestauranteAccesible($data['restaurante_id']);
+        $local->update($data);
 
         return redirect()->route('locales.index')->with('status', 'Local actualizado.');
     }
 
     public function destroy(Locale $local)
     {
+        $local = Locale::delUsuario()->findOrFail($local->id);
         $local->delete();
 
         return redirect()->route('locales.index')->with('status', 'Local eliminado.');
@@ -84,8 +97,17 @@ class LocaleController extends Controller
         ]);
     }
 
+    private function assertRestauranteAccesible(int $restauranteId): void
+    {
+        abort_unless(
+            Restaurante::delUsuario(['id' => 'restaurante_id'])->whereKey($restauranteId)->exists(),
+            403
+        );
+    }
+
     public function regenerarToken(Locale $local)
     {
+        $local = Locale::delUsuario()->findOrFail($local->id);
         $local->update(['api_token' => \Illuminate\Support\Str::random(64)]);
         return back()->with('status', "Token regenerado para {$local->nombre}.");
     }
