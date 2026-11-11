@@ -1,17 +1,31 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+    <section class="dashboard-page">
+        <header class="design-page-heading">
+            <div>
+                <p class="design-eyebrow">Panel principal</p>
+                <h1>Dashboard</h1>
+                <p>Tu espacio de trabajo para la gestión del restaurante.</p>
+            </div>
+            <span class="design-status"><span></span> Sesión iniciada</span>
+        </header>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
+        <div class="dashboard-welcome card">
+            <div class="dashboard-welcome__copy">
+                <span class="design-icon-tile"><x-brand-mark /></span>
+                <p class="design-eyebrow">Bienvenido a BuzzerDigital</p>
+                <h2>Hola, {{ Auth::user()->name }}</h2>
+                <p>Selecciona una opción del menú para continuar con tus tareas.</p>
+            </div>
+            <div class="dashboard-welcome__art" aria-hidden="true"><x-brand-mark /></div>
+        </div>
+
+        <div class="dashboard-account card">
+            <span class="design-icon-tile"><span class="material-symbols-outlined" aria-hidden="true">account_circle</span></span>
+            <div>
+                <p class="design-eyebrow">Cuenta actual</p>
+                <strong>{{ Auth::user()->name }}</strong>
+                <p>{{ Auth::user()->email }}</p>
             </div>
         </div>
-    </div>
+    </section>
 </x-app-layout>

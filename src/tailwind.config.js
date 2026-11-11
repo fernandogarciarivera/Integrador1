@@ -11,8 +11,20 @@ export default {
 
     theme: {
         extend: {
+            spacing: {
+                xs: '0.25rem',
+                sm: '0.75rem',
+                md: '1.5rem',
+                lg: '2.5rem',
+                xl: '4rem',
+            },
+            colors: {
+                brand: 'var(--theme-primary)',
+                'brand-soft': 'var(--theme-primary-soft)',
+                'theme-border': 'var(--theme-border)',
+            },
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
             },
         },
     },

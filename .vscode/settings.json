@@ -23,5 +23,6 @@
     ],
     "intelephense.environment.includePaths": [
         "vendor"
-    ]
+    ],
+    "python.terminal.useEnvFile": true
 }

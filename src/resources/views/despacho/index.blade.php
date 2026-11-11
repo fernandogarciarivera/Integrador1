@@ -1,5 +1,5 @@
 <x-app-layout>
-    <section class="cocina-page">
+    <section class="cocina-page despacho-page">
         <header class="cocina-header">
             <div>
                 <p class="cocina-context">{{ $trabajador->local?->nombre ?? $trabajador->restaurante?->nombre }}</p>
