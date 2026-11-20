@@ -88,30 +88,31 @@ if !MISSING! equ 0 (
 echo.
 
 ECHO ===================================================================
-ECHO STEP 3A: Validate and refresh frontend dependencies from the lockfile
+ECHO STEP 3A: Prepare frontend dependency manifests
 ECHO ===================================================================
-if exist "%PROJECT_PATH%\package.json.template" (
-    copy /y "%PROJECT_PATH%\package.json.template" "%PROJECT_PATH%\src\package.json" >nul
-    echo  OK - package.json restored from template
+if not exist "%PROJECT_PATH%\package.json.template" (
+    echo  ERROR: package.json.template is missing
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
 )
-if exist "%PROJECT_PATH%\package-lock.json.template" (
-    copy /y "%PROJECT_PATH%\package-lock.json.template" "%PROJECT_PATH%\src\package-lock.json" >nul
-    echo  OK - package-lock.json restored from template
+copy /y "%PROJECT_PATH%\package.json.template" "%PROJECT_PATH%\src\package.json" >nul
+if errorlevel 1 (
+    echo  ERROR: Could not restore src\package.json from its template
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
 )
-if exist "%PROJECT_PATH%\src\package.json" (
-    echo [3A/7] Refreshing npm dependencies from package-lock.json...
-    pushd "%PROJECT_PATH%\src" >nul
-    call npm ci --no-audit --no-fund --prefer-offline --ignore-scripts
-    if errorlevel 1 (
-        echo  ERROR: npm ci failed while syncing frontend dependencies
-        set /a ERRORS+=1
-        goto :ERROR_SUMMARY
-    )
-    popd >nul
-    echo  OK - Frontend dependencies synced with package.json
-) else (
-    echo  WARN - src\package.json not found, skipping npm refresh
+if not exist "%PROJECT_PATH%\package-lock.json.template" (
+    echo  ERROR: package-lock.json.template is missing
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
 )
+copy /y "%PROJECT_PATH%\package-lock.json.template" "%PROJECT_PATH%\src\package-lock.json" >nul
+if errorlevel 1 (
+    echo  ERROR: Could not restore src\package-lock.json from its template
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
+echo  OK - Frontend package manifests ready
 echo.
 
 ECHO ===================================================================
@@ -220,6 +221,14 @@ echo [5/7] Rebuilding Docker containers...
 echo  - Stopping existing containers (preserving database and uploaded assets)...
 docker compose -f "%PROJECT_PATH%\docker-compose.yml" down 2>nul
 
+echo  - Installing frontend dependencies into the shared Docker volume...
+docker compose -f "%PROJECT_PATH%\docker-compose.yml" run --rm --no-deps app npm ci --no-audit --no-fund
+if errorlevel 1 (
+    echo  ERROR: npm ci failed in the Docker node_modules volume
+    set /a ERRORS+=1
+    goto :ERROR_SUMMARY
+)
+
 echo  - Starting core services (mysql, redis, app)...
 docker compose -f "%PROJECT_PATH%\docker-compose.yml" up -d mysql redis app
 if errorlevel 1 (
@@ -229,7 +238,7 @@ if errorlevel 1 (
 )
 
 echo  - Ensuring Laravel storage folders and public link exist...
-docker exec UtpIntegrador-app sh -lc "mkdir -p /var/www/storage/app/public /var/www/storage/app/public/trabajadores && chmod -R 0775 /var/www/storage /var/www/public && cd /var/www && php artisan storage:link"
+docker exec UtpIntegrador-app sh -lc "mkdir -p /var/www/storage/app/public /var/www/storage/app/public/trabajadores && chmod -R 0775 /var/www/storage /var/www/public && cd /var/www && php artisan storage:link --force"
 if errorlevel 1 (
     echo  ERROR: Laravel storage folders or public symlink could not be created
     set /a ERRORS+=1
@@ -270,9 +279,9 @@ ECHO STEP 6: Verify npm Dependencies
 ECHO ===================================================================
 ECHO [6/7] Verifying npm dependencies...
 
-docker exec UtpIntegrador-app sh -c "test -f /var/www/node_modules/vite/package.json" >nul 2>&1
+docker exec UtpIntegrador-app sh -c "test -f /var/www/node_modules/vite/package.json && test -f /var/www/node_modules/sass-embedded/package.json" >nul 2>&1
 if errorlevel 1 (
-    echo  ERROR: npm dependencies could not be installed
+    echo  ERROR: Vite or sass-embedded is missing from the Docker node_modules volume
     docker compose -f "%PROJECT_PATH%\docker-compose.yml" logs --tail 40 app
     set /a ERRORS+=1
     goto :ERROR_SUMMARY
@@ -429,26 +438,9 @@ REM STEP 9: Update Graphify knowledge graph
 REM ===================================================================
 echo.
 echo [9/9] Updating Graphify knowledge graph...
-set "GRAPHIFY_PYTHON=python"
-if exist "%PROJECT_PATH%\graphify-out\.graphify_python" (
-    set /p "GRAPHIFY_PYTHON="<"%PROJECT_PATH%\graphify-out\.graphify_python"
-)
-"%GRAPHIFY_PYTHON%" -m graphify info >nul 2>&1
+call "%PROJECT_PATH%\run-graphify.bat"
 if errorlevel 1 (
-    set "GRAPHIFY_PYTHON=python"
-    "%GRAPHIFY_PYTHON%" -m graphify info >nul 2>&1
-)
-if errorlevel 1 (
-    echo  ERROR: Graphify is not installed for Python in PATH or graphify-out\.graphify_python
     set /a ERRORS+=1
-) else (
-    "%GRAPHIFY_PYTHON%" -m graphify update "%PROJECT_PATH%"
-    if errorlevel 1 (
-        echo  ERROR: Graphify update failed
-        set /a ERRORS+=1
-    ) else (
-        echo  OK - Graphify knowledge graph updated
-    )
 )
 
 ECHO ===================================================================
